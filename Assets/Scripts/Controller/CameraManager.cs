@@ -13,6 +13,8 @@ public class CameraManager : MonoBehaviour {
     public bool lockOn;
 
     public Transform target;
+    public Transform lockOnTarget;
+
     public Transform pivot;
     public Transform camTransform;
 
@@ -70,16 +72,30 @@ public class CameraManager : MonoBehaviour {
             smoothY = v;
         }
 
-        if (lockOn)
-        {
+        tiltAngle -= smoothY * targetSpeed;
+        tiltAngle = Mathf.Clamp(tiltAngle, minAngle, maxAngle);
+        pivot.localRotation = Quaternion.Euler(tiltAngle, 0, 0);
 
+        //If the player has a locked on a target
+        if (lockOn && lockOnTarget!= null)
+        {
+            //Get the direction of locked on target
+            Vector3 targetDir = lockOnTarget.position - transform.position;
+            targetDir.Normalize();
+            //targetDir.y = 0;
+
+            if (targetDir == Vector3.zero)
+                targetDir = transform.forward;
+            
+                Quaternion targetRot = Quaternion.LookRotation(targetDir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, deltaTime * 9);
+            lookAngle += transform.eulerAngles.y;
+
+            return;
         }
 
         lookAngle += smoothX * targetSpeed;
         transform.rotation = Quaternion.Euler(0, lookAngle, 0);
 
-        tiltAngle -= smoothY * targetSpeed;
-        tiltAngle = Mathf.Clamp(tiltAngle, minAngle, maxAngle);
-        pivot.localRotation = Quaternion.Euler(tiltAngle, 0, 0);
     }
 }

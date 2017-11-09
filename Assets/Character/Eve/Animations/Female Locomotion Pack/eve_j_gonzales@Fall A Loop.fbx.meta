@@ -137,7 +137,7 @@ ModelImporter:
     400126: Spine
     400128: Spine1
     400130: Spine2
-    7400000: mid air fall
+    7400000: Fall A Loop
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -170,7 +170,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: mid air fall
+      name: Fall A Loop
       takeName: mixamo.com
       firstFrame: 0
       lastFrame: 63
