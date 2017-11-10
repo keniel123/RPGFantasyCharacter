@@ -7,7 +7,7 @@ public class InputHandler : MonoBehaviour {
     public float vertical;
     public float horizontal;
 
-    bool b_input;
+    public bool b_input;
     bool a_input;
     bool x_input;
     bool y_input;
@@ -24,7 +24,10 @@ public class InputHandler : MonoBehaviour {
     bool leftAxis_down;
     bool rightAxis_down;
 
-
+    float b_timer;
+    float rt_timer;
+    float lt_timer;
+    float sprintDelay = 0.3f;
     StateManager states;
     CameraManager cameraManager;
 
@@ -32,17 +35,15 @@ public class InputHandler : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
-        cameraManager = CameraManager.singleton;
-        cameraManager.Init(this.transform);
-
         states = GetComponent<StateManager>();
         states.Init();
 
-	}
-	
-	// Update is called once per frame
-	void FixedUpdate () {
+        cameraManager = CameraManager.singleton;
+        cameraManager.Init(states);
+    }
+
+    // Update is called once per frame
+    void FixedUpdate () {
         delta = Time.fixedDeltaTime;
         GetInput();
         UpdateStates();
@@ -52,13 +53,14 @@ public class InputHandler : MonoBehaviour {
 
         //Update the camera manager
         cameraManager.Tick(delta);
-
     }
 
     private void Update()
     {
         delta = Time.deltaTime;
         states.Tick(delta);
+        ResetInputAndStates();
+
     }
 
     void GetInput() {
@@ -92,7 +94,10 @@ public class InputHandler : MonoBehaviour {
         lb_input = Input.GetButton("LB");
 
         rightAxis_down = Input.GetButtonUp("L");
-        Debug.Log("rightAxis_down: " + rightAxis_down);
+        if (b_input)
+        {
+            b_timer += delta;
+        }
     }
 
     void UpdateStates() {
@@ -109,15 +114,20 @@ public class InputHandler : MonoBehaviour {
         float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
         states.moveAmount = Mathf.Clamp01(m);
 
-        states.rollInput = b_input;
 
-        if (b_input)
+        if (x_input)
         {
-            //states.isRunning = (states.moveAmount > 0);
+            b_input = false;
         }
-        else
+
+        if (b_input && b_timer > sprintDelay)
         {
-            //states.isRunning = false;
+            states.isRunning = (states.moveAmount > 0);
+        }
+
+        if (b_input == false && b_timer > 0 && b_timer < sprintDelay)
+        {
+            states.rollInput = true;
         }
 
         //Update input states
@@ -125,6 +135,7 @@ public class InputHandler : MonoBehaviour {
         states.lt = lt_input;
         states.rb = rb_input;
         states.lb = lb_input;
+        states.itemInput = x_input;
 
         if (y_input)
         {
@@ -142,8 +153,28 @@ public class InputHandler : MonoBehaviour {
                 states.lockOn = false;
             }
 
-            cameraManager.lockOnTarget = states.lockOnTarget.transform;
+            cameraManager.lockOnTarget = states.lockOnTarget;
+            states.lockOnTransform = cameraManager.lockOnTransform;
             cameraManager.lockOn = states.lockOn;
+        }
+    }
+
+    void ResetInputAndStates() {
+
+        //Reset the inputs for next frame
+        if (b_input == false)
+        {
+            b_timer = 0;
+        }
+
+        if (states.rollInput)
+        {
+            states.rollInput = false;
+        }
+
+        if (states.isRunning)
+        {
+            states.isRunning = false;
         }
     }
 }

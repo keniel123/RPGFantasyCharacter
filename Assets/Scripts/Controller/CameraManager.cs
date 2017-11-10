@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using RPGController;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,14 +10,17 @@ public class CameraManager : MonoBehaviour {
 
     public float followSpeed = 10;
     public float mouseSpeed = 2;
+    public float controllerSpeed = 2;
 
     public bool lockOn;
 
     public Transform target;
-    public Transform lockOnTarget;
+    public EnemyTarget lockOnTarget;
+    public Transform lockOnTransform;
 
     public Transform pivot;
     public Transform camTransform;
+    StateManager states;
 
     float turnSmoothing = 0.1f;
     float minAngle = -35f;
@@ -31,12 +35,15 @@ public class CameraManager : MonoBehaviour {
     public float lookAngle;
     public float tiltAngle;
 
+    bool usedRightAxis;
+
     void Awake() {
         singleton = this;
     }
 
-    public void Init(Transform t) {
-        target = t;
+    public void Init(StateManager st) {
+        states = st;
+        target = st.transform;
 
         camTransform = Camera.main.transform;
         pivot = camTransform.parent;
@@ -47,7 +54,46 @@ public class CameraManager : MonoBehaviour {
         float h = Input.GetAxis("Mouse X");
         float v = Input.GetAxis("Mouse Y");
 
+        float c_h = Input.GetAxis("RightAxis X");
+        float c_v = Input.GetAxis("RightAxis Y");
+
         float targetSpeed = mouseSpeed;
+
+        if (lockOnTarget != null)
+        {
+            if (lockOnTransform == null)
+            {
+                lockOnTransform = lockOnTarget.GetTarget();
+                states.lockOnTransform = lockOnTransform;
+            }
+
+            if (Mathf.Abs(c_h) > 0.6f)
+            {
+                if (!usedRightAxis)
+                {
+                    lockOnTransform = lockOnTarget.GetTarget((c_h>0));
+                    states.lockOnTransform = lockOnTransform;
+                    usedRightAxis = true;
+                }
+            }
+        }
+
+        if (usedRightAxis)
+        {
+            if (Mathf.Abs(c_h) < 0.6f)
+            {
+                usedRightAxis = false;
+            }
+
+        }
+
+        if (c_h != 0 || c_v != 0)
+        {
+            h = c_h;
+            v = c_v;
+            targetSpeed = controllerSpeed;
+        }
+
         FollowTarget(d);
         HandleRotations(d, v, h, targetSpeed);
     }
@@ -80,7 +126,7 @@ public class CameraManager : MonoBehaviour {
         if (lockOn && lockOnTarget!= null)
         {
             //Get the direction of locked on target
-            Vector3 targetDir = lockOnTarget.position - transform.position;
+            Vector3 targetDir = lockOnTransform.position - transform.position;
             targetDir.Normalize();
             //targetDir.y = 0;
 
@@ -89,7 +135,7 @@ public class CameraManager : MonoBehaviour {
             
                 Quaternion targetRot = Quaternion.LookRotation(targetDir);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, deltaTime * 9);
-            lookAngle += transform.eulerAngles.y;
+                lookAngle = transform.eulerAngles.y;
 
             return;
         }

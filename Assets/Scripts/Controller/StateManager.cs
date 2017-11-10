@@ -16,6 +16,7 @@ public class StateManager : MonoBehaviour
     public Vector3 moveDirection;
     public bool rt, rb, lt, lb; //Input buttons and axises
     public bool rollInput;
+    public bool itemInput;
 
     [Header("Stats")]
     public float moveSpeed = 2f;        //Walking & jogging speed
@@ -31,9 +32,12 @@ public class StateManager : MonoBehaviour
     public bool inAction;
     public bool canMove;
     public bool isTwoHanded;
+    public bool isUsingItem;
 
     [Header("Other")]
     public EnemyTarget lockOnTarget;
+    public Transform lockOnTransform;
+    public AnimationCurve rollAnimCurve;
 
     [HideInInspector]
     public Animator animator;
@@ -45,10 +49,17 @@ public class StateManager : MonoBehaviour
     public AnimatorHook animHook;
 
     [HideInInspector]
+    public ActionManager actionManager;
+    
+    [HideInInspector]
+    public InventoryManager inventoryManager;
+
+    [HideInInspector]
     public LayerMask ignoreLayers;
 
     float _actionDelay;
 
+    [HideInInspector]
     public float delta;
 
     public void Init()
@@ -58,6 +69,12 @@ public class StateManager : MonoBehaviour
         rigid.angularDrag = 999;
         rigid.drag = 4;
         rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        inventoryManager = GetComponent<InventoryManager>();
+        inventoryManager.Init();
+
+        actionManager = GetComponent<ActionManager>();
+        actionManager.Init(this);
 
         animHook = activeModel.AddComponent<AnimatorHook>();
         animHook.Init(this);
@@ -100,7 +117,7 @@ public class StateManager : MonoBehaviour
 
     void HandleRolls()
     {
-        if (!rollInput)
+        if (!rollInput || isUsingItem)
         {
             return;
         }
@@ -143,10 +160,17 @@ public class StateManager : MonoBehaviour
 
             Quaternion targetRot = Quaternion.LookRotation(moveDirection);
             transform.rotation = targetRot;
+
+            animHook.rootMotionMultiplier = rollSpeed;
+            animHook.InitForRoll();
+
         }
-
-        animHook.rootMotionMultiplier = rollSpeed;
-
+        //If stepping back
+        else
+        {
+            animHook.rootMotionMultiplier = 1.3f;
+        }
+        
         animator.SetFloat("Vertical", v);
         animator.SetFloat("Horizontal", h);
 
@@ -155,10 +179,33 @@ public class StateManager : MonoBehaviour
         animator.CrossFade("Rolls", 0.2f);
     }
 
+    public void DetectItemAction() {
+
+        if (!canMove || isUsingItem)
+        {
+            return;
+        }
+
+        if (!itemInput)
+        {
+            return;
+        }
+
+        ItemAction itemAction = actionManager.consumableItem;
+        string targetAnim = itemAction.targetAnim;
+        if (string.IsNullOrEmpty(targetAnim))
+        {
+            Debug.LogError("No animation found for item action!");
+            return;
+        }
+
+        isUsingItem = true;
+        animator.Play(targetAnim);
+    }
+
     public void DetectAction()
     {
-
-        if (!canMove)
+        if (!canMove || isUsingItem)
         {
             return;
         }
@@ -172,22 +219,13 @@ public class StateManager : MonoBehaviour
         //If there is input, play an attack animation
         string targetAnim = null;
 
-        if (rb)
+        Action slot = actionManager.GetActionSlot(this);
+        if (slot == null)
         {
-            targetAnim = "oh_attack_1";
+            return;
         }
-        if (rt)
-        {
-            targetAnim = "oh_attack_2";
-        }
-        if (lt)
-        {
-            targetAnim = "oh_attack_3";
-        }
-        if (lb)
-        {
-            targetAnim = "th_attack_1";
-        }
+
+        targetAnim = slot.targetAnim;
 
         if (string.IsNullOrEmpty(targetAnim))
         {
@@ -203,10 +241,13 @@ public class StateManager : MonoBehaviour
 
     public void FixedTick(float d)
     {
-
         delta = d;
 
+        isUsingItem = animator.GetBool("Interacting");
+
+        DetectItemAction();
         DetectAction();
+        inventoryManager.currentWeapon.weaponModel.SetActive(!isUsingItem);
 
         if (inAction)
         {
@@ -232,7 +273,8 @@ public class StateManager : MonoBehaviour
             return;
         }
 
-        animHook.rootMotionMultiplier = 1;
+        //animHook.rootMotionMultiplier = 1;
+        animHook.CloseRoll();
         HandleRolls();
 
         animator.applyRootMotion = false;
@@ -242,6 +284,13 @@ public class StateManager : MonoBehaviour
         rigid.drag = (moveAmount > 0 || !onGround == false) ? 0 : 4;
 
         float targetSpeed = moveSpeed;
+
+        //If the player is using an item, move slowly
+        if (isUsingItem)
+        {
+            isRunning = false;
+            moveAmount = Mathf.Clamp(moveAmount, 0, 0.45f);
+        }
 
         //If running, go faster
         if (isRunning)
@@ -261,7 +310,13 @@ public class StateManager : MonoBehaviour
 
         if (!lockOn)
         {
-            Vector3 targetDirection = (lockOn == false) ? moveDirection : lockOnTarget.transform.position - transform.position;
+            Vector3 targetDirection = (lockOn == false) ? //If you're not locked on assign move direction
+                moveDirection
+                :
+                (lockOnTransform != null) ? //If you're locked on a target, check if the target is NULL or not
+                lockOnTransform.transform.position - transform.position //If it's not null, assign this as move direction
+                :
+                moveDirection;
             targetDirection.y = 0;
             if (targetDirection == Vector3.zero)
             {
@@ -273,16 +328,17 @@ public class StateManager : MonoBehaviour
             transform.rotation = targetRotation;
 
             animator.SetBool("Lock On", lockOn);
+
+            if (!lockOn)
+            {
+                HandleMovementAnimations();
+            }
+            else
+            {
+                HandleLockOnAnimations(moveDirection);
+            }
         }
 
-        if (!lockOn)
-        {
-            HandleMovementAnimations();
-        }
-        else
-        {
-            HandleLockOnAnimations(moveDirection);
-        }
     }
 
     void HandleMovementAnimations()
@@ -327,5 +383,14 @@ public class StateManager : MonoBehaviour
     public void HandleTwoHanded()
     {
         animator.SetBool("IsTwoHanded", isTwoHanded);
+
+        if (isTwoHanded)
+        {
+            actionManager.UpdateActionsTwoHanded();
+        }
+        else
+        {
+            actionManager.UpdateActionsOneHanded();
+        }
     }
 }
