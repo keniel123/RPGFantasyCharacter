@@ -143,6 +143,22 @@ public class InputHandler : MonoBehaviour {
             states.HandleTwoHanded();
         }
 
+        //Check locked on target's status
+        if (states.lockOnTarget != null)
+        {
+            //If the enemy is dead, then stop locking the camera
+            if (states.lockOnTarget.eStates.isDead)
+            {
+                Debug.Log("Locked on target DIED!");
+                states.lockOn = false;
+                states.lockOnTarget = null;
+                states.lockOnTransform = null;
+                cameraManager.lockOn = false;
+                cameraManager.lockOnTarget = null;
+            }
+        }
+
+
         if (rightAxis_down)
         {
             states.lockOn = !states.lockOn;

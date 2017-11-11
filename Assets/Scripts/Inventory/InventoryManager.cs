@@ -10,7 +10,7 @@ namespace RPGController
 
         public void Init()
         {
-
+            currentWeapon.weaponHook.CloseDamageColliders();
         }
 
     }
@@ -21,5 +21,6 @@ namespace RPGController
         public List<Action> actions;
         public List<Action> twoHandedActions;
         public GameObject weaponModel;
+        public WeaponHook weaponHook;
     }
 }

@@ -10,12 +10,14 @@ namespace RPGController
         public List<Transform> targets = new List<Transform>();
         public List<HumanBodyBones> humanoidBones = new List<HumanBodyBones>();
 
+        public EnemyStates eStates;
 
         Animator animator;
 
-        private void Start()
+        public void Init(EnemyStates enemyStates)
         {
-            animator = GetComponent<Animator>();
+            eStates = enemyStates;
+            animator = eStates.animator;
             if (animator.isHuman == false)
             {
                 return;

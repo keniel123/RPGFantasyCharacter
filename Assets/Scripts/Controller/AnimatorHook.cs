@@ -8,15 +8,34 @@ namespace RPGController
     {
         Animator animator;
         StateManager states;
+        EnemyStates eStates;
+        Rigidbody rigid;
 
         public float rootMotionMultiplier;
         bool rolling;
         float roll_t;
+        float delta;
+        AnimationCurve rollCurve;
 
-        public void Init(StateManager stateManager)
+        public void Init(StateManager stateManager, EnemyStates eSt)
         {
             states = stateManager;
-            animator = stateManager.animator;
+            eStates = eSt;
+
+            if (stateManager != null)
+            {
+                animator = stateManager.animator;
+                rigid = stateManager.rigid;
+                rollCurve = states.rollAnimCurve;
+                delta = states.delta;
+            }
+            if (this.eStates != null)
+            {
+                Debug.Log("Initialized enemy state");
+                animator = this.eStates.animator;
+                rigid = this.eStates.rigid;
+                delta = this.eStates.delta;
+            }
         }
 
         public void InitForRoll() {
@@ -38,14 +57,38 @@ namespace RPGController
 
         void OnAnimatorMove()
         {
-
-            if (states.canMove)
+            if (states == null && eStates == null)
             {
                 return;
             }
 
+            if (rigid == null)
+            {
+                return;
+            }
+            
+            if (states!=null)
+            {
+                if (states.canMove == false)
+                {
+                    return;
+                }
+
+                delta = states.delta;
+            }
+
+            if (eStates != null)
+            {
+                if (eStates.canMove)
+                {
+                    return;
+                }
+
+                delta = eStates.delta;
+            }
+
             //If the character is moving, set drag to 0, since the character is moving with root motion and physics together
-            states.rigid.drag = 0;
+            rigid.drag = 0;
 
             if (rootMotionMultiplier == 0)
             {
@@ -54,18 +97,20 @@ namespace RPGController
 
             if (!rolling)
             {
-                Vector3 delta = animator.deltaPosition;
-                delta.y = 0;
+                //deltaPos stands for position
+                Vector3 deltaPos = animator.deltaPosition;
+                deltaPos.y = 0;
 
-                Vector3 v = (delta * rootMotionMultiplier) / states.delta;
-                states.rigid.velocity = v;
+                //Whereas delta stands for time
+                Vector3 v = (deltaPos * rootMotionMultiplier) / delta;
+                rigid.velocity = v;
             }
             //If the character is rolling, manipulate the animation curve
             else
             {
                 Debug.Log("Is root motion: " + animator.hasRootMotion);
                 //Depending on the animation curve we've, this give the relative pos
-                roll_t += states.delta / 0.65f;
+                roll_t += delta / 0.6f;
 
                 //Debug.Log("roll_t: " + roll_t);
                 if (roll_t > 1)
@@ -73,14 +118,36 @@ namespace RPGController
                     roll_t = 1;
                 }
 
-                float zValueAnim = states.rollAnimCurve.Evaluate(roll_t);
+                if (states == null)
+                {
+                    return;
+                }
+
+                float zValueAnim = rollCurve.Evaluate(roll_t);
                 Vector3 v1 = Vector3.forward * zValueAnim;
                 Vector3 relative = transform.TransformDirection(v1);
                 Vector3 v2 = (relative * rootMotionMultiplier);
 
-                states.rigid.velocity = v2;
+                rigid.velocity = v2;
             }
         }
 
+        public void OpenDamageColliders() {
+            if (states == null)
+            {
+                return;
+            }
+
+            states.inventoryManager.currentWeapon.weaponHook.OpenDamageColliders();
+        }
+
+        public void CloseDamageColliders() {
+            if (states == null)
+            {
+                return;
+            }
+
+            states.inventoryManager.currentWeapon.weaponHook.CloseDamageColliders();
+        }
     }
 }
