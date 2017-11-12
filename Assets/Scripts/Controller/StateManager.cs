@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class StateManager : MonoBehaviour
 {
-
     [Header("Initilazation")]
     public GameObject activeModel;
 
@@ -24,6 +23,7 @@ public class StateManager : MonoBehaviour
     public float rotateSpeed = 5f;      //Movement turn speed
     public float toGround = 0.5f;
     public float rollSpeed = 1.0f;
+    public float parryOffset = 1.4f;
 
     [Header("States")]
     public bool isRunning;
@@ -33,11 +33,16 @@ public class StateManager : MonoBehaviour
     public bool canMove;
     public bool isTwoHanded;
     public bool isUsingItem;
+    public bool canBeParried;
+    public bool isParryOn;
+    public bool isBlocking;
+    public bool isLeftHand;
 
     [Header("Other")]
     public EnemyTarget lockOnTarget;
     public Transform lockOnTransform;
     public AnimationCurve rollAnimCurve;
+    public EnemyStates parryTarget;
 
     [HideInInspector]
     public Animator animator;
@@ -66,12 +71,12 @@ public class StateManager : MonoBehaviour
     {
         SetupAnimator();
         rigid = GetComponent<Rigidbody>();
-        rigid.angularDrag = 999;
         rigid.drag = 4;
+        rigid.angularDrag = 999;
         rigid.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         inventoryManager = GetComponent<InventoryManager>();
-        inventoryManager.Init();
+        inventoryManager.Init(this);
 
         actionManager = GetComponent<ActionManager>();
         actionManager.Init(this);
@@ -187,7 +192,8 @@ public class StateManager : MonoBehaviour
 
     public void DetectItemAction() {
 
-        if (!canMove || isUsingItem)
+        //You cannot use an item while already using another or blocking
+        if (!canMove || isUsingItem || isBlocking)
         {
             return;
         }
@@ -222,15 +228,41 @@ public class StateManager : MonoBehaviour
             return;
         }
 
-        //If there is input, play an attack animation
-        string targetAnim = null;
 
+        //If there is an action get the action slot
         Action slot = actionManager.GetActionSlot(this);
         if (slot == null)
         {
             return;
         }
 
+        switch (slot.type)
+        {   
+            case ActionType.attack:
+                AttackAction(slot);
+                break;
+            case ActionType.block:
+                BlockAction(slot);
+                break;
+            case ActionType.spells:
+                break;
+            case ActionType.parry:
+                ParryAction(slot);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void AttackAction(Action slot) {
+
+        if (CheckForParry(slot))
+        {
+            return;
+        }
+
+        //If there is input, play an attack animation
+        string targetAnim = null;
         targetAnim = slot.targetAnim;
 
         if (string.IsNullOrEmpty(targetAnim))
@@ -241,6 +273,110 @@ public class StateManager : MonoBehaviour
 
         canMove = false;
         inAction = true;
+
+        float targetSpeed = 1;
+        if (slot.chageSpeed)
+        {
+            targetSpeed = slot.animSpeed;
+            if (targetSpeed == 0)
+            {
+                targetSpeed = 1;
+            }
+        }
+
+        canBeParried = slot.canBeParried;
+        animator.SetFloat("AnimSpeed", targetSpeed);
+        animator.SetBool("Mirror", slot.mirror);
+        animator.CrossFade(targetAnim, 0.2f);
+
+    }
+
+    bool CheckForParry(Action slot) {
+        if (parryTarget == null)
+        {
+            return false;
+        }
+
+        //Check distance
+        float distance = Vector3.Distance(parryTarget.transform.position, transform.position);
+        if (distance > 3)
+        {
+            return false;
+        }
+
+        //Direction towards the player
+        Vector3 direction = parryTarget.transform.position - transform.position;
+        direction.Normalize();
+        direction.y = 0;
+        float angle = Vector3.Angle(transform.forward, direction);
+
+        if (angle < 60)
+        {
+            //Get target position
+            Vector3 targetPos = -direction * parryOffset;
+            targetPos += parryTarget.transform.position;
+            transform.position = targetPos;
+
+            if (direction == Vector3.zero)
+            {
+                direction = -parryTarget.transform.forward;
+            }
+
+            //Make enemy look at player
+            Quaternion enemyRot = Quaternion.LookRotation(-direction);
+            parryTarget.transform.rotation = enemyRot;
+            
+            Quaternion playerRot = Quaternion.LookRotation(direction);
+            transform.rotation = playerRot;
+
+            parryTarget.IsGettingParried();
+
+
+            canMove = false;
+            inAction = true;
+            animator.SetBool("Mirror", slot.mirror);
+            animator.CrossFade("parry_attack", 0.2f);
+            
+            return true;
+        }
+
+        return true;
+    }
+
+    void BlockAction(Action slot) {
+        isBlocking = true;
+
+        //If it's mirrored, than that means you're blocking with the left hand and vice versa
+        isLeftHand = slot.mirror;
+    }
+
+    void ParryAction(Action slot)
+    {
+        //If there is input, play an attack animation
+        string targetAnim = null;
+        targetAnim = slot.targetAnim;
+
+        if (string.IsNullOrEmpty(targetAnim))
+        {
+            Debug.LogWarning("Animation name is null!");
+            return;
+        }
+
+        float targetSpeed = 1;
+        if (slot.chageSpeed)
+        {
+            targetSpeed = slot.animSpeed;
+            if (targetSpeed == 0)
+            {
+                targetSpeed = 1;
+            }
+        }
+
+        animator.SetFloat("AnimSpeed", targetSpeed);
+        canBeParried = slot.canBeParried;
+        canMove = false;
+        inAction = true;
+        animator.SetBool("Mirror", slot.mirror);
         animator.CrossFade(targetAnim, 0.2f);
 
     }
@@ -249,11 +385,14 @@ public class StateManager : MonoBehaviour
     {
         delta = d;
 
+        isBlocking = false;
         isUsingItem = animator.GetBool("Interacting");
-
-        DetectItemAction();
         DetectAction();
-        inventoryManager.currentWeapon.weaponModel.SetActive(!isUsingItem);
+        DetectItemAction();
+        inventoryManager.rightHandWeapon.weaponModel.SetActive(!isUsingItem);
+
+        animator.SetBool("Block", isBlocking);
+        animator.SetBool("IsLeft", isLeftHand);
 
         if (inAction)
         {
@@ -349,10 +488,8 @@ public class StateManager : MonoBehaviour
 
     void HandleMovementAnimations()
     {
-
         animator.SetBool("Run", isRunning);
         animator.SetFloat("Vertical", moveAmount, 0.4f, delta);
-
     }
 
     void HandleLockOnAnimations(Vector3 moveDirection)
@@ -398,5 +535,10 @@ public class StateManager : MonoBehaviour
         {
             actionManager.UpdateActionsOneHanded();
         }
+    }
+
+    public void IsGettingParried() {
+
+
     }
 }

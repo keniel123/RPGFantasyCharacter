@@ -7,9 +7,14 @@ namespace RPGController
     public class EnemyStates : MonoBehaviour
     {
         public float health;
+        public bool canParried = true;
+        public bool isParryOn = true;
+        //public bool doParry = false;
         public bool isInvincible;
+        public bool dontDoAnything;
         public bool canMove;
         public bool isDead;
+        StateManager parriedBy;
 
         public Animator animator;
         public Rigidbody rigid;
@@ -20,6 +25,8 @@ namespace RPGController
         public float delta;
         List<Rigidbody> ragdollRigids = new List<Rigidbody>();
         List<Collider> ragdollColliders = new List<Collider>();
+
+        float timer;
 
         void Start()
         {
@@ -40,6 +47,8 @@ namespace RPGController
 
             animHook.Init(null, this);
             InitRagdoll();
+            isParryOn = false;
+
         }
 
         void InitRagdoll() {
@@ -91,6 +100,12 @@ namespace RPGController
 
             canMove = animator.GetBool("CanMove");
 
+            if (dontDoAnything)
+            {
+                dontDoAnything = !canMove;
+                return;
+            }
+
             if (health <= 0)
             {
                 isDead = true;
@@ -102,10 +117,33 @@ namespace RPGController
                 isInvincible = !canMove;
             }
 
+            if (parriedBy != null && !isParryOn)
+            {
+                parriedBy.parryTarget = null;
+                parriedBy = null;
+            }
+
             if (canMove)
             {
+                isParryOn = false;
                 animator.applyRootMotion = false;
+
+                //DEBUG
+                timer += Time.deltaTime;
+                if (timer > 3)
+                {
+                    DoAction();
+                    timer = 0;
+                }
             }
+        }
+
+        void DoAction() {
+            
+            animator.Play("oh_attack_1");
+            animator.applyRootMotion = true;
+            animator.SetBool("CanMove", false);
+
         }
 
         public void DoDamage(float damageTaken)
@@ -121,6 +159,40 @@ namespace RPGController
             animator.Play("damage_1");
             animator.applyRootMotion = true;
             animator.SetBool("CanMove",false);
+        }
+
+        public void CheckForParry(Transform parryTarget, StateManager states) {
+            if (!canParried || !isParryOn || isInvincible)
+            {
+                return;
+            }
+
+            Vector3 direction = transform.position - parryTarget.position;
+            direction.Normalize();
+            float dotProduct = Vector3.Dot(parryTarget.forward, direction);
+
+            //If the enemy is behind you, but still lands in collider, don't parry
+            if (dotProduct <0)
+            {
+                return;
+            }
+
+            isInvincible = true;
+            animator.Play("attack_interrupt");
+            animator.applyRootMotion = true;
+            animator.SetBool("CanMove", false);
+            states.parryTarget = this;
+            parriedBy = states;
+            return;
+        }
+
+        public void IsGettingParried()
+        {
+            health -= 500;
+            dontDoAnything = true;
+            animator.SetBool("CanMove", false);
+            animator.Play("parry_received");
+
         }
     }
 }

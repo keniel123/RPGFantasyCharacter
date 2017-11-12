@@ -133,21 +133,66 @@ namespace RPGController
         }
 
         public void OpenDamageColliders() {
-            if (states == null)
+            if (states)
             {
-                return;
+                states.inventoryManager.OpenAllDamageColliders();
             }
 
-            states.inventoryManager.currentWeapon.weaponHook.OpenDamageColliders();
+            OpenParryFlag();
         }
 
         public void CloseDamageColliders() {
+            if (states)
+            {
+                states.inventoryManager.CloseAllDamageColliders();
+            }
+
+            CloseParryFlag();
+        }
+
+        public void OpenParryCollider() {
             if (states == null)
             {
                 return;
             }
 
-            states.inventoryManager.currentWeapon.weaponHook.CloseDamageColliders();
+            states.inventoryManager.OpenParryCollider();
+        }
+
+        public void CloseParryCollider()
+        {
+            if (states == null)
+            {
+                return;
+            }
+
+            states.inventoryManager.CloseParryCollider();
+        }
+
+        public void OpenParryFlag() {
+            if (states)
+            {
+                states.isParryOn = true;
+            }
+
+            if (eStates)
+            {
+                eStates.isParryOn = true;
+            }
+        }
+
+        public void CloseParryFlag()
+        {
+            if (states)
+            {
+                states.isParryOn = false;
+            }
+
+            if (eStates)
+            {
+                eStates.isParryOn = false;
+            }
         }
     }
+
 }
