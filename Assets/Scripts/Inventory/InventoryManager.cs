@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using RPGController.UI;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +18,9 @@ namespace RPGController
             states = st;
             EquipWeapon(rightHandWeapon, false);
             EquipWeapon(leftHandWeapon, true);
+            InitAllDamageColliders(st);
             CloseAllDamageColliders();
+
             ParryCollider parryCol = parryCollider.GetComponent<ParryCollider>();
             parryCol.InitPlayer(st);
             CloseParryCollider();
@@ -26,9 +29,31 @@ namespace RPGController
         public void EquipWeapon(Weapon weapon, bool isLeft = false) {
             string targetIdle = weapon.oh_idle;
             targetIdle += (isLeft) ? "_left" : "_right";
-            states.animator.SetBool("Mirror", isLeft);
+            states.animator.SetBool(StaticStrings.animParam_Mirror, isLeft);
             states.animator.Play("changeWeapon");
             states.animator.Play(targetIdle);
+
+            QuickSlot quickSlot = QuickSlot.Instance;
+            quickSlot.UpdateSlot(
+                (isLeft) ?
+                QSlotType.leftHand : QSlotType.rightHand, weapon.weaponIcon);
+
+            if (isLeft)
+            {
+
+            }
+        }
+
+        //Gets the current weapon equipped by the player
+        public Weapon GetCurrentWeapon(bool isLeft) {
+            if (isLeft)
+            {
+                return leftHandWeapon;
+            }
+            else
+            {
+                return rightHandWeapon;
+            }
         }
 
         public void OpenAllDamageColliders() {
@@ -50,6 +75,15 @@ namespace RPGController
                 leftHandWeapon.weaponHook.CloseDamageColliders();
         }
 
+        public void InitAllDamageColliders(StateManager stateManager) {
+
+            if (rightHandWeapon.weaponHook != null)
+                rightHandWeapon.weaponHook.InitDamageColliders(stateManager);
+
+            if (leftHandWeapon.weaponHook != null)
+                leftHandWeapon.weaponHook.InitDamageColliders(stateManager);
+        }
+
         public void CloseParryCollider() {
             parryCollider.SetActive(false);
         }
@@ -64,11 +98,17 @@ namespace RPGController
     [System.Serializable]
     public class Weapon
     {
+        public string weaponID;
+        public Sprite weaponIcon;
         public string oh_idle;  //One handed idle animation name
         public string th_idle;  //Two handed idle animation name
 
         public List<Action> actions;
         public List<Action> twoHandedActions;
+        //For different weapons, parry and backstab can have different effects
+        public WeaponStats parryStats;
+        public WeaponStats backstabStats;
+
         public bool LeftHandMirror;
         public GameObject weaponModel;
         public WeaponHook weaponHook;

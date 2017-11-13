@@ -24,66 +24,63 @@ namespace RPGController
         {
             EmptyAllSlots();
 
+            DeepCopyAction(states.inventoryManager.rightHandWeapon, ActionInput.rb, ActionInput.rb);
+            DeepCopyAction(states.inventoryManager.rightHandWeapon, ActionInput.rt, ActionInput.rt);
+
             if (states.inventoryManager.hasLeftHandWeapon)
             {
-                UpdateActionsWithLeftHand();
+                DeepCopyAction(states.inventoryManager.leftHandWeapon, ActionInput.rb, ActionInput.lb, true);
+                DeepCopyAction(states.inventoryManager.leftHandWeapon, ActionInput.rt, ActionInput.lt, true);
+            }
+            else
+            {
+                DeepCopyAction(states.inventoryManager.rightHandWeapon, ActionInput.lb, ActionInput.lb);
+                DeepCopyAction(states.inventoryManager.rightHandWeapon, ActionInput.lt, ActionInput.lt);
+            }
+
+        }
+
+        public void DeepCopyAction(Weapon weapon, ActionInput actionInput, ActionInput assign, bool isLeftHand = false) {
+
+            Action action = GetAction(assign);
+            Action weaponAct = weapon.GetAction(weapon.actions, actionInput);
+
+            //If the weapon has no action, skip
+            if (weaponAct == null)
+            {
                 return;
             }
 
-            Weapon weapon = states.inventoryManager.rightHandWeapon;
+            action.targetAnim = weaponAct.targetAnim;
+            action.type = weaponAct.type;
+            action.canBeParried = weaponAct.canBeParried;
+            action.chageSpeed = weaponAct.chageSpeed;
+            action.animSpeed = weaponAct.animSpeed;
+            action.canBackStab = weaponAct.canBackStab;
+            action.overrideDamageAnimation = weaponAct.overrideDamageAnimation;
+            action.damageAnim = weaponAct.damageAnim;
 
-            //For each action of the weapon, assign the target animation
-            for (int i = 0; i < weapon.actions.Count; i++)
-            {
-                Action action = GetAction(weapon.actions[i].input);
-                action.targetAnim = weapon.actions[i].targetAnim;
-            }
-        }
-
-        public void UpdateActionsWithLeftHand() {
-            Weapon rightWeapon = states.inventoryManager.rightHandWeapon;
-            Weapon leftWeapon = states.inventoryManager.leftHandWeapon;
-
-            Action rb = GetAction(ActionInput.rb);
-            Action rt = GetAction(ActionInput.rt);
-
-            Action weapon_RB = rightWeapon.GetAction(rightWeapon.actions, ActionInput.rb);
-            rb.targetAnim = weapon_RB.targetAnim;
-            rb.type = weapon_RB.type;
-            rb.canBeParried = weapon_RB.canBeParried;
-            rb.chageSpeed = weapon_RB.chageSpeed;
-            rb.animSpeed = weapon_RB.animSpeed;
-
-            Action weapon_RT = rightWeapon.GetAction(rightWeapon.actions, ActionInput.rt);
-            rt.targetAnim = weapon_RT.targetAnim;
-            rt.type = weapon_RT.type;
-            rt.canBeParried = weapon_RT.canBeParried;
-            rt.chageSpeed = weapon_RT.chageSpeed;
-            rt.animSpeed = weapon_RT.animSpeed;
-
-            Action lb = GetAction(ActionInput.lb);
-            Action lt = GetAction(ActionInput.lt);
-
-            Action weapon_LB = leftWeapon.GetAction(leftWeapon.actions, ActionInput.rb);
-            lb.targetAnim = weapon_LB.targetAnim;
-            lb.type = weapon_LB.type;
-            lb.canBeParried = weapon_LB.canBeParried;
-            lb.chageSpeed = weapon_LB.chageSpeed;
-            lb.animSpeed = weapon_LB.animSpeed;
-
-            Action weapon_LT = leftWeapon.GetAction(leftWeapon.actions, ActionInput.rt);
-            lt.targetAnim = weapon_LT.targetAnim;
-            lt.type = weapon_LT.type;
-            lt.canBeParried = weapon_LT.canBeParried;
-            lt.chageSpeed = weapon_LT.chageSpeed;
-            lt.animSpeed = weapon_LT.animSpeed;
-
-            if (leftWeapon.LeftHandMirror)
+            if (isLeftHand )
             {
                 //Left hand animations are just mirror version of right hand animations
-                lb.mirror = true;
-                lt.mirror = true;
+                action.mirror = true;
             }
+            
+            DeepCopyWeaponStats(weaponAct.weaponStats, action.weaponStats);
+        }
+
+        public void DeepCopyWeaponStats(WeaponStats weaponStats_From, WeaponStats weaponStats_To) {
+
+            weaponStats_To.physicalDamage = weaponStats_From.physicalDamage;
+            weaponStats_To.strikeDamage = weaponStats_From.strikeDamage;
+            weaponStats_To.thrustDamage = weaponStats_From.thrustDamage;
+            weaponStats_To.slashDamage = weaponStats_From.slashDamage;
+
+            weaponStats_To.magicDamage = weaponStats_From.magicDamage;
+            weaponStats_To.lightningDamage = weaponStats_From.lightningDamage;
+            weaponStats_To.fireDamage = weaponStats_From.fireDamage;
+            weaponStats_To.darkDamage = weaponStats_From.darkDamage;
+
         }
 
         public void UpdateActionsTwoHanded()
@@ -154,6 +151,11 @@ namespace RPGController
 
             return ActionInput.rb;
         }
+
+        public bool IsLeftHandSlot(Action slot) {
+            return (slot.input == ActionInput.lb || slot.input == ActionInput.lt);
+
+        }
     }
 
     public enum ActionInput{
@@ -174,6 +176,13 @@ namespace RPGController
         public bool canBeParried = true;
         public bool chageSpeed = false;
         public float animSpeed = 1;
+        public bool canBackStab = false;
+
+        public bool overrideDamageAnimation;
+        public string damageAnim;
+
+        public WeaponStats weaponStats;
+
     }
 
     [Serializable]

@@ -36,6 +36,8 @@ public class CameraManager : MonoBehaviour {
     public float tiltAngle;
 
     bool usedRightAxis;
+    bool changeTargetLeft;
+    bool changeTargetRight;
 
     void Awake() {
         singleton = this;
@@ -59,6 +61,10 @@ public class CameraManager : MonoBehaviour {
 
         float targetSpeed = mouseSpeed;
 
+        changeTargetLeft = Input.GetKeyUp(KeyCode.V);
+        changeTargetRight = Input.GetKeyUp(KeyCode.B);
+
+
         if (lockOnTarget != null)
         {
             if (lockOnTransform == null)
@@ -75,6 +81,12 @@ public class CameraManager : MonoBehaviour {
                     states.lockOnTransform = lockOnTransform;
                     usedRightAxis = true;
                 }
+            }
+
+            if (changeTargetLeft || changeTargetRight)
+            {
+                lockOnTransform = lockOnTarget.GetTarget(changeTargetLeft);
+                states.lockOnTransform = lockOnTransform;
             }
         }
 

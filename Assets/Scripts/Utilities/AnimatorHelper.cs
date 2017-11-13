@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SA
+namespace RPGController
 {
     public class AnimatorHelper : MonoBehaviour
     {
@@ -11,7 +11,6 @@ namespace SA
 
         [Range(-1, 1)]
         public float horizontal;
-
 
         public bool playAnim;
         public bool isTwoHanded;
@@ -26,7 +25,6 @@ namespace SA
 
         Animator m_animator;
         static string param_Vertical = "Vertical";
-        static string param_IsTwoHanded = "IsTwoHanded";
 
 
         // Use this for initialization
@@ -38,11 +36,11 @@ namespace SA
         // Update is called once per frame
         void Update()
         {
-            enableRootMotion = !m_animator.GetBool("CanMove");
+            enableRootMotion = !m_animator.GetBool(StaticStrings.animParam_CanMove);
 
             m_animator.applyRootMotion = enableRootMotion;
 
-            interacting = m_animator.GetBool("Interacting");
+            interacting = m_animator.GetBool(StaticStrings.animParam_Interacting);
 
             if (!lockon)
             {
@@ -50,7 +48,7 @@ namespace SA
                 vertical = Mathf.Clamp01(vertical);
             }
 
-            m_animator.SetBool("Lock On", lockon);
+            m_animator.SetBool(StaticStrings.animParam_LockOn, lockon);
 
             //Cant attack until its finished
             if (enableRootMotion)
@@ -72,7 +70,7 @@ namespace SA
                 vertical = Mathf.Clamp(vertical, 0, 0.5f);
             }
 
-            m_animator.SetBool(param_IsTwoHanded, isTwoHanded);
+            m_animator.SetBool(StaticStrings.animParam_IsTwoHanded, isTwoHanded);
 
             if (playAnim)
             {
@@ -109,8 +107,8 @@ namespace SA
                 playAnim = false;
             }
 
-            m_animator.SetFloat(param_Vertical, vertical);
-            m_animator.SetFloat("Horizontal", horizontal);
+            m_animator.SetFloat(StaticStrings.animParam_Vertical, vertical);
+            m_animator.SetFloat(StaticStrings.animParam_Horizontal, horizontal);
         }
     }
 }

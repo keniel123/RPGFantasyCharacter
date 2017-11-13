@@ -6,7 +6,9 @@ namespace RPGController
 {
     public class EnemyStates : MonoBehaviour
     {
-        public float health;
+        public int health;
+        public CharacterStats characterStats;
+
         public bool canParried = true;
         public bool isParryOn = true;
         //public bool doParry = false;
@@ -14,7 +16,7 @@ namespace RPGController
         public bool dontDoAnything;
         public bool canMove;
         public bool isDead;
-        StateManager parriedBy;
+        public StateManager parriedBy;
 
         public Animator animator;
         public Rigidbody rigid;
@@ -23,6 +25,8 @@ namespace RPGController
         AnimatorHook animHook;
 
         public float delta;
+        public float poiseDegrade = 2;
+
         List<Rigidbody> ragdollRigids = new List<Rigidbody>();
         List<Collider> ragdollColliders = new List<Collider>();
 
@@ -30,7 +34,7 @@ namespace RPGController
 
         void Start()
         {
-            health = 100;
+            health = 10000;
 
             animator = GetComponentInChildren<Animator>();
             enemyTarget = GetComponent<EnemyTarget>();
@@ -98,7 +102,7 @@ namespace RPGController
         {
             delta = Time.deltaTime;
 
-            canMove = animator.GetBool("CanMove");
+            canMove = animator.GetBool(StaticStrings.animParam_CanMove);
 
             if (dontDoAnything)
             {
@@ -119,7 +123,7 @@ namespace RPGController
 
             if (parriedBy != null && !isParryOn)
             {
-                parriedBy.parryTarget = null;
+                //parriedBy.parryTarget = null;
                 parriedBy = null;
             }
 
@@ -136,29 +140,54 @@ namespace RPGController
                     timer = 0;
                 }
             }
+
+            characterStats.poise -= delta * poiseDegrade;
+            if (characterStats.poise < 0)
+            {
+                characterStats.poise = 0;
+            }
+
         }
 
         void DoAction() {
             
             animator.Play("oh_attack_1");
             animator.applyRootMotion = true;
-            animator.SetBool("CanMove", false);
+            animator.SetBool(StaticStrings.animParam_CanMove, false);
 
         }
 
-        public void DoDamage(float damageTaken)
+        public void DoDamage(Action act)
         {
             if (isInvincible)
             {
                 return;
             }
 
-            Debug.Log("Taken damage: " + damageTaken);
+            int damageTaken = StatsCalculations.CalculateBaseDamage(act.weaponStats, characterStats);
+
+            characterStats.poise += damageTaken;
             health -= damageTaken;
+            
+            Debug.Log("Damage is: " + damageTaken + ", Poise is: " + characterStats.poise);
+
+            if (canMove || characterStats.poise > 100)
+            {
+                Debug.Log("Playing animation...");
+                if (act.overrideDamageAnimation)
+                {
+                    animator.Play(act.damageAnim);
+                }
+                else
+                {
+                    int rand = Random.Range(0, 100);
+                    string targetAnim = (rand > 50) ? StaticStrings.damage1 : StaticStrings.damage2;
+                    animator.Play(targetAnim);
+                }
+            }
             isInvincible = true;
-            animator.Play("damage_1");
             animator.applyRootMotion = true;
-            animator.SetBool("CanMove",false);
+            animator.SetBool(StaticStrings.animParam_CanMove,false);
         }
 
         public void CheckForParry(Transform parryTarget, StateManager states) {
@@ -180,18 +209,32 @@ namespace RPGController
             isInvincible = true;
             animator.Play("attack_interrupt");
             animator.applyRootMotion = true;
-            animator.SetBool("CanMove", false);
-            states.parryTarget = this;
+            animator.SetBool(StaticStrings.animParam_CanMove, false);
+            //states.parryTarget = this;
             parriedBy = states;
             return;
         }
 
-        public void IsGettingParried()
+        public void IsGettingParried(WeaponStats weaponStats)
         {
-            health -= 500;
+            int damage = StatsCalculations.CalculateBaseDamage(weaponStats, characterStats);
+            Debug.Log("Parry damage: " + damage);
+
+            health -= damage;
             dontDoAnything = true;
-            animator.SetBool("CanMove", false);
-            animator.Play("parry_received");
+            animator.SetBool(StaticStrings.animParam_CanMove, false);
+            animator.Play(StaticStrings.animState_ParryReceived);
+
+        }
+
+        public void IsGettingBackStabbed(WeaponStats weaponStats)
+        {
+            int damage = StatsCalculations.CalculateBaseDamage(weaponStats, characterStats);
+            Debug.Log("Backstab damage: " + damage);
+            health -= damage;
+            dontDoAnything = true;
+            animator.SetBool(StaticStrings.animParam_CanMove, false);
+            animator.Play(StaticStrings.animState_BackStabbed);
 
         }
     }

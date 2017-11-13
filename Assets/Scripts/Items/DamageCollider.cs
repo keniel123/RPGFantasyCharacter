@@ -6,6 +6,12 @@ namespace RPGController
 {
     public class DamageCollider : MonoBehaviour
     {
+        StateManager states;
+
+        public void Init(StateManager st) {
+            states = st;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             EnemyStates enemyStates = other.transform.GetComponentInParent<EnemyStates>();
@@ -14,7 +20,7 @@ namespace RPGController
                 return;
             }
 
-            enemyStates.DoDamage(50);
+            enemyStates.DoDamage(states.currentAction);
         }
     }
 }

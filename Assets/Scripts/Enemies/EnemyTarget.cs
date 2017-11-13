@@ -30,6 +30,8 @@ namespace RPGController
                     targets.Add(animator.GetBoneTransform(humanoidBones[i]));
                 }
             }
+
+            EnemyManager.Instance.enemyTargets.Add(this);
         }
 
         public Transform GetTarget(bool negative = false)
