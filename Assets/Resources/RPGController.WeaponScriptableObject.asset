@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09fff65d65036784399bf577102d044e, type: 3}
+  m_Name: RPGController.WeaponScriptableObject
+  m_EditorClassIdentifier: 
+  weaponsAll:
+  - itemName: Sword
+    itemIcon: {fileID: 21300000, guid: 7e09433babd37c84fa565f5706cd8b79, type: 3}
+    itemDescription: 
+    oh_idle: idle
+    th_idle: th_idle
+    actions:
+    - input: 0
+      type: 0
+      targetAnim: oh_attack_1
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 0
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    twoHandedActions: []
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 0
+    weaponModelPrefab: {fileID: 1535163991341794, guid: 3b7954a0d8346a644a8d00000c6b2379,
+      type: 2}
+    right_model_pos: {x: 0.0805, y: -0.0142, z: 0.0035}
+    right_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
+    right_model_scale: {x: 1, y: 1, z: 1}
+    left_model_pos: {x: -0.0824, y: -0.01, z: 0.0097}
+    left_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
+    left_model_scale: {x: 1, y: 1, z: 1}

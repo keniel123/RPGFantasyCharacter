@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +17,12 @@ namespace RPGController
         public static string RT = "RT";
         public static string LT = "LT";
         public static string RB = "RB";
+
+        internal static string SaveLocation()
+        {
+            throw new NotImplementedException();
+        }
+
         public static string LB = "LB";
         public static string L = "L";
 
@@ -40,10 +47,23 @@ namespace RPGController
         public static string animState_AttackInterrupt = "attack_interrupt";
         public static string animState_ParryReceived = "parry_received";
         public static string animState_BackStabbed = "getting_backstabbed";
-        
+        public static string animState_ChangeWeapon = "changeWeapon";
+        public static string animState_EmptyBoth = "Empty Both Hands";
+        public static string animState_EmptyLeft = "Empty Left Hand";
+        public static string animState_EmptyRight = "Empty Right Hand";
+        public static string animState_EquipWeapon_OH = "equipWeapon_oh";
+
+
         public static string damage1 = "damage_1";
         public static string damage2 = "damage_2";
         public static string damage3 = "damage_3";
+
+        //Other
+        public static string _leftPrefix = "_left";
+        public static string _rightPrefix = "_right";
+
+        //ScriptableObjects
+        public static string WeaponScriptableObject_FileName = "RPGController.WeaponScriptableObject";
 
     }
 }

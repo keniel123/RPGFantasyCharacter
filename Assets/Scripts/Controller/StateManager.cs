@@ -309,6 +309,11 @@ public class StateManager : MonoBehaviour
     }
 
     bool CheckForParry(Action slot) {
+        
+        if (!slot.canParry)
+        {
+            return false;
+        }
 
         EnemyStates parryTarget = null;
         Vector3 origin = transform.position;
@@ -357,7 +362,7 @@ public class StateManager : MonoBehaviour
             Quaternion playerRot = Quaternion.LookRotation(direction);
             transform.rotation = playerRot;
 
-            parryTarget.IsGettingParried(inventoryManager.GetCurrentWeapon(isLeftHand).parryStats);
+            parryTarget.IsGettingParried(slot);
 
             canMove = false;
             inAction = true;
@@ -410,7 +415,7 @@ public class StateManager : MonoBehaviour
             transform.position = targetPos;
 
             backStabTarget.transform.rotation = transform.rotation;
-            backStabTarget.IsGettingBackStabbed(inventoryManager.GetCurrentWeapon(isLeftHand).backstabStats);
+            backStabTarget.IsGettingBackStabbed(slot);
 
             canMove = false;
             inAction = true;
@@ -605,15 +610,60 @@ public class StateManager : MonoBehaviour
 
     public void HandleTwoHanded()
     {
-        animator.SetBool(StaticStrings.animParam_IsTwoHanded, isTwoHanded);
+        //animator.SetBool(StaticStrings.animParam_IsTwoHanded, isTwoHanded);
+
+        bool isRight = true;
+        //Get the default (right hand) weapon currently equiiped
+        Weapon weapon = inventoryManager.rightHandWeapon.Instance;
+
+        //If the right hand weapon doesn't exist, then get the left hand weapon
+        if (weapon == null)
+        {
+            weapon = inventoryManager.leftHandWeapon.Instance;
+            isRight = false;
+        }
+
+        //Still, if the ledt hand weapon is null, then return
+        if (weapon == null)
+        {
+            return;
+        }
 
         if (isTwoHanded)
         {
+            animator.CrossFade(weapon.th_idle,0.2f);
             actionManager.UpdateActionsTwoHanded();
+
+            if (isRight)
+            {
+                if(inventoryManager.leftHandWeapon.Instance != null)
+                inventoryManager.leftHandWeapon.weaponModel.SetActive(false);
+            }
+            else
+            {
+                if (inventoryManager.rightHandWeapon.Instance != null)
+                    inventoryManager.rightHandWeapon.weaponModel.SetActive(false);
+            }
         }
         else
         {
+            string targetAnim = weapon.oh_idle;
+            targetAnim += (isRight) ? StaticStrings._rightPrefix : StaticStrings._leftPrefix;
+
+            //animator.CrossFade(targetAnim, 0.2f);
+            animator.Play(StaticStrings.animState_EquipWeapon_OH);
             actionManager.UpdateActionsOneHanded();
+
+            if (isRight)
+            {
+                if (inventoryManager.leftHandWeapon.Instance != null)
+                    inventoryManager.leftHandWeapon.weaponModel.SetActive(true);
+            }
+            else
+            {
+                if (inventoryManager.rightHandWeapon.Instance != null)
+                    inventoryManager.rightHandWeapon.weaponModel.SetActive(true);
+            }
         }
     }
 

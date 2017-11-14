@@ -108,27 +108,6 @@ NavMeshSettings:
     tileSize: 256
     accuratePlacement: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &57242418 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-  m_PrefabInternal: {fileID: 1374648971}
---- !u!114 &57242419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 57242418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 637cc6751de9b6a4cbb5d91bd3621107, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageCollider:
-  - {fileID: 168283960}
---- !u!4 &57242422 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-  m_PrefabInternal: {fileID: 1374648971}
 --- !u!1 &59920220
 GameObject:
   m_ObjectHideFlags: 0
@@ -163,6 +142,157 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &116294642
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 116294644}
+  - component: {fileID: 116294643}
+  m_Layer: 0
+  m_Name: Shield
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &116294643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 116294642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2383f60b7b7f144b2caa9283c7f1c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Instance:
+    itemName: 
+    itemIcon: {fileID: 0}
+    itemDescription: 
+    oh_idle: idle
+    th_idle: th_idle
+    actions:
+    - input: 0
+      type: 1
+      targetAnim: 
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 0
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    - input: 1
+      type: 3
+      targetAnim: parry
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 80
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    twoHandedActions:
+    - input: 0
+      type: 0
+      targetAnim: th_attack_1
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 1
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 50
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    - input: 1
+      type: 0
+      targetAnim: th_attack_2
+      mirror: 0
+      canBeParried: 1
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 1
+      damageAnim: damage_3
+      weaponStats:
+        physicalDamage: 150
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    parryMultiplier: 5
+    backstabMultiplier: 5
+    LeftHandMirror: 1
+    weaponModelPrefab: {fileID: 1431040492147782, guid: ff6b4cce3041a1e459579df29edb108c,
+      type: 2}
+    right_model_pos: {x: 0, y: 0, z: 0}
+    right_model_eulerRot: {x: 0, y: 0, z: 0}
+    right_model_scale: {x: 0, y: 0, z: 0}
+    left_model_pos: {x: 0, y: 0, z: 0}
+    left_model_eulerRot: {x: 0, y: 0, z: 0}
+    left_model_scale: {x: 0, y: 0, z: 0}
+  weaponModel: {fileID: 1431040492147782, guid: ff6b4cce3041a1e459579df29edb108c,
+    type: 2}
+  weaponHook: {fileID: 114212322887902398, guid: ff6b4cce3041a1e459579df29edb108c,
+    type: 2}
+--- !u!4 &116294644
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 116294642}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5343785, y: 0.8247924, z: -10.757083}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &128848104
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,76 +421,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &144812047
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 618535467}
-    m_Modifications:
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.093
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.007
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_RootOrder
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-  m_IsPrefabParent: 0
 --- !u!1001 &152012494
 Prefab:
   m_ObjectHideFlags: 0
@@ -465,64 +525,162 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8a7b0f346c028b342867215bdfaeaf77, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &168283960
+--- !u!224 &200176810 stripped
+RectTransform:
+  m_PrefabParentObject: {fileID: 224718192947067038, guid: 8a7b0f346c028b342867215bdfaeaf77,
+    type: 2}
+  m_PrefabInternal: {fileID: 152012494}
+--- !u!1 &217642109
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 168283963}
-  - component: {fileID: 168283962}
-  - component: {fileID: 168283961}
-  m_Layer: 9
-  m_Name: DamageCollider
+  - component: {fileID: 217642111}
+  - component: {fileID: 217642110}
+  m_Layer: 0
+  m_Name: Sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &168283961
+--- !u!114 &217642110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 168283960}
+  m_GameObject: {fileID: 217642109}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823c3e964d072ad4bb4d4f547be8bc02, type: 3}
+  m_Script: {fileID: 11500000, guid: fd2383f60b7b7f144b2caa9283c7f1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &168283962
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 168283960}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34, y: 0.18, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &168283963
+  Instance:
+    itemName: 
+    itemIcon: {fileID: 0}
+    itemDescription: 
+    oh_idle: idle
+    th_idle: th_idle
+    actions:
+    - input: 0
+      type: 0
+      targetAnim: oh_attack_1
+      mirror: 0
+      canBeParried: 1
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 1
+      canBackStab: 1
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 30
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    - input: 1
+      type: 0
+      targetAnim: oh_attack_3
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 1
+      damageAnim: damage_3
+      weaponStats:
+        physicalDamage: 80
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    twoHandedActions:
+    - input: 0
+      type: 0
+      targetAnim: th_attack_1
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 1
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 50
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    - input: 1
+      type: 0
+      targetAnim: th_attack_2
+      mirror: 0
+      canBeParried: 1
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 1
+      damageAnim: damage_3
+      weaponStats:
+        physicalDamage: 150
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    parryMultiplier: 5
+    backstabMultiplier: 5
+    LeftHandMirror: 1
+    weaponModelPrefab: {fileID: 1535163991341794, guid: 3b7954a0d8346a644a8d00000c6b2379,
+      type: 2}
+    right_model_pos: {x: 0, y: 0, z: 0}
+    right_model_eulerRot: {x: 0, y: 0, z: 0}
+    right_model_scale: {x: 0, y: 0, z: 0}
+    left_model_pos: {x: 0, y: 0, z: 0}
+    left_model_eulerRot: {x: 0, y: 0, z: 0}
+    left_model_scale: {x: 0, y: 0, z: 0}
+  weaponModel: {fileID: 1133317943213432, guid: 3b7954a0d8346a644a8d00000c6b2379,
+    type: 2}
+  weaponHook: {fileID: 114277708151909136, guid: 3b7954a0d8346a644a8d00000c6b2379,
+    type: 2}
+--- !u!4 &217642111
 Transform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 168283960}
+  m_GameObject: {fileID: 217642109}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5343785, y: 0.8247924, z: -10.757083}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 57242422}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!224 &200176810 stripped
-RectTransform:
-  m_PrefabParentObject: {fileID: 224718192947067038, guid: 8a7b0f346c028b342867215bdfaeaf77,
-    type: 2}
-  m_PrefabInternal: {fileID: 152012494}
 --- !u!1 &249339155
 GameObject:
   m_ObjectHideFlags: 0
@@ -898,27 +1056,6 @@ CapsuleCollider:
   m_Height: 0.23643199
   m_Direction: 0
   m_Center: {x: -0.11821599, y: 0, z: 0}
---- !u!1 &304280868 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-  m_PrefabInternal: {fileID: 1873952161}
---- !u!114 &304280869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 304280868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 637cc6751de9b6a4cbb5d91bd3621107, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageCollider:
-  - {fileID: 1604015301}
---- !u!4 &304280870 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-  m_PrefabInternal: {fileID: 1873952161}
 --- !u!1 &307326876
 GameObject:
   m_ObjectHideFlags: 0
@@ -1095,7 +1232,10 @@ MonoBehaviour:
     canBeParried: 1
     chageSpeed: 0
     animSpeed: 1
+    canParry: 0
     canBackStab: 0
+    parryMultiplier: 0
+    backstabMultiplier: 0
     overrideDamageAnimation: 0
     damageAnim: 
     weaponStats:
@@ -1115,7 +1255,7 @@ Rigidbody:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 307326876}
   serializedVersion: 2
-  m_Mass: 2
+  m_Mass: 20
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -1155,7 +1295,10 @@ MonoBehaviour:
     canBeParried: 0
     chageSpeed: 0
     animSpeed: 1
+    canParry: 0
     canBackStab: 0
+    parryMultiplier: 0
+    backstabMultiplier: 0
     overrideDamageAnimation: 0
     damageAnim: 
     weaponStats:
@@ -1174,7 +1317,10 @@ MonoBehaviour:
     canBeParried: 0
     chageSpeed: 0
     animSpeed: 1
+    canParry: 0
     canBackStab: 0
+    parryMultiplier: 0
+    backstabMultiplier: 0
     overrideDamageAnimation: 0
     damageAnim: 
     weaponStats:
@@ -1193,7 +1339,10 @@ MonoBehaviour:
     canBeParried: 0
     chageSpeed: 0
     animSpeed: 1
+    canParry: 0
     canBackStab: 0
+    parryMultiplier: 0
+    backstabMultiplier: 0
     overrideDamageAnimation: 0
     damageAnim: 
     weaponStats:
@@ -1212,7 +1361,10 @@ MonoBehaviour:
     canBeParried: 0
     chageSpeed: 0
     animSpeed: 1
+    canParry: 0
     canBackStab: 0
+    parryMultiplier: 0
+    backstabMultiplier: 0
     overrideDamageAnimation: 0
     damageAnim: 
     weaponStats:
@@ -1238,139 +1390,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3df169f2925e00c43949d58141d37881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightHandWeapon:
-    weaponID: 
-    weaponIcon: {fileID: 21300000, guid: 7e09433babd37c84fa565f5706cd8b79, type: 3}
-    oh_idle: idle
-    th_idle: th_idle
-    actions:
-    - input: 0
-      type: 0
-      targetAnim: oh_attack_1
-      mirror: 0
-      canBeParried: 1
-      chageSpeed: 0
-      animSpeed: 1
-      canBackStab: 0
-      overrideDamageAnimation: 0
-      damageAnim: 
-      weaponStats:
-        physicalDamage: 30
-        strikeDamage: 0
-        slashDamage: 0
-        thrustDamage: 0
-        magicDamage: 0
-        fireDamage: 0
-        lightningDamage: 0
-        darkDamage: 0
-    - input: 1
-      type: 0
-      targetAnim: oh_attack_3
-      mirror: 0
-      canBeParried: 1
-      chageSpeed: 0
-      animSpeed: 1
-      canBackStab: 1
-      overrideDamageAnimation: 1
-      damageAnim: damage_3
-      weaponStats:
-        physicalDamage: 0
-        strikeDamage: 0
-        slashDamage: 0
-        thrustDamage: 0
-        magicDamage: 0
-        fireDamage: 0
-        lightningDamage: 0
-        darkDamage: 0
-    twoHandedActions: []
-    parryStats:
-      physicalDamage: 0
-      strikeDamage: 200
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
-    backstabStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 500
-      lightningDamage: 0
-      darkDamage: 0
-    LeftHandMirror: 0
-    weaponModel: {fileID: 57242418}
-    weaponHook: {fileID: 57242419}
+  rightHandWeapons:
+  - Sword
+  leftHandWeapons:
+  - Sword
+  rightHandWeapon: {fileID: 217642110}
   hasLeftHandWeapon: 1
-  leftHandWeapon:
-    weaponID: 
-    weaponIcon: {fileID: 21300000, guid: 5dc9dd39d5a53894b917017206c22063, type: 3}
-    oh_idle: idle
-    th_idle: th_idle
-    actions:
-    - input: 0
-      type: 1
-      targetAnim: oh_attack_1
-      mirror: 0
-      canBeParried: 0
-      chageSpeed: 0
-      animSpeed: 1
-      canBackStab: 0
-      overrideDamageAnimation: 0
-      damageAnim: 
-      weaponStats:
-        physicalDamage: 0
-        strikeDamage: 0
-        slashDamage: 0
-        thrustDamage: 0
-        magicDamage: 0
-        fireDamage: 0
-        lightningDamage: 0
-        darkDamage: 0
-    - input: 1
-      type: 3
-      targetAnim: parry
-      mirror: 0
-      canBeParried: 0
-      chageSpeed: 0
-      animSpeed: 1
-      canBackStab: 0
-      overrideDamageAnimation: 0
-      damageAnim: 
-      weaponStats:
-        physicalDamage: 0
-        strikeDamage: 0
-        slashDamage: 0
-        thrustDamage: 0
-        magicDamage: 0
-        fireDamage: 0
-        lightningDamage: 0
-        darkDamage: 0
-    twoHandedActions: []
-    parryStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
-    backstabStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
-    LeftHandMirror: 1
-    weaponModel: {fileID: 553279805}
-    weaponHook: {fileID: 553279806}
+  leftHandWeapon: {fileID: 217642110}
   parryCollider: {fileID: 283749832}
 --- !u!1 &308086144 stripped
 GameObject:
@@ -2029,6 +2055,34 @@ CapsuleCollider:
   m_Height: 0.42427176
   m_Direction: 0
   m_Center: {x: 0.21213588, y: 0, z: 0}
+--- !u!1 &459520412
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 459520413}
+  m_Layer: 0
+  m_Name: '-------------------------------------------------'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &459520413
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 459520412}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.5343785, y: 0.8247924, z: -10.757083}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &464049384
 GameObject:
   m_ObjectHideFlags: 0
@@ -2238,22 +2292,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &553279805 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 100000, guid: 2c9dd2e81a357494dadd589f77a5903e, type: 3}
-  m_PrefabInternal: {fileID: 144812047}
---- !u!114 &553279806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 553279805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 637cc6751de9b6a4cbb5d91bd3621107, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageCollider: []
 --- !u!114 &569063762 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 114020889443955660, guid: 8a7b0f346c028b342867215bdfaeaf77,
@@ -2332,10 +2370,6 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 590555080}
---- !u!4 &618535467 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 400014, guid: 750cb58067bca434b80c8ba117fc86a8, type: 3}
-  m_PrefabInternal: {fileID: 1069297625}
 --- !u!1 &631817410
 GameObject:
   m_ObjectHideFlags: 0
@@ -2506,13 +2540,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 659259207}
-  m_LocalRotation: {x: -0.49488816, y: 0.12352005, z: -0.07131434, w: -0.85717136}
+  m_LocalRotation: {x: 0.3248236, y: 0.6583836, z: -0.38011795, w: 0.562611}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 60, y: -376.4, z: 0}
+  m_LocalEulerAnglesHint: {x: 60, y: -621.03, z: 0}
 --- !u!1 &701579240
 GameObject:
   m_ObjectHideFlags: 0
@@ -2777,6 +2811,50 @@ RectTransform:
   m_AnchoredPosition: {x: 17.673124, y: -21.810764}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &782971161
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 782971163}
+  - component: {fileID: 782971162}
+  m_Layer: 0
+  m_Name: Weapon Placer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &782971162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 782971161}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69e13ce9106cda240bceed9304ce4d41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponID: Sword
+  weaponModel: {fileID: 0}
+  leftHand: 1
+  saveWeapon: 0
+--- !u!4 &782971163
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 782971161}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.43083698, y: 1.0034192, z: -11.560634}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 17
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &785571167
 GameObject:
   m_ObjectHideFlags: 0
@@ -3293,10 +3371,34 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 871888578}
---- !u!4 &894221401 stripped
+--- !u!1 &897746096
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 897746097}
+  m_Layer: 0
+  m_Name: XML Maker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &897746097
 Transform:
-  m_PrefabParentObject: {fileID: 400076, guid: 750cb58067bca434b80c8ba117fc86a8, type: 3}
-  m_PrefabInternal: {fileID: 1069297625}
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 897746096}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.047392547, y: -0.10425055, z: -11.217431}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &898808911
 GameObject:
   m_ObjectHideFlags: 0
@@ -3510,6 +3612,46 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1038555436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1038555438}
+  - component: {fileID: 1038555437}
+  m_Layer: 0
+  m_Name: Resources Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1038555437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1038555436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430ee163eafbd9f4490c53f4978ae13b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1038555438
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1038555436}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.047392547, y: -0.10425055, z: -11.217431}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1069297625
 Prefab:
   m_ObjectHideFlags: 0
@@ -5334,68 +5476,6 @@ RectTransform:
   m_AnchoredPosition: {x: -50, y: 20}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 1, y: 0}
---- !u!1001 &1374648971
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 894221401}
-    m_Modifications:
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.081
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.497
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_Name
-      value: Viking Sword Right
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-  m_IsPrefabParent: 0
 --- !u!224 &1382168088 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 224718192947067038, guid: 8a7b0f346c028b342867215bdfaeaf77,
@@ -5460,7 +5540,7 @@ MonoBehaviour:
     leftWeapon_1: 51
     leftWeapon_2: 51
     leftWeapon_3: 51
-    physical: 80
+    physical: 30
     vs_strike: 0
     vs_slash: 0
     vs_thrust: 0
@@ -6165,59 +6245,6 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1604015301
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1604015304}
-  - component: {fileID: 1604015303}
-  - component: {fileID: 1604015302}
-  m_Layer: 9
-  m_Name: DamageCollider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1604015302
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1604015301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823c3e964d072ad4bb4d4f547be8bc02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!65 &1604015303
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1604015301}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.34, y: 0.18, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &1604015304
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1604015301}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 304280870}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1605182839 stripped
 Transform:
   m_PrefabParentObject: {fileID: 400076, guid: 750cb58067bca434b80c8ba117fc86a8, type: 3}
@@ -6572,76 +6599,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1001 &1873952161
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 618535467}
-    m_Modifications:
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.067
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.494
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_Name
-      value: Viking Sword Left
-      objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: ea59095f9fd73004b8289b1d81ed2924, type: 3}
-  m_IsPrefabParent: 0
 --- !u!1 &1876658616
 GameObject:
   m_ObjectHideFlags: 0

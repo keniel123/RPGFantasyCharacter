@@ -173,7 +173,6 @@ namespace RPGController
 
             if (canMove || characterStats.poise > 100)
             {
-                Debug.Log("Playing animation...");
                 if (act.overrideDamageAnimation)
                 {
                     animator.Play(act.damageAnim);
@@ -215,23 +214,24 @@ namespace RPGController
             return;
         }
 
-        public void IsGettingParried(WeaponStats weaponStats)
+        public void IsGettingParried(Action act)
         {
-            int damage = StatsCalculations.CalculateBaseDamage(weaponStats, characterStats);
-            Debug.Log("Parry damage: " + damage);
+            int damage = StatsCalculations.CalculateBaseDamage(act.weaponStats, characterStats, act.parryMultiplier);
+            //Debug.Log("Parry damage: " + damage);
 
-            health -= damage;
+            health -= Mathf.RoundToInt(damage);
             dontDoAnything = true;
             animator.SetBool(StaticStrings.animParam_CanMove, false);
             animator.Play(StaticStrings.animState_ParryReceived);
 
         }
 
-        public void IsGettingBackStabbed(WeaponStats weaponStats)
+        public void IsGettingBackStabbed(Action act)
         {
-            int damage = StatsCalculations.CalculateBaseDamage(weaponStats, characterStats);
-            Debug.Log("Backstab damage: " + damage);
-            health -= damage;
+            int damage = StatsCalculations.CalculateBaseDamage(act.weaponStats, characterStats,act.backstabMultiplier);
+            //Debug.Log("Backstab damage: " + damage);
+
+            health -= Mathf.RoundToInt(damage);
             dontDoAnything = true;
             animator.SetBool(StaticStrings.animParam_CanMove, false);
             animator.Play(StaticStrings.animState_BackStabbed);
