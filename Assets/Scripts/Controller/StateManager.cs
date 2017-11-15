@@ -37,6 +37,7 @@ public class StateManager : MonoBehaviour
     public bool lockOn;
     public bool inAction;
     public bool canMove;
+    public bool isSpellCasting;
     public bool isTwoHanded;
     public bool isUsingItem;
     public bool canBeParried;
@@ -128,11 +129,9 @@ public class StateManager : MonoBehaviour
 
     public void Tick(float d)
     {
-
         delta = d;
         onGround = OnGround();
         animator.SetBool(StaticStrings.animParam_OnGround, onGround);
-
     }
 
     void HandleRolls()
@@ -226,7 +225,7 @@ public class StateManager : MonoBehaviour
 
     public void DetectAction()
     {
-        if (!canMove || isUsingItem)
+        if (!canMove || isUsingItem || isSpellCasting)
         {
             return;
         }
@@ -242,10 +241,11 @@ public class StateManager : MonoBehaviour
         Action slot = actionManager.GetActionSlot(this);
         if (slot == null)
         {
+            Debug.Log("Detect action slot is null!");
             return;
         }
 
-        switch (slot.type)
+        switch (slot.actionType)
         {   
             case ActionType.attack:
                 AttackAction(slot);
@@ -254,6 +254,7 @@ public class StateManager : MonoBehaviour
                 BlockAction(slot);
                 break;
             case ActionType.spells:
+                SpellAction(slot);
                 break;
             case ActionType.parry:
                 ParryAction(slot);
@@ -285,7 +286,6 @@ public class StateManager : MonoBehaviour
             return;
         }
 
-
         currentAction = slot;
         canMove = false;
         inAction = true;
@@ -304,8 +304,110 @@ public class StateManager : MonoBehaviour
         animator.SetFloat(StaticStrings.animParam_AnimSpeed, targetSpeed);
         animator.SetBool(StaticStrings.animParam_Mirror, slot.mirror);
         animator.CrossFade(targetAnim, 0.2f);
+    }
 
+    void SpellAction(Action slot)
+    {
+        if (slot.spellClass != inventoryManager.currentSpell.Instance.spellClass)
+        {
+            //targetAnim= "CantCastSpell"
+            //animator.CrossFade(targetAnim, 0.2f);
 
+            Debug.Log("Cant cast the spell. Spell class doesnt match");
+            return;
+        }
+
+        ActionInput inp = actionManager.GetActionInput(this);
+        if (inp == ActionInput.lb)
+        {
+            inp = ActionInput.rb;
+        }
+        if (inp == ActionInput.lt)
+        {
+            inp = ActionInput.rt;
+        }
+
+        Spell spellInst = inventoryManager.currentSpell.Instance;
+        SpellAction spellSlot = spellInst.GetAction(spellInst.actions, inp);
+
+        if (spellSlot == null)
+        {
+            Debug.Log("CAN'T FIND SPELL SLOT");
+            return;
+        }
+
+        isSpellCasting = true;
+        spellCastTime = 0;
+        max_SpellCastTime = spellSlot.castTime;
+        spellTargetAnim = spellSlot.throwAnim;
+        spellIsMirorred = slot.mirror;
+        
+        string targetAnim = spellSlot.targetAnim;
+        if (spellIsMirorred)
+        {
+            targetAnim += StaticStrings._leftPrefix;
+        }
+        else
+        {
+            targetAnim += StaticStrings._rightPrefix;
+        }
+
+        projectileCandidate = inventoryManager.currentSpell.Instance.projectile;
+        //If spellIsMirorred == true --> Left hand
+        inventoryManager.CreateSpellParticle(inventoryManager.currentSpell, spellIsMirorred);
+        animator.SetBool(StaticStrings.animParam_SpellCasting, true);
+        animator.SetBool(StaticStrings.animParam_Mirror, slot.mirror);
+        animator.CrossFade(targetAnim, 0.2f);
+    }
+
+    float spellCastTime;
+    float max_SpellCastTime;
+    string spellTargetAnim;
+    bool spellIsMirorred;
+    GameObject projectileCandidate;
+
+    void HandleSpellCasting() {
+
+        spellCastTime += delta;
+        if (inventoryManager.currentSpell.currentParticle != null)
+        {
+            inventoryManager.currentSpell.currentParticle.SetActive(true);
+        }
+
+        if (spellCastTime > max_SpellCastTime)
+        {
+            canMove = false;
+            inAction = true;
+            isSpellCasting = false;
+
+            string targetAnim = spellTargetAnim;
+            animator.SetBool(StaticStrings.animParam_Mirror, spellIsMirorred);
+            animator.CrossFade(targetAnim, 0.2f);
+
+        }
+    }
+
+    public void ThrowProjectile() {
+        if (projectileCandidate == null)
+        {
+            return;
+        }
+
+        GameObject go = Instantiate(projectileCandidate) as GameObject;
+        Transform parent = animator.GetBoneTransform((spellIsMirorred) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
+        go.transform.position = parent.position;
+
+        if (lockOnTransform && lockOn)
+        {
+            go.transform.LookAt(lockOnTransform.position);
+        }
+        else
+        {
+            go.transform.rotation = transform.rotation;
+        }
+
+        Projectile projectileBehaviour = go.GetComponent<Projectile>();
+        projectileBehaviour.Init();
     }
 
     bool CheckForParry(Action slot) {
@@ -472,6 +574,8 @@ public class StateManager : MonoBehaviour
 
         isBlocking = false;
         isUsingItem = animator.GetBool(StaticStrings.animParam_Interacting);
+        animator.SetBool(StaticStrings.animParam_SpellCasting, isSpellCasting);
+
         DetectAction();
         DetectItemAction();
         inventoryManager.rightHandWeapon.weaponModel.SetActive(!isUsingItem);
@@ -503,20 +607,16 @@ public class StateManager : MonoBehaviour
             return;
         }
 
-        //animHook.rootMotionMultiplier = 1;
-        animHook.CloseRoll();
-        HandleRolls();
-
         animator.applyRootMotion = false;
 
         //While moving there's no need for drag, but if the character is not moving
         //increase the drag, so that it won't slide across the ground surface
-        rigid.drag = (moveAmount > 0 || !onGround == false) ? 0 : 4;
+        rigid.drag = (moveAmount > 0 || onGround == false) ? 0 : 4;
 
         float targetSpeed = moveSpeed;
 
-        //If the player is using an item, move slowly
-        if (isUsingItem)
+        //If the player is using an item or casting a spell, move slowly
+        if (isUsingItem || isSpellCasting)
         {
             isRunning = false;
             moveAmount = Mathf.Clamp(moveAmount, 0, 0.45f);
@@ -540,23 +640,7 @@ public class StateManager : MonoBehaviour
 
         if (!lockOn)
         {
-            Vector3 targetDirection = (lockOn == false) ? //If you're not locked on assign move direction
-                moveDirection
-                :
-                (lockOnTransform != null) ? //If you're locked on a target, check if the target is NULL or not
-                lockOnTransform.transform.position - transform.position //If it's not null, assign this as move direction
-                :
-                moveDirection;
-            targetDirection.y = 0;
-            if (targetDirection == Vector3.zero)
-            {
-                targetDirection = transform.forward;
-            }
-
-            Quaternion targetRotationTemp = Quaternion.LookRotation(targetDirection);
-            Quaternion targetRotation = Quaternion.Slerp(transform.rotation, targetRotationTemp, delta * moveAmount * rotateSpeed);
-            transform.rotation = targetRotation;
-
+            HandleRotation();
             animator.SetBool(StaticStrings.animParam_LockOn, lockOn);
 
             if (!lockOn)
@@ -567,8 +651,37 @@ public class StateManager : MonoBehaviour
             {
                 HandleLockOnAnimations(moveDirection);
             }
+
+            if (isSpellCasting)
+            {
+                HandleSpellCasting();
+                return;
+            }
+
+            //animHook.rootMotionMultiplier = 1;
+            animHook.CloseRoll();
+            HandleRolls();
         }
 
+    }
+
+    void HandleRotation() {
+        Vector3 targetDirection = (lockOn == false) ? //If you're not locked on assign move direction
+               moveDirection
+               :
+               (lockOnTransform != null) ? //If you're locked on a target, check if the target is NULL or not
+               lockOnTransform.transform.position - transform.position //If it's not null, assign this as move direction
+               :
+               moveDirection;
+        targetDirection.y = 0;
+        if (targetDirection == Vector3.zero)
+        {
+            targetDirection = transform.forward;
+        }
+
+        Quaternion targetRotationTemp = Quaternion.LookRotation(targetDirection);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, targetRotationTemp, delta * moveAmount * rotateSpeed);
+        transform.rotation = targetRotation;
     }
 
     void HandleMovementAnimations()
@@ -594,7 +707,7 @@ public class StateManager : MonoBehaviour
 
         Vector3 origin = transform.position + (Vector3.up * toGround);
         Vector3 dir = -Vector3.up;
-        float distance = toGround + 0.3f;
+        float distance = toGround + 0.2f;
 
         RaycastHit hit;
         if (Physics.Raycast(origin, dir, out hit, distance, ignoreLayers))

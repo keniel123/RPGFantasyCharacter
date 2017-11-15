@@ -32,15 +32,22 @@ namespace RPGController
 
 
         //Editor extension to create inventory
-        [MenuItem("Assets/Inventory/CreateInventory")]
+        [MenuItem("Assets/Inventory/Create Inventory List")]
         public static void CreateInventory() {
 
 
         }
 
+        //Editor extension to create spell items
+        [MenuItem("Assets/Inventory/Create Spell Item List")]
+        public static void CreateSpell()
+        {
+            CreateAsset<SpellItemScriptableObject>();
+
+        }
 
         //Editor extension to weapon list for inventory
-        [MenuItem("Assets/Inventory/CreateWeaponList")]
+        [MenuItem("Assets/Inventory/Create Weapon List")]
         public static void CreateWeaponList()
         {
 

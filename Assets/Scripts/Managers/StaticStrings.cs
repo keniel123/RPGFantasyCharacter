@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace RPGController
@@ -17,11 +18,8 @@ namespace RPGController
         public static string RT = "RT";
         public static string LT = "LT";
         public static string RB = "RB";
-
-        internal static string SaveLocation()
-        {
-            throw new NotImplementedException();
-        }
+        public static string Pad_X = "Pad_X";
+        public static string Pad_Y = "Pad_Y";
 
         public static string LB = "LB";
         public static string L = "L";
@@ -40,6 +38,7 @@ namespace RPGController
         public static string animParam_IsLeft = "IsLeft";
         public static string animParam_AnimSpeed = "AnimSpeed";
         public static string animParam_ParryAttack = "parry_attack";
+        public static string animParam_SpellCasting = "SpellCasting";
 
 
         //Animator States
@@ -53,7 +52,6 @@ namespace RPGController
         public static string animState_EmptyRight = "Empty Right Hand";
         public static string animState_EquipWeapon_OH = "equipWeapon_oh";
 
-
         public static string damage1 = "damage_1";
         public static string damage2 = "damage_2";
         public static string damage3 = "damage_3";
@@ -64,6 +62,21 @@ namespace RPGController
 
         //ScriptableObjects
         public static string WeaponScriptableObject_FileName = "RPGController.WeaponScriptableObject";
+        public static string SpellScriptableObject_FileName = "RPGController.SpellItemScriptableObject";
 
+        //XML Datapath
+
+        public static string itemFolder = "/Items/";
+
+        public static string SaveLocation()
+        {
+            string path = Application.streamingAssetsPath;
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            return path;
+        }
     }
 }

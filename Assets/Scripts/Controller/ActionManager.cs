@@ -37,7 +37,7 @@ namespace RPGController
                 StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lb, ActionInput.lb, actionSlots);
                 StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lt, ActionInput.lt, actionSlots);
             }
-
+            
         }
 
         public void UpdateActionsTwoHanded()
@@ -50,18 +50,22 @@ namespace RPGController
             {
                 Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].input, actionSlots);
                 action.targetAnim = weapon.twoHandedActions[i].targetAnim;
-                action.type = weapon.twoHandedActions[i].type;
+                action.actionType = weapon.twoHandedActions[i].actionType;
             }
         }
 
         void EmptyAllSlots() {
-            //Get previous actions
+            //Reset previous actions
             for (int i = 0; i < 4; i++)
             {
                 Action a = StaticFunctions.GetAction((ActionInput)i, actionSlots);
-                a.targetAnim = null;
-                a.mirror = false;
-                a.type = ActionType.attack;
+
+                if (a != null)
+                {
+                    a.targetAnim = null;
+                    a.mirror = false;
+                    a.actionType = ActionType.attack;
+                }
             }
         }
 
@@ -93,7 +97,7 @@ namespace RPGController
             if (st.lb)
                 return ActionInput.lb;
 
-            return ActionInput.rb;
+            return ActionInput.none;
         }
 
         public bool IsLeftHandSlot(Action slot) {
@@ -103,18 +107,29 @@ namespace RPGController
     }
 
     public enum ActionInput{
-       rb, rt,lb,lt
+       rb, rt,lb,lt, none
     }
 
     public enum ActionType {
         attack, block, spells, parry
     }
 
+    public enum SpellClass
+    {
+        Pyromancy, Miracles, Sorcery
+    }
+
+    public enum SpellType
+    {
+        Projectile, Buff, Looping
+    }
+
     [Serializable]
     public class Action {
 
         public ActionInput input;
-        public ActionType type;
+        public ActionType actionType;
+        public SpellClass spellClass;
         public string targetAnim;
         public bool mirror = false;
         public bool canBeParried = true;
@@ -133,6 +148,14 @@ namespace RPGController
 
         public WeaponStats weaponStats;
 
+    }
+
+    [Serializable]
+    public class SpellAction {
+        public ActionInput actInput;
+        public string targetAnim;
+        public string throwAnim;
+        public float castTime;
     }
 
     [Serializable]

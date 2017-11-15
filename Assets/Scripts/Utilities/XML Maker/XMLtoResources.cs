@@ -20,8 +20,7 @@ namespace RPGController.Utilities
 
         public static void LoadWeaponData()
         {
-            string filePath = null;
-            //string filePath = StaticStrings.SaveLocation() + StaticStrings.itemFolder;
+            string filePath = StaticStrings.SaveLocation() + StaticStrings.itemFolder;
             filePath += "weapons_database.xml";
 
             if(!File.Exists(filePath))
@@ -30,7 +29,7 @@ namespace RPGController.Utilities
                 return;
             }
 
-            WeaponScriptableObject obj = Resources.Load("SA.WeaponScriptableObject") as WeaponScriptableObject;
+            WeaponScriptableObject obj = Resources.Load(StaticStrings.WeaponScriptableObject_FileName) as WeaponScriptableObject;
 
             if(obj == null)
             {
@@ -70,11 +69,13 @@ namespace RPGController.Utilities
                 XmlNode LeftHandMirror = w.SelectSingleNode("LeftHandMirror");
                 _w.LeftHandMirror = (LeftHandMirror.InnerText == "True");
 
-                //_w.r_model_pos = XmlToVector(w, "rmp");
-                //_w.r_model_eulers = XmlToVector(w, "rme");
-                //_w.l_model_pos = XmlToVector(w, "lmp");
-                //_w.l_model_eulers = XmlToVector(w, "lme");
-                //_w.model_scale = XmlToVector(w, "ms");
+                _w.right_model_pos = XmlToVector(w, "rmp");
+                _w.right_model_eulerRot = XmlToVector(w, "rme");
+                _w.left_model_pos = XmlToVector(w, "lmp");
+                _w.left_model_eulerRot = XmlToVector(w, "lme");
+                _w.right_model_scale = XmlToVector(w, "rms");
+                _w.left_model_scale = XmlToVector(w, "lms");
+
 
                 obj.weaponsAll.Add(_w);
             }
@@ -107,7 +108,7 @@ namespace RPGController.Utilities
                 _a.input = (ActionInput) Enum.Parse( typeof(ActionInput),actionInput.InnerText);
 
                 XmlNode actionType = a.SelectSingleNode("ActionType");
-                _a.type = (ActionType)Enum.Parse(typeof(ActionType), actionType.InnerText);
+                _a.actionType = (ActionType)Enum.Parse(typeof(ActionType), actionType.InnerText);
 
                 XmlNode targetAnim = a.SelectSingleNode("targetAnim");
                 _a.targetAnim = targetAnim.InnerText;

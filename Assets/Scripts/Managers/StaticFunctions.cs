@@ -13,6 +13,7 @@ namespace RPGController
             to.oh_idle = from.oh_idle;
             to.th_idle = from.th_idle;
             to.actions = new List<Action>();
+            
             //Copy one handed actions
             for (int i = 0; i < from.actions.Count; i++)
             {
@@ -47,11 +48,40 @@ namespace RPGController
 
         }
 
+        public static void DeepCopySpell(Spell from, Spell to) {
+
+            to.itemName = from.itemName;
+            to.itemIcon = from.itemIcon;
+            to.itemDescription = from.itemDescription;
+
+            to.spellType = from.spellType;
+            to.spellClass = from.spellClass;
+            to.projectile = from.projectile;
+            to.particle_prefab = from.particle_prefab;
+
+            to.actions = new List<SpellAction>();
+            for (int i = 0; i < from.actions.Count; i++)
+            {
+                SpellAction spellAction = new SpellAction();
+                DeepCopySpellAction(spellAction, from.actions[i]);
+                to.actions.Add(spellAction);
+            }
+        }
+
+        public static void DeepCopySpellAction(SpellAction to, SpellAction from) {
+            to.actInput = from.actInput;
+            to.targetAnim = from.targetAnim;
+            to.throwAnim = from.throwAnim;
+            to.castTime = from.castTime;
+        }
 
         public static void DeepCopyActionToAction(Action action, Action weaponAct) {
 
+            action.input = weaponAct.input;
+            action.spellClass = weaponAct.spellClass;
             action.targetAnim = weaponAct.targetAnim;
-            action.type = weaponAct.type;
+            action.actionType = weaponAct.actionType;
+            action.canParry = weaponAct.canParry;
             action.canBeParried = weaponAct.canBeParried;
             action.chageSpeed = weaponAct.chageSpeed;
             action.animSpeed = weaponAct.animSpeed;
@@ -64,7 +94,6 @@ namespace RPGController
 
         public static void DeepCopyAction(Weapon weapon, ActionInput actionInput, ActionInput assign, List<Action> actionList,bool isLeftHand = false)
         {
-
             Action action = GetAction(assign, actionList);
             Action weaponAct = weapon.GetAction(weapon.actions, actionInput);
 
@@ -74,8 +103,11 @@ namespace RPGController
                 return;
             }
 
+            action.input = weaponAct.input;
+            action.spellClass = weaponAct.spellClass;
             action.targetAnim = weaponAct.targetAnim;
-            action.type = weaponAct.type;
+            action.actionType = weaponAct.actionType;
+            action.canParry = weaponAct.canParry;
             action.canBeParried = weaponAct.canBeParried;
             action.chageSpeed = weaponAct.chageSpeed;
             action.animSpeed = weaponAct.animSpeed;
@@ -84,7 +116,7 @@ namespace RPGController
             action.damageAnim = weaponAct.damageAnim;
             action.parryMultiplier = weapon.parryMultiplier;
             action.backstabMultiplier = weapon.backstabMultiplier;
-
+            
             if (isLeftHand)
             {
                 //Left hand animations are just mirror version of right hand animations
@@ -111,7 +143,7 @@ namespace RPGController
 
         public static Action GetAction(ActionInput actInput, List<Action> actionSlots)
         {
-
+            //Debug.Log("Getting action for: " + actInput);
             for (int i = 0; i < actionSlots.Count; i++)
             {
                 if (actionSlots[i].input == actInput)

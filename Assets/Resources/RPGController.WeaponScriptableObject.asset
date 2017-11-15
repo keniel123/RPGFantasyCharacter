@@ -19,8 +19,73 @@ MonoBehaviour:
     th_idle: th_idle
     actions:
     - input: 0
-      type: 0
+      actionType: 0
+      spellClass: 0
       targetAnim: oh_attack_1
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 0
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    twoHandedActions:
+    - input: 0
+      actionType: 0
+      spellClass: 0
+      targetAnim: th_attack_1
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 0
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 1
+    weaponModelPrefab: {fileID: 1535163991341794, guid: 3b7954a0d8346a644a8d00000c6b2379,
+      type: 2}
+    right_model_pos: {x: 0.0805, y: -0.0142, z: 0.0035}
+    right_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
+    right_model_scale: {x: 1, y: 1, z: 1}
+    left_model_pos: {x: -0.0824, y: -0.01, z: 0.0097}
+    left_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
+    left_model_scale: {x: 1, y: 1, z: 1}
+  - itemName: Round Shield
+    itemIcon: {fileID: 21300000, guid: 5dc9dd39d5a53894b917017206c22063, type: 3}
+    itemDescription: 
+    oh_idle: idle
+    th_idle: th_idle
+    actions:
+    - input: 2
+      actionType: 1
+      spellClass: 0
+      targetAnim: 
       mirror: 0
       canBeParried: 0
       chageSpeed: 0
@@ -44,11 +109,52 @@ MonoBehaviour:
     parryMultiplier: 0
     backstabMultiplier: 0
     LeftHandMirror: 0
-    weaponModelPrefab: {fileID: 1535163991341794, guid: 3b7954a0d8346a644a8d00000c6b2379,
+    weaponModelPrefab: {fileID: 1431040492147782, guid: ff6b4cce3041a1e459579df29edb108c,
       type: 2}
-    right_model_pos: {x: 0.0805, y: -0.0142, z: 0.0035}
-    right_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
-    right_model_scale: {x: 1, y: 1, z: 1}
-    left_model_pos: {x: -0.0824, y: -0.01, z: 0.0097}
-    left_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
-    left_model_scale: {x: 1, y: 1, z: 1}
+    right_model_pos: {x: 0.0887, y: -0.0076, z: -0.0011}
+    right_model_eulerRot: {x: 279.87018, y: 38.86177, z: 321.555}
+    right_model_scale: {x: 0.75, y: 0.75, z: 0.75}
+    left_model_pos: {x: -0.093, y: 0.016, z: 0.01}
+    left_model_eulerRot: {x: 270, y: 0, z: 0}
+    left_model_scale: {x: 0.75, y: 0.75, z: 0.75}
+  - itemName: Pyromancy Flame
+    itemIcon: {fileID: 21300000, guid: a25b2cda34f7d6c409ab3e8114465ea4, type: 3}
+    itemDescription: 
+    oh_idle: idle
+    th_idle: th_idle
+    actions:
+    - input: 0
+      actionType: 2
+      spellClass: 0
+      targetAnim: oh_attack_1
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+      weaponStats:
+        physicalDamage: 0
+        strikeDamage: 0
+        slashDamage: 0
+        thrustDamage: 0
+        magicDamage: 0
+        fireDamage: 0
+        lightningDamage: 0
+        darkDamage: 0
+    twoHandedActions: []
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 1
+    weaponModelPrefab: {fileID: 1256975517352644, guid: 065d0d76712e6dd4f87b6a71c558c483,
+      type: 2}
+    right_model_pos: {x: 0.12, y: -0.064, z: 0}
+    right_model_eulerRot: {x: -0, y: 0, z: 0}
+    right_model_scale: {x: 0.1, y: 0.1, z: 0.1}
+    left_model_pos: {x: -0.1308, y: -0.0533, z: -0}
+    left_model_eulerRot: {x: -0, y: 0, z: 0}
+    left_model_scale: {x: 0.1, y: 0.10000001, z: 0.1}

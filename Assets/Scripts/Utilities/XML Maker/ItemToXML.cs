@@ -9,7 +9,6 @@ namespace RPGController.Utilities
 {
     public static class ItemToXML
     {
-
         [MenuItem("Assets/Inventory/Backup/Make Weapons Database Backup")]
         public static void CreateInventory()
         {
@@ -19,7 +18,7 @@ namespace RPGController.Utilities
         static void MakeXMLFromWeaponItems()
         {
        
-            WeaponScriptableObject obj = Resources.Load("SA.WeaponScriptableObject") as WeaponScriptableObject;
+            WeaponScriptableObject obj = Resources.Load(StaticStrings.WeaponScriptableObject_FileName) as WeaponScriptableObject;
 
             if(obj == null)
             {
@@ -47,11 +46,12 @@ namespace RPGController.Utilities
                     xml += "<backstabMultiplier>" + w.backstabMultiplier + "</backstabMultiplier>" + "\n";
                     xml += "<LeftHandMirror>" + w.LeftHandMirror + "</LeftHandMirror>" + "\n";
 
-                //xml += VectorToXml(w.r_model_pos, "rmp");
-                //xml += VectorToXml(w.r_model_eulers, "rme");
-                //xml += VectorToXml(w.l_model_pos, "lmp");
-                //xml += VectorToXml(w.l_model_eulers, "lme");
-                //xml += VectorToXml(w.model_scale, "ms");
+                xml += VectorToXml(w.right_model_pos, "rmp");
+                xml += VectorToXml(w.right_model_eulerRot, "rme");
+                xml += VectorToXml(w.left_model_pos, "lmp");
+                xml += VectorToXml(w.left_model_eulerRot, "lme");
+                xml += VectorToXml(w.right_model_scale, "rms");
+                xml += VectorToXml(w.left_model_scale, "lms");
 
                 xml += "</weapon>" + "\n";
 
@@ -59,8 +59,7 @@ namespace RPGController.Utilities
 
             xml += "</root>";
 
-            string path = null;
-            //string path = StaticStrings.SaveLocation() + StaticStrings.itemFolder;
+            string path = StaticStrings.SaveLocation() + StaticStrings.itemFolder;
             
             path += "weapons_database.xml";
 
@@ -88,7 +87,7 @@ namespace RPGController.Utilities
             {
                 xml += "<" + nodeName + ">" + "\n";
                 xml += "<ActionInput>" + a.input.ToString() + "</ActionInput>" + "\n";
-                xml += "<ActionType>" + a.type.ToString() + "</ActionType>" + "\n";
+                xml += "<ActionType>" + a.actionType.ToString() + "</ActionType>" + "\n";
                 xml += "<targetAnim>" + a.targetAnim + "</targetAnim>" + "\n";
                 xml += "<mirror>" + a.mirror + "</mirror>" + "\n";
                 xml += "<canBeParried>" + a.canBeParried + "</canBeParried>" + "\n";

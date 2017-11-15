@@ -7,9 +7,20 @@ namespace RPGController
 {
     public class InventoryManager : MonoBehaviour
     {
-        //Use these weapon name lists to create RuntimeWeapon items
+        //Use these name lists to create RuntimeWeapon items
         public List<string> rightHandWeapons;
         public List<string> leftHandWeapons;
+        public List<string> spellItems;
+
+        public int right_Index;
+        public int left_Index;
+        public int spell_Index;
+        List<RuntimeWeapon> runtime_Right_Weapon = new List<RuntimeWeapon>();
+        List<RuntimeWeapon> runtime_Left_Weapon = new List<RuntimeWeapon>();
+        List<RuntimeSpellItems> runtime_Spells = new List<RuntimeSpellItems>();
+
+        public RuntimeSpellItems currentSpell;
+        Action currentSlot;
 
         public RuntimeWeapon rightHandWeapon;
         public bool hasLeftHandWeapon = true;
@@ -21,23 +32,43 @@ namespace RPGController
         {
             states = st;
 
-            if (rightHandWeapons.Count > 0)
+            LoadInventory();
+
+            ParryCollider parryCol = parryCollider.GetComponent<ParryCollider>();
+            parryCol.InitPlayer(st);
+            CloseParryCollider();
+        }
+
+        public void LoadInventory() {
+
+            for (int i = 0; i < rightHandWeapons.Count; i++)
             {
-                //Get the first weapon from Resources with the weapon that corresponds
-                //the first name in right weapon names list
-                rightHandWeapon = WeaponToRuntimeWeapon(
-                    ResourcesManager.Instance.GetWeapon(rightHandWeapons[0])
-                );
+                WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(rightHandWeapons[i]));
             }
 
-            if (leftHandWeapons.Count > 0)
+            for (int i = 0; i < leftHandWeapons.Count; i++)
             {
-                rightHandWeapon = WeaponToRuntimeWeapon(
-                    ResourcesManager.Instance.GetWeapon(leftHandWeapons[0]), true);
-
-                hasLeftHandWeapon = true;
+                WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(leftHandWeapons[i]), true);
             }
-        
+
+            if (runtime_Right_Weapon.Count > 0)
+            {
+                if (right_Index > runtime_Right_Weapon.Count -1)
+                {
+                    right_Index = 0;
+                }
+                rightHandWeapon = runtime_Right_Weapon[right_Index];
+            }
+
+
+            if (runtime_Left_Weapon.Count > 0)
+            {
+                if (left_Index > runtime_Left_Weapon.Count - 1)
+                {
+                    left_Index = 0;
+                }
+                leftHandWeapon = runtime_Left_Weapon[left_Index];
+            }
 
             if (rightHandWeapon != null)
             {
@@ -46,22 +77,52 @@ namespace RPGController
             if (leftHandWeapon != null)
             {
                 EquipWeapon(leftHandWeapon, true);
+                hasLeftHandWeapon = true;
             }
 
-            hasLeftHandWeapon = (leftHandWeapon != null);
+            for (int i = 0; i < spellItems.Count; i++)
+            {
+                SpellToRuntimeSpell(ResourcesManager.Instance.GetSpell(spellItems[i]));
+            }
+            
+            if (runtime_Spells.Count > 0)
+            {
+                if (spell_Index > runtime_Spells.Count)
+                {
+                    spell_Index = 0;
+                }
 
-            InitAllDamageColliders(st);
+                EquipSpell(runtime_Spells[spell_Index]);
+            }
+
+            InitAllDamageColliders(states);
             CloseAllDamageColliders();
 
-            ParryCollider parryCol = parryCollider.GetComponent<ParryCollider>();
-            parryCol.InitPlayer(st);
-            CloseParryCollider();
         }
 
         public void EquipWeapon(RuntimeWeapon weapon, bool isLeft = false) {
-            
+
+            if (isLeft)
+            {
+                if (leftHandWeapon != null)
+                {
+                    leftHandWeapon.weaponModel.SetActive(false);
+                }
+
+                leftHandWeapon = weapon;
+            }
+            else
+            {
+                if (rightHandWeapon != null)
+                {
+                    rightHandWeapon.weaponModel.SetActive(false);
+                }
+
+                rightHandWeapon = weapon;
+            }
+
             string targetIdle = weapon.Instance.oh_idle;
-            targetIdle += (isLeft) ? "_left" : "_right";
+            targetIdle += (isLeft) ? StaticStrings._leftPrefix : StaticStrings._rightPrefix;
             states.animator.SetBool(StaticStrings.animParam_Mirror, isLeft);
             states.animator.Play(StaticStrings.animState_ChangeWeapon);
             states.animator.Play(targetIdle);
@@ -72,6 +133,14 @@ namespace RPGController
                 QSlotType.leftHand : QSlotType.rightHand, weapon.Instance.itemIcon);
 
             weapon.weaponModel.SetActive(true);
+        }
+        
+        public void EquipSpell(RuntimeSpellItems spell) {
+
+            currentSpell = spell;
+
+            QuickSlot quickSlot = QuickSlot.Instance;
+            quickSlot.UpdateSlot(QSlotType.spell, spell.Instance.itemIcon);
         }
 
         //Gets the current weapon equipped by the player
@@ -124,10 +193,39 @@ namespace RPGController
 
         }
 
+        public RuntimeSpellItems SpellToRuntimeSpell(Spell spell, bool isLeftHand = false) {
+
+            GameObject go = new GameObject();
+            RuntimeSpellItems instSpell = go.AddComponent<RuntimeSpellItems>();
+
+            instSpell.Instance = new Spell();
+            StaticFunctions.DeepCopySpell(spell, instSpell.Instance);
+            go.name = spell.itemName;
+
+
+            runtime_Spells.Add(instSpell);
+
+            return instSpell;
+        }
+
+        public void CreateSpellParticle(RuntimeSpellItems instSpell, bool isLeftHand) {
+            if (instSpell.currentParticle == null)
+            {
+                instSpell.currentParticle = Instantiate(instSpell.Instance.particle_prefab) as GameObject;
+            }
+
+            Transform parent = states.animator.GetBoneTransform((isLeftHand) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
+            instSpell.currentParticle.transform.parent = parent;
+            instSpell.currentParticle.transform.localRotation = Quaternion.identity;
+            instSpell.currentParticle.transform.localPosition = Vector3.zero;
+            instSpell.currentParticle.SetActive(false);
+        }
+
         public RuntimeWeapon WeaponToRuntimeWeapon(Weapon weapon, bool isLeftHand = false) {
 
             GameObject go = new GameObject();
             RuntimeWeapon inst = go.AddComponent<RuntimeWeapon>();
+            go.name = weapon.itemName;
 
             inst.Instance = new Weapon();
             StaticFunctions.DeepCopyWeapon(weapon, inst.Instance);
@@ -154,7 +252,55 @@ namespace RPGController
             inst.weaponHook = inst.weaponModel.GetComponentInChildren<WeaponHook>();
             inst.weaponHook.InitDamageColliders(states);
 
+            if (isLeftHand)
+            {
+                runtime_Left_Weapon.Add(inst);
+            }
+            else
+            {
+                runtime_Right_Weapon.Add(inst);
+            }
+
+            inst.weaponModel.SetActive(false);
+
             return inst;
+        }
+
+        public void ChangeToNextWeapon(bool isLeft) {
+            if (isLeft)
+            {
+                if (left_Index < runtime_Left_Weapon.Count - 1)
+                    left_Index++;
+                else
+                    left_Index = 0;
+
+                EquipWeapon(runtime_Left_Weapon[left_Index], true);
+
+            }
+            else
+            {
+                if (right_Index < runtime_Right_Weapon.Count - 1)
+                    right_Index++;
+                else
+                    right_Index = 0;
+
+                EquipWeapon(runtime_Right_Weapon[right_Index]);
+            }
+
+            states.actionManager.UpdateActionsOneHanded();
+        }
+
+        public void ChangeToNextSpell() {
+            if (spell_Index < runtime_Spells.Count -1)
+            {
+                spell_Index++;
+            }
+            else
+            {
+                spell_Index = 0;
+            }
+
+            EquipSpell(runtime_Spells[spell_Index]);
         }
     }
 
@@ -163,6 +309,7 @@ namespace RPGController
         public string itemName;
         public Sprite itemIcon;
         public string itemDescription;
+
     }
 
     [System.Serializable]
@@ -188,9 +335,14 @@ namespace RPGController
         public Vector3 left_model_scale;
 
 
-        public Action GetAction(List<Action> listOfActions, ActionInput actInput) {
-            
-            for (int i = 0; i < actions.Count; i++)
+        public Action GetAction(List<Action> listOfActions, ActionInput actInput)
+        {
+            if (listOfActions == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < listOfActions.Count; i++)
             {
                 if (listOfActions[i].input == actInput)
                 {
@@ -200,5 +352,36 @@ namespace RPGController
 
             return null;
         }
+
+    }
+
+    [System.Serializable]
+    public class Spell : Item
+    {
+        public SpellType spellType;
+        public SpellClass spellClass;
+        public List<SpellAction> actions = new List<SpellAction>();
+        public GameObject projectile;               //Projectile gameobject 
+        public GameObject particle_prefab;    //Effect before shooting projectile
+
+
+        public SpellAction GetAction(List<SpellAction> listOfActions, ActionInput actInput)
+        {
+            if (listOfActions == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < listOfActions.Count; i++)
+            {
+                if (listOfActions[i].actInput == actInput)
+                {
+                    return listOfActions[i];
+                }
+            }
+
+            return null;
+        }
+
     }
 }

@@ -25,6 +25,19 @@ namespace RPGController
         bool lt_input; //Left trigger
         float lt_axis;
 
+        //Pad axises
+        float d_y;
+        float d_x;
+        bool d_up;
+        bool d_down;
+        bool d_right;
+        bool d_left;
+
+        bool previously_d_up;
+        bool previously_d_down;
+        bool previously_d_right;
+        bool previously_d_left;
+
         bool leftAxis_down;
         bool rightAxis_down;
 
@@ -109,11 +122,20 @@ namespace RPGController
             {
                 b_timer += delta;
             }
+
+            d_x = Input.GetAxis(StaticStrings.Pad_X);
+            d_y = Input.GetAxis(StaticStrings.Pad_Y);
+
+            //In keyboard item swtich is assigned to between 1-4
+            d_up = Input.GetKeyUp(KeyCode.Alpha1) || d_y > 0;
+            d_down = Input.GetKeyUp(KeyCode.Alpha2) || d_y < 0;
+            d_left = Input.GetKeyUp(KeyCode.Alpha3) || d_x < 0;
+            d_right = Input.GetKeyUp(KeyCode.Alpha4) || d_x > 0;
+
         }
 
         void UpdateStates()
         {
-
             states.horizontal = horizontal;
             states.vertical = vertical;
 
@@ -194,6 +216,76 @@ namespace RPGController
                 states.lockOnTransform = states.lockOnTarget.GetTarget();
                 cameraManager.lockOnTransform = states.lockOnTransform;
                 cameraManager.lockOn = states.lockOn;
+            }
+
+            HandleQuickSlotChanges();
+            
+        }
+
+        void HandleQuickSlotChanges() {
+
+            if (states.isSpellCasting || states.isUsingItem)
+            {
+                return;
+            }
+
+            //Switch spell 
+            if (d_up)
+            {
+                if (!previously_d_up)
+                {
+                    previously_d_up = true;
+                    states.inventoryManager.ChangeToNextSpell();
+                }
+            }
+
+            if (!d_up)
+            {
+                previously_d_up = false;
+            }
+            if (!d_down)
+            {
+                previously_d_down = false;
+            }
+
+            //You cant change weapon while character's moving or has two handed weapon
+            if (!states.canMove)
+            {
+                return;
+            }
+
+            if (states.isTwoHanded)
+            {
+                return;
+            }
+
+            //Switch left hand weapon
+            if (d_left)
+            {
+                if (!previously_d_left)
+                {
+                    states.inventoryManager.ChangeToNextWeapon(true);
+                    previously_d_left = true;
+                }
+            }
+
+            //Switch right hand weapon
+            if (d_right)
+            {
+                if (!previously_d_right)
+                {
+                    states.inventoryManager.ChangeToNextWeapon(false);
+                    previously_d_right = true;
+                }
+            }
+
+            if (!d_left)
+            {
+                previously_d_left = false;
+            }
+            if (!d_right)
+            {
+                previously_d_right = false;
             }
         }
 
