@@ -8,6 +8,6 @@ namespace RPGController
     {
         public Spell Instance;
         public GameObject currentParticle;
-
+        public ParticleHook particleHook;
     }
 }

@@ -36,7 +36,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4043009580737892}
-  - component: {fileID: 114273969663292866}
+  - component: {fileID: 114876864350949670}
   m_Layer: 0
   m_Name: Dark Shield
   m_TagString: Untagged
@@ -102,7 +102,7 @@ Transform:
   m_Father: {fileID: 4043009580737892}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114273969663292866
+--- !u!114 &114876864350949670
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1497246781728562}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea05783938983f84486631c642beb555, type: 3}
+  m_Script: {fileID: 11500000, guid: f306d8ab86c361b42a64e94cc01050f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!198 &198312050661027242
@@ -172,7 +172,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -1113991901
+  randomSeed: 3347964
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3368,7 +3368,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 1479684824
+  randomSeed: -398035780
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -6519,7 +6519,7 @@ ParticleSystemRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
-  - {fileID: 2100000, guid: 21055a2c86658b64889c96c303320a79, type: 2}
+  - {fileID: 2100000, guid: 746ad78c6407d27409f38e545871d6a5, type: 2}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -6571,7 +6571,7 @@ ParticleSystemRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
-  - {fileID: 2100000, guid: 59f70b73143c2674ca42b334a9093a1c, type: 2}
+  - {fileID: 2100000, guid: d8f4b48f25c2bb5479dae153f83e2db6, type: 2}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0

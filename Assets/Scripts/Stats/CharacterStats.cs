@@ -8,6 +8,11 @@ namespace RPGController
     [Serializable]
     public class CharacterStats
     {
+        [Header("Current")]
+        public float currentHealth;
+        public float currentMana;
+        public float currentStamina;
+
         [Header("Base Power")]
         public int hp = 100;    //Life
         public int fp = 100;    //Focus
@@ -44,6 +49,30 @@ namespace RPGController
 
         public int attunementSlots = 0;
 
+        public void InitCurrent() {
+            
+            if (statEffects != null)
+            {
+                statEffects();
+            }
+
+            currentHealth = hp;
+            currentMana = fp;
+            currentStamina = stamina;
+
+        }
+
+        public delegate void StatEffects();
+        public StatEffects statEffects;
+
+        public void AddHealth() {
+            hp += 5;
+        }
+
+        public void RemoveHealth()
+        {
+            hp -= 5;
+        }
     }
 
 

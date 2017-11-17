@@ -197,7 +197,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1500320030683386}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -266,6 +266,8 @@ MonoBehaviour:
   horizontalSpeed: 10
   verticalSpeed: 2
   target: {fileID: 0}
+  explosionPrefab: {fileID: 1008027047699370, guid: b1b9c49188561f8468e68806cc3f1aef,
+    type: 2}
 --- !u!198 &198089969216929476
 ParticleSystem:
   m_ObjectHideFlags: 1

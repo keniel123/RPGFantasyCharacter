@@ -48,6 +48,7 @@ namespace RPGController
         float sprintDelay = 0.3f;
         StateManager states;
         CameraManager cameraManager;
+        UIManager UIManager;
 
         float delta;
 
@@ -59,8 +60,11 @@ namespace RPGController
             states = GetComponent<StateManager>();
             states.Init();
 
-            cameraManager = CameraManager.singleton;
+            cameraManager = CameraManager.Instance;
             cameraManager.Init(states);
+
+            UIManager = UIManager.Instance;
+
         }
 
         // Update is called once per frame
@@ -75,6 +79,7 @@ namespace RPGController
 
             //Update the camera manager
             cameraManager.Tick(delta);
+            
         }
 
         private void Update()
@@ -83,14 +88,19 @@ namespace RPGController
             states.Tick(delta);
             ResetInputAndStates();
 
+            //Update character stats (health, mana, stamina etc.)
+            states.MonitorStats();
+
+            //Update the UI manager
+            UIManager.Tick(states.characterStats, delta);
         }
 
         void GetInput()
         {
 
             //Get input from buttons and axises
-            vertical = Input.GetAxis(StaticStrings.Vertical);
-            horizontal = Input.GetAxis(StaticStrings.Horizontal);
+            vertical = Input.GetAxis(StaticStrings.Input_Vertical);
+            horizontal = Input.GetAxis(StaticStrings.Input_Horizontal);
 
             b_input = Input.GetButton(StaticStrings.B);
             a_input = Input.GetButton(StaticStrings.A);
@@ -116,7 +126,7 @@ namespace RPGController
             rb_input = Input.GetButton(StaticStrings.RB);
             lb_input = Input.GetButton(StaticStrings.LB);
 
-            rightAxis_down = Input.GetButtonUp(StaticStrings.L) || Input.GetKeyUp(KeyCode.T);
+            rightAxis_down = Input.GetButtonUp(StaticStrings.Lock) || Input.GetKeyUp(KeyCode.T);
 
             if (b_input)
             {
@@ -156,7 +166,7 @@ namespace RPGController
 
             if (b_input && b_timer > sprintDelay)
             {
-                states.isRunning = (states.moveAmount > 0);
+                states.isRunning = (states.moveAmount > 0) && (states.characterStats.currentStamina > 0);
             }
 
             if (b_input == false && b_timer > 0 && b_timer < sprintDelay)
@@ -165,11 +175,11 @@ namespace RPGController
             }
 
             //Update input states
+            states.itemInput = x_input;
             states.rt = rt_input;
             states.lt = lt_input;
             states.rb = rb_input;
             states.lb = lb_input;
-            states.itemInput = x_input;
 
             if (y_input)
             {
@@ -191,15 +201,6 @@ namespace RPGController
                     cameraManager.lockOnTarget = null;
                 }
             }
-            else
-            {
-                states.lockOn = false;
-                states.lockOnTarget = null;
-                states.lockOnTransform = null;
-                cameraManager.lockOn = false;
-                cameraManager.lockOnTarget = null;
-            }
-
 
             if (rightAxis_down)
             {

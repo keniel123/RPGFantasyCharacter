@@ -30,6 +30,9 @@ namespace RPGController
         List<Rigidbody> ragdollRigids = new List<Rigidbody>();
         List<Collider> ragdollColliders = new List<Collider>();
 
+        public delegate void SpellEffectLoop();
+        public SpellEffectLoop spellEffectLoop;
+
         float timer;
 
         void Start()
@@ -104,6 +107,11 @@ namespace RPGController
 
             canMove = animator.GetBool(StaticStrings.animParam_CanMove);
 
+            if (spellEffectLoop != null)
+            {
+                spellEffectLoop();
+            }
+
             if (dontDoAnything)
             {
                 dontDoAnything = !canMove;
@@ -157,14 +165,14 @@ namespace RPGController
 
         }
 
-        public void DoDamage(Action act)
+        public void DoDamage(Action act, Weapon currentWeapon)
         {
             if (isInvincible)
             {
                 return;
             }
 
-            int damageTaken = StatsCalculations.CalculateBaseDamage(act.weaponStats, characterStats);
+            int damageTaken = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats);
 
             characterStats.poise += damageTaken;
             health -= damageTaken;
@@ -189,6 +197,17 @@ namespace RPGController
             animator.SetBool(StaticStrings.animParam_CanMove,false);
         }
 
+        public void DoDamage_() {
+
+            if (isInvincible)
+            {
+                return;
+            }
+
+            animator.Play("damage_3");
+
+        }
+
         public void CheckForParry(Transform parryTarget, StateManager states) {
             if (!canParried || !isParryOn || isInvincible)
             {
@@ -206,7 +225,7 @@ namespace RPGController
             }
 
             isInvincible = true;
-            animator.Play("attack_interrupt");
+            animator.Play(StaticStrings.animState_AttackInterrupt);
             animator.applyRootMotion = true;
             animator.SetBool(StaticStrings.animParam_CanMove, false);
             //states.parryTarget = this;
@@ -214,9 +233,9 @@ namespace RPGController
             return;
         }
 
-        public void IsGettingParried(Action act)
+        public void IsGettingParried(Action act, Weapon currentWeapon)
         {
-            int damage = StatsCalculations.CalculateBaseDamage(act.weaponStats, characterStats, act.parryMultiplier);
+            int damage = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats, act.parryMultiplier);
             //Debug.Log("Parry damage: " + damage);
 
             health -= Mathf.RoundToInt(damage);
@@ -226,9 +245,9 @@ namespace RPGController
 
         }
 
-        public void IsGettingBackStabbed(Action act)
+        public void IsGettingBackStabbed(Action act, Weapon currentWeapon)
         {
-            int damage = StatsCalculations.CalculateBaseDamage(act.weaponStats, characterStats,act.backstabMultiplier);
+            int damage = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats,act.backstabMultiplier);
             //Debug.Log("Backstab damage: " + damage);
 
             health -= Mathf.RoundToInt(damage);
@@ -236,6 +255,28 @@ namespace RPGController
             animator.SetBool(StaticStrings.animParam_CanMove, false);
             animator.Play(StaticStrings.animState_BackStabbed);
 
+        }
+
+        public ParticleSystem fire_particle;
+        float _timer;
+
+        public void OnFire() {
+
+            if (fire_particle == null)
+            {
+                return;
+            }
+
+            if (_timer < 3)
+            {
+                _timer += Time.deltaTime;
+                fire_particle.Emit(1);
+            }
+            else
+            {
+                _timer = 0;
+                spellEffectLoop = null;
+            }
         }
     }
 }

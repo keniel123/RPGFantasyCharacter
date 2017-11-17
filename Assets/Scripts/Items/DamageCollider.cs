@@ -20,7 +20,8 @@ namespace RPGController
                 return;
             }
 
-            enemyStates.DoDamage(states.currentAction);
+            enemyStates.DoDamage(states.currentAction,
+                states.inventoryManager.GetCurrentWeapon(states.currentAction.mirror));
         }
     }
 }

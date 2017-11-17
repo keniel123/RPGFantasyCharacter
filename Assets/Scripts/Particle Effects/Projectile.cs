@@ -8,11 +8,13 @@ namespace RPGController
     {
         Rigidbody rigid;
 
-        public float horizontalSpeed = 5;
+        public float horizontalSpeed = 10;
         public float verticalSpeed = 2;
 
         //Projectile Target
         public Transform target;
+
+        public GameObject explosionPrefab;
 
         public void Init()
         {
@@ -22,6 +24,21 @@ namespace RPGController
             targetForce += transform.up * verticalSpeed;
             rigid.AddForce(targetForce, ForceMode.Impulse);
         }
-        
+
+        private void OnTriggerEnter(Collider other)
+        {
+            EnemyStates enemyStates = other.GetComponent<EnemyStates>();
+            if (enemyStates != null)
+            {
+                enemyStates.health -= 40;
+                enemyStates.DoDamage_();
+                SpellEffectManager.Instance.UseSpellEffect("OnFire", null, enemyStates);
+            }
+
+            GameObject go = Instantiate(explosionPrefab, transform.position, transform.rotation) as GameObject;
+
+            Destroy(this.gameObject);
+        }
+
     }
 }

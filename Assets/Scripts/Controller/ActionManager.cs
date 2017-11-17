@@ -97,7 +97,7 @@ namespace RPGController
             if (st.lb)
                 return ActionInput.lb;
 
-            return ActionInput.none;
+            return ActionInput.rb;
         }
 
         public bool IsLeftHandSlot(Action slot) {
@@ -137,6 +137,8 @@ namespace RPGController
         public float animSpeed = 1;
         public bool canParry = false;
         public bool canBackStab = false;
+        public float staminaCost;
+        public int manaCost;
 
         [HideInInspector]
         public float parryMultiplier;
@@ -145,9 +147,6 @@ namespace RPGController
 
         public bool overrideDamageAnimation;
         public string damageAnim;
-
-        public WeaponStats weaponStats;
-
     }
 
     [Serializable]

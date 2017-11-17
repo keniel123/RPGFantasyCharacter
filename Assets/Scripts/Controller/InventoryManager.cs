@@ -26,6 +26,9 @@ namespace RPGController
         public bool hasLeftHandWeapon = true;
         public RuntimeWeapon leftHandWeapon;
         public GameObject parryCollider;
+        public GameObject breathCollider;
+        public GameObject blockCollider;
+
         StateManager states;
 
         public void Init(StateManager st)
@@ -37,6 +40,8 @@ namespace RPGController
             ParryCollider parryCol = parryCollider.GetComponent<ParryCollider>();
             parryCol.InitPlayer(st);
             CloseParryCollider();
+            CloseBreathCollider();
+            CloseBlockCollider();
         }
 
         public void LoadInventory() {
@@ -58,6 +63,8 @@ namespace RPGController
                     right_Index = 0;
                 }
                 rightHandWeapon = runtime_Right_Weapon[right_Index];
+                Debug.Log("Player has right hand weapon: " + rightHandWeapon.name);
+
             }
 
 
@@ -208,17 +215,30 @@ namespace RPGController
             return instSpell;
         }
 
-        public void CreateSpellParticle(RuntimeSpellItems instSpell, bool isLeftHand) {
+        public void CreateSpellParticle(RuntimeSpellItems instSpell, bool isLeftHand, bool parentUnderRoot = false) {
             if (instSpell.currentParticle == null)
             {
                 instSpell.currentParticle = Instantiate(instSpell.Instance.particle_prefab) as GameObject;
+                instSpell.particleHook = instSpell.currentParticle.GetComponentInChildren<ParticleHook>();
+                instSpell.particleHook.Init();
             }
+
+            if (!parentUnderRoot)
+            {
 
             Transform parent = states.animator.GetBoneTransform((isLeftHand) ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
             instSpell.currentParticle.transform.parent = parent;
             instSpell.currentParticle.transform.localRotation = Quaternion.identity;
             instSpell.currentParticle.transform.localPosition = Vector3.zero;
-            instSpell.currentParticle.SetActive(false);
+            }
+            else
+            {
+                instSpell.currentParticle.transform.parent = transform;
+                instSpell.currentParticle.transform.localRotation = Quaternion.identity;
+                instSpell.currentParticle.transform.localPosition = new Vector3(0, 1.5f, 0.8f);
+            }
+
+            //instSpell.currentParticle.SetActive(false);
         }
 
         public RuntimeWeapon WeaponToRuntimeWeapon(Weapon weapon, bool isLeftHand = false) {
@@ -275,7 +295,6 @@ namespace RPGController
                     left_Index = 0;
 
                 EquipWeapon(runtime_Left_Weapon[left_Index], true);
-
             }
             else
             {
@@ -302,6 +321,31 @@ namespace RPGController
 
             EquipSpell(runtime_Spells[spell_Index]);
         }
+
+        #region DelegateCalls
+        public void OpenBreathCollider() {
+            breathCollider.SetActive(true);
+        }
+
+        public void CloseBreathCollider() {
+            breathCollider.SetActive(false);
+        }
+
+        public void OpenBlockCollider() {
+            blockCollider.SetActive(true);
+        }
+
+        public void CloseBlockCollider() {
+            blockCollider.SetActive(false);
+        }
+
+        public void EmitSpellParticle()
+        {
+            currentSpell.particleHook.Emit(1);
+        }
+        
+
+        #endregion
     }
 
     [System.Serializable]
@@ -318,7 +362,7 @@ namespace RPGController
         public string oh_idle;  //One handed idle animation name
         public string th_idle;  //Two handed idle animation name
 
-        public List<Action> actions;
+        public List<Action> oneHandedActions;
         public List<Action> twoHandedActions;
         //For different weapons, parry and backstab can have different effects
         public float parryMultiplier;
@@ -326,6 +370,8 @@ namespace RPGController
         public bool LeftHandMirror;
 
         public GameObject weaponModelPrefab;
+        public WeaponStats weaponStats;
+
         public Vector3 right_model_pos;
         public Vector3 right_model_eulerRot;
         public Vector3 right_model_scale;
@@ -363,7 +409,7 @@ namespace RPGController
         public List<SpellAction> actions = new List<SpellAction>();
         public GameObject projectile;               //Projectile gameobject 
         public GameObject particle_prefab;    //Effect before shooting projectile
-
+        public string spellEffect;
 
         public SpellAction GetAction(List<SpellAction> listOfActions, ActionInput actInput)
         {

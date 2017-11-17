@@ -9,8 +9,8 @@ namespace RPGController
     public static class StaticStrings
     {
         //Inputs
-        public static string Vertical = "Vertical";
-        public static string Horizontal = "Horizontal";
+        public static string Input_Vertical = "Vertical";
+        public static string Input_Horizontal = "Horizontal";
         public static string B = "B";
         public static string A = "A";
         public static string Y = "Y";
@@ -22,7 +22,7 @@ namespace RPGController
         public static string Pad_Y = "Pad_Y";
 
         public static string LB = "LB";
-        public static string L = "L";
+        public static string Lock = "Lock";
 
         //Animator Parameters
         public static string animParam_Vertical = "Vertical";

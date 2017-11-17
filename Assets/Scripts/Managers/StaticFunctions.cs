@@ -8,19 +8,17 @@ namespace RPGController
     {
 
         public static void DeepCopyWeapon(Weapon from, Weapon to) {
-
             to.itemIcon = from.itemIcon;
             to.oh_idle = from.oh_idle;
             to.th_idle = from.th_idle;
-            to.actions = new List<Action>();
+            to.oneHandedActions = new List<Action>();
             
             //Copy one handed actions
-            for (int i = 0; i < from.actions.Count; i++)
+            for (int i = 0; i < from.oneHandedActions.Count; i++)
             {
                 Action oneHandedAction = new Action();
-                oneHandedAction.weaponStats = new WeaponStats();
-                DeepCopyActionToAction(oneHandedAction, from.actions[i]);
-                to.actions.Add(oneHandedAction);
+                DeepCopyActionToAction(oneHandedAction, from.oneHandedActions[i]);
+                to.oneHandedActions.Add(oneHandedAction);
             }
 
             to.twoHandedActions = new List<Action>();
@@ -28,7 +26,6 @@ namespace RPGController
             for (int i = 0; i < from.twoHandedActions.Count; i++)
             {
                 Action twoHandedAction = new Action();
-                twoHandedAction.weaponStats = new WeaponStats();
                 DeepCopyActionToAction(twoHandedAction, from.twoHandedActions[i]);
                 to.twoHandedActions.Add(twoHandedAction);
             }
@@ -45,6 +42,9 @@ namespace RPGController
             to.right_model_pos = from.right_model_pos;
             to.right_model_eulerRot = from.right_model_eulerRot;
             to.right_model_scale = from.right_model_scale;
+            to.weaponStats = from.weaponStats;
+
+            DeepCopyWeaponStats(from.weaponStats, to.weaponStats);
 
         }
 
@@ -58,6 +58,7 @@ namespace RPGController
             to.spellClass = from.spellClass;
             to.projectile = from.projectile;
             to.particle_prefab = from.particle_prefab;
+            to.spellEffect = from.spellEffect;
 
             to.actions = new List<SpellAction>();
             for (int i = 0; i < from.actions.Count; i++)
@@ -88,22 +89,21 @@ namespace RPGController
             action.canBackStab = weaponAct.canBackStab;
             action.overrideDamageAnimation = weaponAct.overrideDamageAnimation;
             action.damageAnim = weaponAct.damageAnim;
-
-            DeepCopyWeaponStats(weaponAct.weaponStats, action.weaponStats);
+            
         }
 
         public static void DeepCopyAction(Weapon weapon, ActionInput actionInput, ActionInput assign, List<Action> actionList,bool isLeftHand = false)
         {
             Action action = GetAction(assign, actionList);
-            Action weaponAct = weapon.GetAction(weapon.actions, actionInput);
+            Action weaponAct = weapon.GetAction(weapon.oneHandedActions, actionInput);
 
             //If the weapon has no action, skip
             if (weaponAct == null)
             {
+                Debug.Log("No weapon action found!");
                 return;
             }
-
-            action.input = weaponAct.input;
+            
             action.spellClass = weaponAct.spellClass;
             action.targetAnim = weaponAct.targetAnim;
             action.actionType = weaponAct.actionType;
@@ -122,8 +122,7 @@ namespace RPGController
                 //Left hand animations are just mirror version of right hand animations
                 action.mirror = true;
             }
-
-            DeepCopyWeaponStats(weaponAct.weaponStats, action.weaponStats);
+            
         }
 
         public static void DeepCopyWeaponStats(WeaponStats weaponStats_From, WeaponStats weaponStats_To)
@@ -143,7 +142,6 @@ namespace RPGController
 
         public static Action GetAction(ActionInput actInput, List<Action> actionSlots)
         {
-            //Debug.Log("Getting action for: " + actInput);
             for (int i = 0; i < actionSlots.Count; i++)
             {
                 if (actionSlots[i].input == actInput)
@@ -151,7 +149,7 @@ namespace RPGController
                     return actionSlots[i];
                 }
             }
-
+            
             return null;
         }
 

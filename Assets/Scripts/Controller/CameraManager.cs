@@ -6,7 +6,7 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour {
 
     //There can only be 1 camera manager
-    public static CameraManager singleton;
+    public static CameraManager Instance;
 
     public float followSpeed = 10;
     public float mouseSpeed = 2;
@@ -40,7 +40,7 @@ public class CameraManager : MonoBehaviour {
     bool changeTargetRight;
 
     void Awake() {
-        singleton = this;
+        Instance = this;
     }
 
     public void Init(StateManager st) {
@@ -77,7 +77,7 @@ public class CameraManager : MonoBehaviour {
             {
                 if (!usedRightAxis)
                 {
-                    lockOnTransform = lockOnTarget.GetTarget((c_h>0));
+                    lockOnTransform = lockOnTarget.GetTarget((c_h>  0));
                     states.lockOnTransform = lockOnTransform;
                     usedRightAxis = true;
                 }

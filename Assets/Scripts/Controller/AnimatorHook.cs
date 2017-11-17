@@ -17,6 +17,18 @@ namespace RPGController
         float delta;
         AnimationCurve rollCurve;
 
+        public Transform IKTarget;
+        public Transform bodyTargetIK;
+        public Transform headTarget;
+
+        //Ik References for shield
+        public Transform IKTargetShield;
+        public Transform IKTargetBodyShield;
+
+        HandleIK IK_Handler;
+        public bool useIK;
+        public AvatarIKGoal currentHand;
+
         public void Init(StateManager stateManager, EnemyStates eSt)
         {
             states = stateManager;
@@ -29,12 +41,22 @@ namespace RPGController
                 rollCurve = states.rollAnimCurve;
                 delta = states.delta;
             }
-            if (this.eStates != null)
+            if (eStates != null)
             {
                 Debug.Log("Initialized enemy");
-                animator = this.eStates.animator;
-                rigid = this.eStates.rigid;
-                delta = this.eStates.delta;
+                animator = eStates.animator;
+                rigid = eStates.rigid;
+                delta = eStates.delta;
+            }
+
+            IK_Handler = gameObject.GetComponent<HandleIK>();
+            if (IK_Handler != null)
+            {
+                IK_Handler.Init(animator);
+            }
+            else
+            {
+                Debug.LogWarning("Handle IK component not found on: " + name);
             }
         }
 
@@ -57,6 +79,12 @@ namespace RPGController
 
         void OnAnimatorMove()
         {
+
+            if (IK_Handler != null)
+            {
+                IK_Handler.OnAnimatorMoveTick(currentHand == AvatarIKGoal.LeftHand);
+            }
+
             if (states == null && eStates == null)
             {
                 return;
@@ -110,7 +138,7 @@ namespace RPGController
             {
                 Debug.Log("Is root motion: " + animator.hasRootMotion);
                 //Depending on the animation curve we've, this give the relative pos
-                roll_t += delta / 0.6f;
+                roll_t += delta / 0.2f;
 
                 //Debug.Log("roll_t: " + roll_t);
                 if (roll_t > 1)
@@ -129,6 +157,38 @@ namespace RPGController
                 Vector3 v2 = (relative * rootMotionMultiplier);
 
                 rigid.velocity = v2;
+            }
+        }
+
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (IK_Handler == null)
+            {
+                return;
+            }
+
+            if (!useIK)
+            {
+                if (IK_Handler.targetWeight > 0)
+                {
+                    IK_Handler.IKTick(currentHand, 0);
+                }
+                else
+                {
+                    IK_Handler.targetWeight = 0;
+                }
+            }
+            else
+            {
+                IK_Handler.IKTick(currentHand, 1);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (IK_Handler != null)
+            {
+                IK_Handler.LateTick();
             }
         }
 
@@ -209,6 +269,17 @@ namespace RPGController
                 states.ThrowProjectile();
             }
 
+        }
+
+        public void InitIKForShield(bool isLeft) {
+
+            //We use if check for isLeft and pass as parameter,
+            //because positions might be same when mirrored, but the rotations can be different
+            IK_Handler.UpdateIKTargets((isLeft) ? IKSnaphotType.Shield_LeftHand : IKSnaphotType.Shield_RightHand, isLeft);
+        }
+
+        public void InitIKForBreathSpell(bool isLeft) {
+            IK_Handler.UpdateIKTargets(IKSnaphotType.Breath, isLeft);
         }
     }
 
