@@ -3,7 +3,7 @@ guid: 678146c33ac44da4d866e4d43ffc4b1f
 timeCreated: 1503675545
 licenseType: Free
 ModelImporter:
-  serializedVersion: 22
+  serializedVersion: 21
   fileIDToRecycleName:
     100000: //RootNode
     100002: Head
@@ -137,15 +137,12 @@ ModelImporter:
     400126: Spine
     400128: Spine1
     400130: Spine2
-    7400000: mixamo.com
+    7400000: great sword jump attack
     9500000: //RootNode
-  externalObjects: {}
   materials:
     importMaterials: 1
-    autoMapExternalMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -153,18 +150,11 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     rigImportErrors: 
-    rigImportWarnings: "Copied Avatar Rig Configuration mis-match. Bone length in
-      copied configuration does not match position in animation file:\n\t'LeftUpLeg'
-      : position error = 32.540173 mm\n\t'LeftLeg' : position error = 135.246078 mm\n\t'LeftFoot'
-      : position error = 140.715149 mm\n\t'LeftToeBase' : position error = 44.718040
-      mm\n\t'RightUpLeg' : position error = 31.927559 mm\n\t'RightLeg' : position
-      error = 135.245987 mm\n\t'RightFoot' : position error = 140.715149 mm\n\t'RightToeBase'
-      : position error = 44.718040 mm\n"
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
-    importAnimatedCustomProperties: 0
     animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -172,7 +162,35 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: great sword jump attack
+      takeName: mixamo.com
+      firstFrame: 0
+      lastFrame: 65
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 1
   meshes:
     lODScreenPercentages: []

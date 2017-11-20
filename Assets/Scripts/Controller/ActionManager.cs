@@ -7,6 +7,7 @@ namespace RPGController
 {
     public class ActionManager : MonoBehaviour
     {
+        public int actionStepIndex;
         public List<Action> actionSlots = new List<Action>();
         public ItemAction consumableItem;
 
@@ -49,7 +50,7 @@ namespace RPGController
             for (int i = 0; i < weapon.twoHandedActions.Count; i++)
             {
                 Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].input, actionSlots);
-                action.targetAnim = weapon.twoHandedActions[i].targetAnim;
+                action.actionSteps = weapon.twoHandedActions[i].actionSteps;
                 action.actionType = weapon.twoHandedActions[i].actionType;
             }
         }
@@ -62,7 +63,7 @@ namespace RPGController
 
                 if (a != null)
                 {
-                    a.targetAnim = null;
+                    a.actionSteps = null;
                     a.mirror = false;
                     a.actionType = ActionType.attack;
                 }
@@ -85,6 +86,10 @@ namespace RPGController
             //Find the action input
             ActionInput aInput = GetActionInput(st);
             return StaticFunctions.GetAction(aInput, actionSlots);
+        }
+
+        public Action GetActionFromInput(ActionInput actInput) {
+            return StaticFunctions.GetAction(actInput, actionSlots);
         }
 
         public ActionInput GetActionInput(StateManager st) {
@@ -130,15 +135,59 @@ namespace RPGController
         public ActionInput input;
         public ActionType actionType;
         public SpellClass spellClass;
-        public string targetAnim;
+        public string defaultTargetAnim;
+
+        public List<ActionSteps> actionSteps;
+
         public bool mirror = false;
         public bool canBeParried = true;
         public bool chageSpeed = false;
         public float animSpeed = 1;
         public bool canParry = false;
         public bool canBackStab = false;
-        public float staminaCost;
-        public int manaCost;
+        public float staminaCost = 5;
+        public float manaCost;
+
+        ActionSteps defaultStep;
+
+        public ActionSteps GetActionSteps(ref int index) {
+
+            //If the weapon has no defined action steps, create a branch with default target animation clip
+            if (actionSteps == null || actionSteps.Count == 0)
+            {
+                if (defaultStep == null)
+                {
+                    defaultStep = new ActionSteps();
+                    defaultStep.animationBranches = new List<ActionAnimation>();
+
+                    ActionAnimation actAnim = new ActionAnimation();
+                    actAnim.input = input;
+                    actAnim.targetAnim = defaultTargetAnim;
+                    defaultStep.animationBranches.Add(actAnim);
+                }
+
+                return defaultStep;
+
+            }
+
+            if (index > actionSteps.Count - 1)
+            {
+                index = 0;
+            }
+
+            ActionSteps retVal = actionSteps[index];
+
+            if (index > actionSteps.Count - 1)
+            {
+                index = 0;
+            }
+            else
+            {
+                index++;
+            }
+
+            return retVal;
+        }
 
         [HideInInspector]
         public float parryMultiplier;
@@ -149,6 +198,29 @@ namespace RPGController
         public string damageAnim;
     }
 
+    [Serializable]
+    public class ActionSteps {
+
+        public List<ActionAnimation> animationBranches = new List<ActionAnimation>();
+
+        public ActionAnimation GetBranch(ActionInput input) {
+            for (int i = 0; i < animationBranches.Count; i++)
+            {
+                if (animationBranches[i].input == input)
+                {
+                    return animationBranches[i];
+                }
+            }
+
+            return animationBranches[0];
+        }
+    }
+
+    [Serializable]
+    public class ActionAnimation{
+        public ActionInput input;
+        public string targetAnim;
+    }
     [Serializable]
     public class SpellAction {
         public ActionInput actInput;

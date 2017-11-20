@@ -37,10 +37,6 @@ MonoBehaviour:
       targetAnim: hold_spell_start
       throwAnim: 
       castTime: 1
-    - actInput: 2
-      targetAnim: hold_spell_start
-      throwAnim: 
-      castTime: 1
     projectile: {fileID: 0}
     particle_prefab: {fileID: 1237154358593698, guid: 106fc47a2abb67d43b0e9b50d5fe87e4,
       type: 2}

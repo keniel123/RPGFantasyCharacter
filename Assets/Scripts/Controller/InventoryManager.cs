@@ -63,8 +63,6 @@ namespace RPGController
                     right_Index = 0;
                 }
                 rightHandWeapon = runtime_Right_Weapon[right_Index];
-                Debug.Log("Player has right hand weapon: " + rightHandWeapon.name);
-
             }
 
 
@@ -270,6 +268,11 @@ namespace RPGController
                 inst.Instance.left_model_scale : inst.Instance.right_model_scale; ;
 
             inst.weaponHook = inst.weaponModel.GetComponentInChildren<WeaponHook>();
+            if (inst.weaponHook == null)
+            {
+                Debug.Log("Missing component 'WeaponHook' on weapon: " + weapon.itemName);
+            }
+
             inst.weaponHook.InitDamageColliders(states);
 
             if (isLeftHand)

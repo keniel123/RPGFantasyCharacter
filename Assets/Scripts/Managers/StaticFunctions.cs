@@ -79,8 +79,8 @@ namespace RPGController
         public static void DeepCopyActionToAction(Action action, Action weaponAct) {
 
             action.input = weaponAct.input;
+            action.defaultTargetAnim = weaponAct.defaultTargetAnim;
             action.spellClass = weaponAct.spellClass;
-            action.targetAnim = weaponAct.targetAnim;
             action.actionType = weaponAct.actionType;
             action.canParry = weaponAct.canParry;
             action.canBeParried = weaponAct.canBeParried;
@@ -89,7 +89,21 @@ namespace RPGController
             action.canBackStab = weaponAct.canBackStab;
             action.overrideDamageAnimation = weaponAct.overrideDamageAnimation;
             action.damageAnim = weaponAct.damageAnim;
-            
+            action.staminaCost = weaponAct.staminaCost;
+            action.manaCost = weaponAct.manaCost;
+
+            DeepCopyStepsList(weaponAct, action);
+        }
+
+        public static void DeepCopyStepsList(Action from, Action to) {
+            to.actionSteps = new List<ActionSteps>();
+
+            for (int i = 0; i < from.actionSteps.Count; i++)
+            {
+                ActionSteps step = new ActionSteps();
+                DeepCopyActionSteps(from.actionSteps[i], step);
+                to.actionSteps.Add(step);
+            }
         }
 
         public static void DeepCopyAction(Weapon weapon, ActionInput actionInput, ActionInput assign, List<Action> actionList,bool isLeftHand = false)
@@ -100,12 +114,13 @@ namespace RPGController
             //If the weapon has no action, skip
             if (weaponAct == null)
             {
-                Debug.Log("No weapon action found!");
+                //Debug.Log("No weapon action found!");
                 return;
             }
-            
+
+            DeepCopyStepsList(weaponAct, action);
+            action.defaultTargetAnim = weaponAct.defaultTargetAnim;
             action.spellClass = weaponAct.spellClass;
-            action.targetAnim = weaponAct.targetAnim;
             action.actionType = weaponAct.actionType;
             action.canParry = weaponAct.canParry;
             action.canBeParried = weaponAct.canBeParried;
@@ -116,6 +131,8 @@ namespace RPGController
             action.damageAnim = weaponAct.damageAnim;
             action.parryMultiplier = weapon.parryMultiplier;
             action.backstabMultiplier = weapon.backstabMultiplier;
+            action.staminaCost = weaponAct.staminaCost;
+            action.manaCost = weaponAct.manaCost;
             
             if (isLeftHand)
             {
@@ -153,5 +170,16 @@ namespace RPGController
             return null;
         }
 
+        public static void DeepCopyActionSteps(ActionSteps from, ActionSteps to) {
+            to.animationBranches = new List<ActionAnimation>();
+
+            for (int i = 0; i < from.animationBranches.Count; i++)
+            {
+                ActionAnimation a = new ActionAnimation();
+                a.input = from.animationBranches[i].input;
+                a.targetAnim = from.animationBranches[i].targetAnim;
+                to.animationBranches.Add(a);
+            }
+        }
     }
 }

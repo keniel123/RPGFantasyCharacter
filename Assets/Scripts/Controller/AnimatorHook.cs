@@ -29,6 +29,8 @@ namespace RPGController
         public bool useIK;
         public AvatarIKGoal currentHand;
 
+        public bool killDelta;
+
         public void Init(StateManager stateManager, EnemyStates eSt)
         {
             states = stateManager;
@@ -43,7 +45,7 @@ namespace RPGController
             }
             if (eStates != null)
             {
-                Debug.Log("Initialized enemy");
+                //Debug.Log("Initialized enemy");
                 animator = eStates.animator;
                 rigid = eStates.rigid;
                 delta = eStates.delta;
@@ -97,7 +99,7 @@ namespace RPGController
             
             if (states!=null)
             {
-                if (states.canMove == false)
+                if (states.onEmpty)
                 {
                     return;
                 }
@@ -127,10 +129,19 @@ namespace RPGController
             {
                 //deltaPos stands for position
                 Vector3 deltaPos = animator.deltaPosition;
-                deltaPos.y = 0;
+
+                if (killDelta)
+                {
+                    killDelta = false;
+                    deltaPos = Vector3.zero;
+                }
 
                 //Whereas delta stands for time
                 Vector3 v = (deltaPos * rootMotionMultiplier) / delta;
+
+                //More time in the air, will result higher gravity and faster falling
+                //v += Physics.gravity;
+
                 rigid.velocity = v;
             }
             //If the character is rolling, manipulate the animation curve
@@ -155,7 +166,7 @@ namespace RPGController
                 Vector3 v1 = Vector3.forward * zValueAnim;
                 Vector3 relative = transform.TransformDirection(v1);
                 Vector3 v2 = (relative * rootMotionMultiplier);
-
+                v2 += Physics.gravity;
                 rigid.velocity = v2;
             }
         }
@@ -189,6 +200,20 @@ namespace RPGController
             if (IK_Handler != null)
             {
                 IK_Handler.LateTick();
+            }
+        }
+
+        public void OpenCanMove() {
+            if (states)
+            {
+                states.canMove = true;
+            }
+        }
+
+        public void OpenAttack() {
+            if (states)
+            {
+                states.canAttack = true;
             }
         }
 

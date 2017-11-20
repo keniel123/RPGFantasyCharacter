@@ -29,6 +29,7 @@ namespace RPGController
         public static string animParam_Horizontal = "Horizontal";
         public static string animParam_IsTwoHanded = "IsTwoHanded";
         public static string animParam_CanMove = "CanMove";
+        public static string animParam_OnEmpty = "OnEmpty";
         public static string animParam_Interacting = "Interacting";
         public static string animParam_LockOn = "Lock On";
         public static string animParam_OnGround = "OnGround";
@@ -51,6 +52,17 @@ namespace RPGController
         public static string animState_EmptyLeft = "Empty Left Hand";
         public static string animState_EmptyRight = "Empty Right Hand";
         public static string animState_EquipWeapon_OH = "equipWeapon_oh";
+        public static string animState_CantCastSpell = "cant_spell";
+        public static string animState_GreatSword_TH_Idle = "gs_th_idle";
+        public static string animState_GreatSword_OH_Idle = "gs_oh_idle";
+        public static string animState_GreatSword_TH_To_Pose = "gs_th_to_pose";
+        public static string animState_GreatSword_Attack_From_Pose = "gs_attack_from_pose";
+        public static string animState_GreatSword_OH_Attack_1 = "gs_oh_attack_1";
+        public static string animState_GreatSword_OH_Attack_2 = "gs_oh_attack_2";
+        public static string animState_GreatSword_OH_Attack_3 = "gs_oh_attack_3";
+        public static string animState_Rap_OH_Attack_1 = "rap_oh_attack_1";
+        public static string animState_Rap_OH_Attack_2 = "rap_oh_attack_2";
+        public static string animState_Rap_OH_Attack_3 = "rap_oh_attack_3";
 
         public static string damage1 = "damage_1";
         public static string damage2 = "damage_2";

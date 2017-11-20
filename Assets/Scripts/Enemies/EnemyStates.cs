@@ -24,6 +24,7 @@ namespace RPGController
         EnemyTarget enemyTarget;
         AnimatorHook animHook;
 
+        public float airTimer;
         public float delta;
         public float poiseDegrade = 2;
 

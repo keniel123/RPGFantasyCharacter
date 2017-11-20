@@ -250,7 +250,7 @@ namespace RPGController
             }
 
             //You cant change weapon while character's moving or has two handed weapon
-            if (!states.canMove)
+            if (!states.onEmpty)
             {
                 return;
             }
