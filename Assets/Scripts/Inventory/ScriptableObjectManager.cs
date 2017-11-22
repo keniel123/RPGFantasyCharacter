@@ -31,11 +31,11 @@ namespace RPGController
         }
 
 
-        //Editor extension to create inventory
-        [MenuItem("Assets/Inventory/Create Inventory List")]
-        public static void CreateInventory() {
-
-
+        //Editor extension to create consumable item list
+        [MenuItem("Assets/Inventory/Create Consumable Item List")]
+        public static void CreateConsumables()
+        {
+            CreateAsset<ConsumablesScriptableObject>();
         }
 
         //Editor extension to create spell items
@@ -43,14 +43,12 @@ namespace RPGController
         public static void CreateSpell()
         {
             CreateAsset<SpellItemScriptableObject>();
-
         }
 
         //Editor extension to weapon list for inventory
         [MenuItem("Assets/Inventory/Create Weapon List")]
         public static void CreateWeaponList()
         {
-
             CreateAsset<WeaponScriptableObject>();
         }
     }

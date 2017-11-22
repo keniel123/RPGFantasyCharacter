@@ -12,7 +12,11 @@ namespace RPGController
         public float currentHealth;
         public float currentMana;
         public float currentStamina;
+        public int currentSouls;
 
+        public float healthRecoverValue = 60;
+        public float manaRecoverValue = 60;
+      
         [Header("Base Power")]
         public int hp = 100;    //Life
         public int fp = 100;    //Focus
@@ -96,6 +100,8 @@ namespace RPGController
 
     [Serializable]
     public class WeaponStats {
+
+        public string weaponID; //Refers to the weapon's Item id
         public int physicalDamage;
         public int strikeDamage;
         public int slashDamage;

@@ -49,6 +49,8 @@ namespace RPGController
         StateManager states;
         CameraManager cameraManager;
         UIManager UIManager;
+        
+        bool isGestureOpen;
 
         float delta;
 
@@ -72,6 +74,7 @@ namespace RPGController
         {
             delta = Time.fixedDeltaTime;
             GetInput();
+            HandleUI();
             UpdateStates();
 
             //Update the state manager
@@ -141,6 +144,92 @@ namespace RPGController
             d_down = Input.GetKeyUp(KeyCode.Alpha2) || d_y < 0;
             d_left = Input.GetKeyUp(KeyCode.Alpha3) || d_x < 0;
             d_right = Input.GetKeyUp(KeyCode.Alpha4) || d_x > 0;
+
+            bool gesturesMenu = Input.GetButtonUp(StaticStrings.GestureSelect);
+
+            if (gesturesMenu)
+            {
+                isGestureOpen = !isGestureOpen;
+            }
+
+        }
+
+        void HandleUI() {
+
+            UIManager.gesturesManager.HandleGestures(isGestureOpen);
+
+            if (isGestureOpen)
+            {
+                currentUIState = UIState.gestures;
+            }
+            else
+            {
+                currentUIState = UIState.game;
+            }
+
+            switch (currentUIState)
+            {
+                case UIState.game:
+                    HandleQuickSlotChanges();
+                    break;
+                case UIState.gestures:
+                    HandleGesturesUI();
+                    break;
+                case UIState.inventory:
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        UIState currentUIState;
+        enum UIState {
+            game, gestures, inventory
+        }
+
+        void HandleGesturesUI()
+        { 
+            //Switch left hand weapon
+            if (d_left)
+            {
+                if (!previously_d_left)
+                {
+                    UIManager.gesturesManager.SelectGesture(false);
+                    previously_d_left = true;
+                }
+}
+
+            //Switch right hand weapon
+            if (d_right)
+            {
+                if (!previously_d_right)
+                {
+                    UIManager.gesturesManager.SelectGesture(true);
+                    previously_d_right = true;
+                }
+            }
+
+            if (!d_left)
+            {
+                previously_d_left = false;
+            }
+            if (!d_right)
+            {
+                previously_d_right = false;
+            }
+
+            if (rb_input)
+            {
+                isGestureOpen = false;
+                states.isUsingItem = true;
+
+                if (UIManager.gesturesManager.closeWeapons)
+                {
+                    states.closeWeapons = true;
+                }
+                states.PlayAnimation(UIManager.gesturesManager.currentGestureAnim, false);
+            }
 
         }
 
@@ -218,9 +307,6 @@ namespace RPGController
                 cameraManager.lockOnTransform = states.lockOnTransform;
                 cameraManager.lockOn = states.lockOn;
             }
-
-            HandleQuickSlotChanges();
-            
         }
 
         void HandleQuickSlotChanges() {
@@ -239,6 +325,17 @@ namespace RPGController
                     states.inventoryManager.ChangeToNextSpell();
                 }
             }
+
+            //Switch consumable
+            if (d_down)
+            {
+                if (!previously_d_down)
+                {
+                    previously_d_down = true;
+                    states.inventoryManager.ChangeToNextConsumable();
+                }
+            }
+
 
             if (!d_up)
             {

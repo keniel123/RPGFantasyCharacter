@@ -173,7 +173,8 @@ namespace RPGController
                 return;
             }
 
-            int damageTaken = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats);
+            //int damageTaken = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats);
+            int damageTaken = 5;
 
             characterStats.poise += damageTaken;
             health -= damageTaken;
@@ -236,8 +237,9 @@ namespace RPGController
 
         public void IsGettingParried(Action act, Weapon currentWeapon)
         {
-            int damage = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats, act.parryMultiplier);
+            //int damage = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats, act.parryMultiplier);
             //Debug.Log("Parry damage: " + damage);
+            int damage = 5;
 
             health -= Mathf.RoundToInt(damage);
             dontDoAnything = true;
@@ -248,7 +250,9 @@ namespace RPGController
 
         public void IsGettingBackStabbed(Action act, Weapon currentWeapon)
         {
-            int damage = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats,act.backstabMultiplier);
+            //int damage = StatsCalculations.CalculateBaseDamage(currentWeapon.weaponStats, characterStats,act.backstabMultiplier);
+            int damage = 5;
+
             //Debug.Log("Backstab damage: " + damage);
 
             health -= Mathf.RoundToInt(damage);

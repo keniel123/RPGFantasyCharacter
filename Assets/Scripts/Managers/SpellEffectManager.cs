@@ -72,13 +72,18 @@ namespace RPGController
         void FireBreath(StateManager states) {
             states.spellCastStart = states.inventoryManager.OpenBreathCollider;
             states.spellCastLoop = states.inventoryManager.EmitSpellParticle;
+            states.spellCastLoop += states.SubstractManaOverTime; 
             states.spellCastStop = states.inventoryManager.CloseBreathCollider;
         }
 
         void DarkShield(StateManager states) {
             states.spellCastStart = states.inventoryManager.OpenBlockCollider;
             states.spellCastLoop = states.inventoryManager.EmitSpellParticle;
+            states.spellCastLoop += states.SubstractManaOverTime;
+            states.spellCastLoop += states.AffectBlocking;
+
             states.spellCastStop = states.inventoryManager.CloseBlockCollider;
+            states.spellCastStop += states.StopAffectingBlocking;
         }
 
         void HealingSmall(StateManager states) {

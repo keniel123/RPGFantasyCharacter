@@ -60,7 +60,7 @@ namespace RPGController
         }
 
         public void UpdateIKTargets(IKSnaphotType type, bool isLeft) {
-
+            Debug.Log("UpdateIKTarget for: " + type);
             IKSnapShot snapShot = GetSnapShot(type);
 
             Vector3 targetBodyPos = snapShot.bodyPos;

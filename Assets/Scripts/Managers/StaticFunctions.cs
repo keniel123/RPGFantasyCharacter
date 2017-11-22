@@ -42,9 +42,7 @@ namespace RPGController
             to.right_model_pos = from.right_model_pos;
             to.right_model_eulerRot = from.right_model_eulerRot;
             to.right_model_scale = from.right_model_scale;
-            to.weaponStats = from.weaponStats;
 
-            DeepCopyWeaponStats(from.weaponStats, to.weaponStats);
 
         }
 
@@ -74,12 +72,17 @@ namespace RPGController
             to.targetAnim = from.targetAnim;
             to.throwAnim = from.throwAnim;
             to.castTime = from.castTime;
+            to.manaCost = from.manaCost;
+            to.staminaCost = from.staminaCost;
         }
 
         public static void DeepCopyActionToAction(Action action, Action weaponAct) {
 
-            action.input = weaponAct.input;
-            action.defaultTargetAnim = weaponAct.defaultTargetAnim;
+            action.firstStep = new ActionAnimation();
+            action.firstStep.input = weaponAct.firstStep.input;
+            action.firstStep.targetAnim = weaponAct.firstStep.targetAnim;
+            action.comboSteps = new List<ActionAnimation>();
+
             action.spellClass = weaponAct.spellClass;
             action.actionType = weaponAct.actionType;
             action.canParry = weaponAct.canParry;
@@ -91,18 +94,22 @@ namespace RPGController
             action.damageAnim = weaponAct.damageAnim;
             action.staminaCost = weaponAct.staminaCost;
             action.manaCost = weaponAct.manaCost;
+            action.overrideKick = weaponAct.overrideKick;
+            action.kickAnim = weaponAct.kickAnim;
 
             DeepCopyStepsList(weaponAct, action);
         }
 
         public static void DeepCopyStepsList(Action from, Action to) {
-            to.actionSteps = new List<ActionSteps>();
 
-            for (int i = 0; i < from.actionSteps.Count; i++)
+            to.comboSteps = new List<ActionAnimation>();
+
+            for (int i = 0; i < from.comboSteps.Count; i++)
             {
-                ActionSteps step = new ActionSteps();
-                DeepCopyActionSteps(from.actionSteps[i], step);
-                to.actionSteps.Add(step);
+                ActionAnimation a = new ActionAnimation();
+                a.input = from.comboSteps[i].input;
+                a.targetAnim = from.comboSteps[i].targetAnim;
+                to.comboSteps.Add(a);
             }
         }
 
@@ -118,8 +125,10 @@ namespace RPGController
                 return;
             }
 
+            action.firstStep.targetAnim = weaponAct.firstStep.targetAnim;
+            action.comboSteps = new List<ActionAnimation>();
             DeepCopyStepsList(weaponAct, action);
-            action.defaultTargetAnim = weaponAct.defaultTargetAnim;
+
             action.spellClass = weaponAct.spellClass;
             action.actionType = weaponAct.actionType;
             action.canParry = weaponAct.canParry;
@@ -133,6 +142,9 @@ namespace RPGController
             action.backstabMultiplier = weapon.backstabMultiplier;
             action.staminaCost = weaponAct.staminaCost;
             action.manaCost = weaponAct.manaCost;
+
+            action.overrideKick = weaponAct.overrideKick;
+            action.kickAnim = weaponAct.kickAnim;
             
             if (isLeftHand)
             {
@@ -144,7 +156,13 @@ namespace RPGController
 
         public static void DeepCopyWeaponStats(WeaponStats weaponStats_From, WeaponStats weaponStats_To)
         {
+            if (weaponStats_From == null)
+            {
+                Debug.Log(weaponStats_From.weaponID + " weren't found! Assigning all stats as zero (0).");
+                return;
+            }
 
+            weaponStats_To.weaponID = weaponStats_From.weaponID;
             weaponStats_To.physicalDamage = weaponStats_From.physicalDamage;
             weaponStats_To.strikeDamage = weaponStats_From.strikeDamage;
             weaponStats_To.thrustDamage = weaponStats_From.thrustDamage;
@@ -161,7 +179,7 @@ namespace RPGController
         {
             for (int i = 0; i < actionSlots.Count; i++)
             {
-                if (actionSlots[i].input == actInput)
+                if (actionSlots[i].GetFirstInput() == actInput)
                 {
                     return actionSlots[i];
                 }
@@ -170,16 +188,19 @@ namespace RPGController
             return null;
         }
 
-        public static void DeepCopyActionSteps(ActionSteps from, ActionSteps to) {
-            to.animationBranches = new List<ActionAnimation>();
+        public static void DeepCopyConsumable(Consumable to, Consumable from) {
 
-            for (int i = 0; i < from.animationBranches.Count; i++)
-            {
-                ActionAnimation a = new ActionAnimation();
-                a.input = from.animationBranches[i].input;
-                a.targetAnim = from.animationBranches[i].targetAnim;
-                to.animationBranches.Add(a);
-            }
+            to.itemName = from.itemName;
+            to.itemDescription = from.itemDescription;
+            to.itemIcon = from.itemIcon;
+
+            to.consumableEffect = from.consumableEffect;
+            to.consumablePrefab = from.consumablePrefab;
+            to.targetAnim = from.targetAnim;
+
+            to.model_pos = from.model_pos;
+            to.model_eulerRot = from.model_eulerRot;
+            to.model_scale = from.model_scale;
         }
     }
 }

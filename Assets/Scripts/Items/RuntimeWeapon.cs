@@ -9,6 +9,7 @@ namespace RPGController
         public Weapon Instance;
         public GameObject weaponModel;
         public WeaponHook weaponHook;
+        public WeaponStats weaponStats;
 
     }
 }

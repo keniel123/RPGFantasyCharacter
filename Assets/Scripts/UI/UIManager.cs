@@ -8,6 +8,7 @@ namespace RPGController
     public class UIManager : MonoBehaviour
     {
         public static UIManager Instance;
+        public GesturesManager gesturesManager;
 
         public float lerpSpeed = 1f;
         public Slider healthSlider;
@@ -19,9 +20,21 @@ namespace RPGController
         public Slider staminaSlider;
         public Slider staminaSlider_Visualizer;
 
+        public Text soulsTxt;
+        int currentSouls;
 
         public float sizeMultiplier = 3;
-        
+
+        private void Start()
+        {
+            gesturesManager = GesturesManager.Instance;
+        }
+
+        public void InitSouls(int value) {
+
+            currentSouls = value;
+        }
+
         public void InitSlider(StatSliderType sliderType, float value)
         {
             Slider slider = null;
@@ -58,9 +71,14 @@ namespace RPGController
         }
 
         public void Tick(CharacterStats charStats, float delta) {
-            healthSlider.value = charStats.currentHealth;
-            manaSlider.value = charStats.currentMana;
+            healthSlider.value = Mathf.Lerp(healthSlider.value, charStats.currentHealth, delta * lerpSpeed * 2);
+            manaSlider.value = Mathf.Lerp(manaSlider.value, charStats.currentMana, delta * lerpSpeed * 2);
             staminaSlider.value = charStats.currentStamina;
+            soulsTxt.text = charStats.currentSouls.ToString();
+
+
+            currentSouls = Mathf.RoundToInt( Mathf.Lerp(currentSouls, charStats.currentSouls, delta * lerpSpeed));
+            soulsTxt.text = currentSouls.ToString();
 
             healthSlider_Visualizer.value = Mathf.Lerp(healthSlider_Visualizer.value, charStats.currentHealth, delta * lerpSpeed);
             manaSlider_Visualizer.value = Mathf.Lerp(manaSlider_Visualizer.value, charStats.currentMana, delta * lerpSpeed);

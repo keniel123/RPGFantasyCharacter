@@ -23,6 +23,7 @@ namespace RPGController
 
         public static string LB = "LB";
         public static string Lock = "Lock";
+        public static string GestureSelect= "Select";
 
         //Animator Parameters
         public static string animParam_Vertical = "Vertical";
@@ -75,6 +76,7 @@ namespace RPGController
         //ScriptableObjects
         public static string WeaponScriptableObject_FileName = "RPGController.WeaponScriptableObject";
         public static string SpellScriptableObject_FileName = "RPGController.SpellItemScriptableObject";
+        public static string ConsumableScriptableObject_FileName = "RPGController.ConsumablesScriptableObject";
 
         //XML Datapath
 

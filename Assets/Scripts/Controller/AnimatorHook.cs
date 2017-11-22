@@ -140,7 +140,10 @@ namespace RPGController
                 Vector3 v = (deltaPos * rootMotionMultiplier) / delta;
 
                 //More time in the air, will result higher gravity and faster falling
-                //v += Physics.gravity;
+                if (!states.onGround)
+                {
+                    v += Physics.gravity;
+                }
 
                 rigid.velocity = v;
             }
@@ -166,7 +169,11 @@ namespace RPGController
                 Vector3 v1 = Vector3.forward * zValueAnim;
                 Vector3 relative = transform.TransformDirection(v1);
                 Vector3 v2 = (relative * rootMotionMultiplier);
-                v2 += Physics.gravity;
+                if (!states.onGround)
+                {
+                    v2 += Physics.gravity;
+                }
+
                 rigid.velocity = v2;
             }
         }
@@ -220,6 +227,7 @@ namespace RPGController
         public void OpenDamageColliders() {
             if (states)
             {
+                states.damageIsOn = true;
                 states.inventoryManager.OpenAllDamageColliders();
             }
 
@@ -229,6 +237,7 @@ namespace RPGController
         public void CloseDamageColliders() {
             if (states)
             {
+                states.damageIsOn = false;
                 states.inventoryManager.CloseAllDamageColliders();
             }
 
@@ -305,6 +314,32 @@ namespace RPGController
 
         public void InitIKForBreathSpell(bool isLeft) {
             IK_Handler.UpdateIKTargets(IKSnaphotType.Breath, isLeft);
+        }
+
+        public void OpenRotationControl() {
+            if (states)
+            {
+                states.canRotate = true;
+            }
+        }
+
+        public void CloseRotationControl()
+        {
+            if (states)
+            {
+                states.canRotate = false;
+            }
+        }
+
+        public void ConsumeCurrentItem() {
+            if (states)
+            {
+                if (states.inventoryManager.currentConsumable)
+                {
+                    states.inventoryManager.currentConsumable.itemCount--;
+                    ItemEffectsManager.Instance.CastEffect(states.inventoryManager.currentConsumable.Instance.consumableEffect, states);
+                }
+            }
         }
     }
 

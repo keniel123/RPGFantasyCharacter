@@ -9,7 +9,6 @@ namespace RPGController
     {
         public int actionStepIndex;
         public List<Action> actionSlots = new List<Action>();
-        public ItemAction consumableItem;
 
         StateManager states;
 
@@ -25,9 +24,17 @@ namespace RPGController
         {
             EmptyAllSlots();
 
+            if (states.inventoryManager.rightHandWeapon !=null)
+            {
+
             StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.rb, ActionInput.rb, actionSlots);
             StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.rt, ActionInput.rt, actionSlots);
+            }
 
+            if (states.inventoryManager.leftHandWeapon == null)
+            {
+                return;
+            }
             if (states.inventoryManager.hasLeftHandWeapon)
             {
                 StaticFunctions.DeepCopyAction(states.inventoryManager.leftHandWeapon.Instance, ActionInput.rb, ActionInput.lb, actionSlots, true);
@@ -38,61 +45,73 @@ namespace RPGController
                 StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lb, ActionInput.lb, actionSlots);
                 StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lt, ActionInput.lt, actionSlots);
             }
-            
+
         }
 
         public void UpdateActionsTwoHanded()
         {
             EmptyAllSlots();
+
+            if (states.inventoryManager.rightHandWeapon == null)
+            {
+                return;
+            }
+
             Weapon weapon = states.inventoryManager.rightHandWeapon.Instance;
 
             //For each action of the weapon, assign the target animation
             for (int i = 0; i < weapon.twoHandedActions.Count; i++)
             {
-                Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].input, actionSlots);
-                action.actionSteps = weapon.twoHandedActions[i].actionSteps;
+                Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].GetFirstInput(), actionSlots);
+                action.firstStep.targetAnim = weapon.twoHandedActions[i].firstStep.targetAnim;
+                StaticFunctions.DeepCopyStepsList(weapon.twoHandedActions[i], action);
                 action.actionType = weapon.twoHandedActions[i].actionType;
+
             }
         }
 
-        void EmptyAllSlots() {
+        void EmptyAllSlots()
+        {
             //Reset previous actions
             for (int i = 0; i < 4; i++)
             {
                 Action a = StaticFunctions.GetAction((ActionInput)i, actionSlots);
 
-                if (a != null)
+                if (a == null)
                 {
-                    a.actionSteps = null;
-                    a.mirror = false;
-                    a.actionType = ActionType.attack;
+                    return;
                 }
+
+                //a.firstStep = null;
+                a.comboSteps = null;
+                a.mirror = false;
+                a.actionType = ActionType.attack;
             }
+
+            //Right hand unarmed actions
+            StaticFunctions.DeepCopyAction(states.inventoryManager.unarmedRunTimeWeapon.Instance, ActionInput.rb, ActionInput.rb, actionSlots);
+            StaticFunctions.DeepCopyAction(states.inventoryManager.unarmedRunTimeWeapon.Instance, ActionInput.rt, ActionInput.rt, actionSlots);
+
+            //Left hand unarmed actions
+            StaticFunctions.DeepCopyAction(states.inventoryManager.unarmedRunTimeWeapon.Instance, ActionInput.rb, ActionInput.lb, actionSlots, true);
+            StaticFunctions.DeepCopyAction(states.inventoryManager.unarmedRunTimeWeapon.Instance, ActionInput.rt, ActionInput.lt, actionSlots, true);
+
         }
 
-        //Constructor
-        ActionManager() {
-
-            //If there are no assigned actions slots, create them
-            for (int i = 0; i < 4; i++)
-            {
-                Action act = new Action();
-                act.input = (ActionInput)i;
-                actionSlots.Add(act);
-            }
-        }
-
-        public Action GetActionSlot(StateManager st) {
+        public Action GetActionSlot(StateManager st)
+        {
             //Find the action input
             ActionInput aInput = GetActionInput(st);
             return StaticFunctions.GetAction(aInput, actionSlots);
         }
 
-        public Action GetActionFromInput(ActionInput actInput) {
+        public Action GetActionFromInput(ActionInput actInput)
+        {
             return StaticFunctions.GetAction(actInput, actionSlots);
         }
 
-        public ActionInput GetActionInput(StateManager st) {
+        public ActionInput GetActionInput(StateManager st)
+        {
             if (st.rb)
                 return ActionInput.rb;
             if (st.rt)
@@ -105,17 +124,19 @@ namespace RPGController
             return ActionInput.rb;
         }
 
-        public bool IsLeftHandSlot(Action slot) {
-            return (slot.input == ActionInput.lb || slot.input == ActionInput.lt);
-
+        public bool IsLeftHandSlot(Action slot)
+        {
+            return (slot.GetFirstInput() == ActionInput.lb || slot.GetFirstInput() == ActionInput.lt);
         }
     }
 
-    public enum ActionInput{
-       rb, rt,lb,lt, none
+    public enum ActionInput
+    {
+        rb, rt, lb, lt, none
     }
 
-    public enum ActionType {
+    public enum ActionType
+    {
         attack, block, spells, parry
     }
 
@@ -130,15 +151,12 @@ namespace RPGController
     }
 
     [Serializable]
-    public class Action {
-
-        public ActionInput input;
+    public class Action
+    {
         public ActionType actionType;
         public SpellClass spellClass;
-        public string defaultTargetAnim;
-
-        public List<ActionSteps> actionSteps;
-
+        public ActionAnimation firstStep;
+        public List<ActionAnimation> comboSteps;
         public bool mirror = false;
         public bool canBeParried = true;
         public bool chageSpeed = false;
@@ -148,42 +166,40 @@ namespace RPGController
         public float staminaCost = 5;
         public float manaCost;
 
-        ActionSteps defaultStep;
+        public bool overrideKick;
+        public string kickAnim;
 
-        public ActionSteps GetActionSteps(ref int index) {
-
-            //If the weapon has no defined action steps, create a branch with default target animation clip
-            if (actionSteps == null || actionSteps.Count == 0)
+        public ActionInput GetFirstInput()
+        {
+            if (firstStep == null)
             {
-                if (defaultStep == null)
+                firstStep = new ActionAnimation();
+            }
+
+            return firstStep.input;
+        }
+
+        public ActionAnimation GetActionSteps(ref int index)
+        {
+            if (index == 0)
+            {
+                if (comboSteps.Count == 0)
                 {
-                    defaultStep = new ActionSteps();
-                    defaultStep.animationBranches = new List<ActionAnimation>();
-
-                    ActionAnimation actAnim = new ActionAnimation();
-                    actAnim.input = input;
-                    actAnim.targetAnim = defaultTargetAnim;
-                    defaultStep.animationBranches.Add(actAnim);
+                    index = 0;
                 }
-
-                return defaultStep;
-
+                else
+                {
+                    //Even if you dont have combo steps
+                    index++;
+                }
+                return firstStep;
             }
 
-            if (index > actionSteps.Count - 1)
+            ActionAnimation retVal = comboSteps[index-1];
+            index++;
+            if (index > comboSteps.Count - 1)
             {
                 index = 0;
-            }
-
-            ActionSteps retVal = actionSteps[index];
-
-            if (index > actionSteps.Count - 1)
-            {
-                index = 0;
-            }
-            else
-            {
-                index++;
             }
 
             return retVal;
@@ -199,11 +215,13 @@ namespace RPGController
     }
 
     [Serializable]
-    public class ActionSteps {
+    public class ActionSteps
+    {
 
         public List<ActionAnimation> animationBranches = new List<ActionAnimation>();
 
-        public ActionAnimation GetBranch(ActionInput input) {
+        public ActionAnimation GetBranch(ActionInput input)
+        {
             for (int i = 0; i < animationBranches.Count; i++)
             {
                 if (animationBranches[i].input == input)
@@ -217,22 +235,20 @@ namespace RPGController
     }
 
     [Serializable]
-    public class ActionAnimation{
+    public class ActionAnimation
+    {
         public ActionInput input;
         public string targetAnim;
     }
     [Serializable]
-    public class SpellAction {
+    public class SpellAction
+    {
         public ActionInput actInput;
         public string targetAnim;
         public string throwAnim;
         public float castTime;
+        public float manaCost;
+        public float staminaCost;
     }
 
-    [Serializable]
-    public class ItemAction
-    {
-        public string targetAnim;
-        public string itemID;
-    }
 }

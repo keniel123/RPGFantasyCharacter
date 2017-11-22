@@ -12,17 +12,72 @@ MonoBehaviour:
   m_Name: RPGController.WeaponScriptableObject
   m_EditorClassIdentifier: 
   weaponsAll:
+  - itemName: Unarmed
+    itemIcon: {fileID: 21300000, guid: 21e1e014732acff47a7c3f4f3bedc884, type: 3}
+    itemDescription: 
+    oh_idle: Empty
+    th_idle: Empty Both Hands
+    oneHandedActions:
+    - actionType: 0
+      spellClass: 0
+      firstStep:
+        input: 0
+        targetAnim: punch 1
+      comboSteps: []
+      mirror: 0
+      canBeParried: 1
+      chageSpeed: 0
+      animSpeed: 2
+      canParry: 1
+      canBackStab: 0
+      staminaCost: 5
+      manaCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+    - actionType: 0
+      spellClass: 0
+      firstStep:
+        input: 1
+        targetAnim: kick 1
+      comboSteps: []
+      mirror: 0
+      canBeParried: 1
+      chageSpeed: 0
+      animSpeed: 2
+      canParry: 1
+      canBackStab: 0
+      staminaCost: 5
+      manaCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 1
+      damageAnim: attack_interrupt
+    twoHandedActions: []
+    parryMultiplier: 0
+    backstabMultiplier: 0
+    LeftHandMirror: 1
+    weaponModelPrefab: {fileID: 1667632927070584, guid: 5c0051942fd14cb4ea7202071cc1f7de,
+      type: 2}
+    right_model_pos: {x: 0, y: 0, z: 0}
+    right_model_eulerRot: {x: 315.37436, y: 15.77348, z: 6.399011}
+    right_model_scale: {x: 1, y: 1, z: 1}
+    left_model_pos: {x: 0, y: 0, z: 0}
+    left_model_eulerRot: {x: 0, y: 0, z: 256.192}
+    left_model_scale: {x: 1, y: 1, z: 1}
   - itemName: Sword
     itemIcon: {fileID: 21300000, guid: 7e09433babd37c84fa565f5706cd8b79, type: 3}
     itemDescription: 
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
-    - input: 0
-      actionType: 0
+    - actionType: 0
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps: []
+      firstStep:
+        input: 0
+        targetAnim: 
+      comboSteps: []
       mirror: 0
       canBeParried: 1
       chageSpeed: 1
@@ -36,11 +91,12 @@ MonoBehaviour:
       overrideDamageAnimation: 0
       damageAnim: 
     twoHandedActions:
-    - input: 0
-      actionType: 0
+    - actionType: 0
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps: []
+      firstStep:
+        input: 0
+        targetAnim: 
+      comboSteps: []
       mirror: 0
       canBeParried: 0
       chageSpeed: 0
@@ -58,15 +114,6 @@ MonoBehaviour:
     LeftHandMirror: 1
     weaponModelPrefab: {fileID: 1535163991341794, guid: 3b7954a0d8346a644a8d00000c6b2379,
       type: 2}
-    weaponStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
     right_model_pos: {x: 0.0805, y: -0.0142, z: 0.0035}
     right_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
     right_model_scale: {x: 1, y: 1, z: 1}
@@ -79,19 +126,12 @@ MonoBehaviour:
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
-    - input: 0
-      actionType: 0
+    - actionType: 0
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps:
-      - animationBranches:
-        - input: 0
-          targetAnim: rap_oh_attack_1
-      - animationBranches:
-        - input: 0
-          targetAnim: rap_oh_attack_2
-        - input: 1
-          targetAnim: rap_oh_attack_3
+      firstStep:
+        input: 0
+        targetAnim: rap_oh_attack_1
+      comboSteps: []
       mirror: 0
       canBeParried: 1
       chageSpeed: 0
@@ -105,11 +145,12 @@ MonoBehaviour:
       overrideDamageAnimation: 0
       damageAnim: 
     twoHandedActions:
-    - input: 0
-      actionType: 0
+    - actionType: 0
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps: []
+      firstStep:
+        input: 0
+        targetAnim: 
+      comboSteps: []
       mirror: 0
       canBeParried: 0
       chageSpeed: 0
@@ -127,15 +168,6 @@ MonoBehaviour:
     LeftHandMirror: 1
     weaponModelPrefab: {fileID: 1206394670984400, guid: 206c94239c5987b458ca207d19684dc8,
       type: 2}
-    weaponStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
     right_model_pos: {x: 0.089, y: -0.021, z: 0.064}
     right_model_eulerRot: {x: -0, y: 0, z: 0}
     right_model_scale: {x: 45, y: 45, z: 45}
@@ -148,16 +180,12 @@ MonoBehaviour:
     oh_idle: gs_oh_idle
     th_idle: gs_th_idle
     oneHandedActions:
-    - input: 1
-      actionType: 0
+    - actionType: 0
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps:
-      - animationBranches:
-        - input: 1
-          targetAnim: gs_th_to_pose
-        - input: 0
-          targetAnim: gs_attack_from_pose
+      firstStep:
+        input: 0
+        targetAnim: gs_oh_attack_1
+      comboSteps: []
       mirror: 0
       canBeParried: 1
       chageSpeed: 0
@@ -170,16 +198,12 @@ MonoBehaviour:
       backstabMultiplier: 0
       overrideDamageAnimation: 0
       damageAnim: 
-    - input: 0
-      actionType: 0
+    - actionType: 0
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps:
-      - animationBranches:
-        - input: 1
-          targetAnim: gs_th_to_pose
-        - input: 0
-          targetAnim: gs_attack_from_pose
+      firstStep:
+        input: 0
+        targetAnim: gs_oh_attack_2
+      comboSteps: []
       mirror: 0
       canBeParried: 1
       chageSpeed: 0
@@ -192,21 +216,50 @@ MonoBehaviour:
       backstabMultiplier: 0
       overrideDamageAnimation: 0
       damageAnim: 
-    twoHandedActions: []
+    twoHandedActions:
+    - actionType: 0
+      spellClass: 0
+      firstStep:
+        input: 0
+        targetAnim: gs_th_attack_1
+      comboSteps: []
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 0
+      manaCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+    - actionType: 0
+      spellClass: 0
+      firstStep:
+        input: 1
+        targetAnim: gs_th_to_pose
+      comboSteps:
+      - input: 1
+        targetAnim: gs_attack_from_pose
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 0
+      manaCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
     parryMultiplier: 0
     backstabMultiplier: 0
     LeftHandMirror: 1
     weaponModelPrefab: {fileID: 1846216238446144, guid: 6061c264a3eea6d4d834e18c725b8b65,
       type: 2}
-    weaponStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
     right_model_pos: {x: 0.089, y: 0.096, z: 0.334}
     right_model_eulerRot: {x: 289.2, y: 180, z: 179.99998}
     right_model_scale: {x: 6, y: 6, z: 6}
@@ -219,11 +272,30 @@ MonoBehaviour:
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
-    - input: 0
-      actionType: 1
+    - actionType: 1
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps: []
+      firstStep:
+        input: 0
+        targetAnim: shield
+      comboSteps: []
+      mirror: 0
+      canBeParried: 0
+      chageSpeed: 0
+      animSpeed: 0
+      canParry: 0
+      canBackStab: 0
+      staminaCost: 5
+      manaCost: 0
+      parryMultiplier: 0
+      backstabMultiplier: 0
+      overrideDamageAnimation: 0
+      damageAnim: 
+    - actionType: 3
+      spellClass: 0
+      firstStep:
+        input: 1
+        targetAnim: parry
+      comboSteps: []
       mirror: 0
       canBeParried: 0
       chageSpeed: 0
@@ -242,15 +314,6 @@ MonoBehaviour:
     LeftHandMirror: 1
     weaponModelPrefab: {fileID: 1713360624702212, guid: 6e50cc5bbc220b942beffdc9c303387e,
       type: 2}
-    weaponStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
     right_model_pos: {x: 0.11499994, y: 0.017000062, z: 0.022000164}
     right_model_eulerRot: {x: 290.85898, y: -0.000004795546, z: 335.45102}
     right_model_scale: {x: 0.5, y: 0.5, z: 0.5}
@@ -263,11 +326,12 @@ MonoBehaviour:
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
-    - input: 0
-      actionType: 2
+    - actionType: 2
       spellClass: 0
-      defaultTargetAnim: 
-      actionSteps: []
+      firstStep:
+        input: 0
+        targetAnim: 
+      comboSteps: []
       mirror: 0
       canBeParried: 0
       chageSpeed: 0
@@ -275,7 +339,7 @@ MonoBehaviour:
       canParry: 0
       canBackStab: 0
       staminaCost: 5
-      manaCost: 65
+      manaCost: 10
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -286,18 +350,64 @@ MonoBehaviour:
     LeftHandMirror: 1
     weaponModelPrefab: {fileID: 1256975517352644, guid: 065d0d76712e6dd4f87b6a71c558c483,
       type: 2}
-    weaponStats:
-      physicalDamage: 0
-      strikeDamage: 0
-      slashDamage: 0
-      thrustDamage: 0
-      magicDamage: 0
-      fireDamage: 0
-      lightningDamage: 0
-      darkDamage: 0
     right_model_pos: {x: 0.12, y: -0.064, z: 0}
     right_model_eulerRot: {x: -0, y: 0, z: 0}
     right_model_scale: {x: 0.1, y: 0.1, z: 0.1}
     left_model_pos: {x: -0.1308, y: -0.0533, z: -0}
     left_model_eulerRot: {x: -0, y: 0, z: 0}
     left_model_scale: {x: 0.1, y: 0.10000001, z: 0.1}
+  weaponStats:
+  - weaponID: Sword
+    physicalDamage: 0
+    strikeDamage: 0
+    slashDamage: 0
+    thrustDamage: 0
+    magicDamage: 0
+    fireDamage: 0
+    lightningDamage: 0
+    darkDamage: 0
+  - weaponID: Greatsword
+    physicalDamage: 50
+    strikeDamage: 0
+    slashDamage: 0
+    thrustDamage: 0
+    magicDamage: 0
+    fireDamage: 0
+    lightningDamage: 0
+    darkDamage: 0
+  - weaponID: Rapier
+    physicalDamage: 50
+    strikeDamage: 0
+    slashDamage: 0
+    thrustDamage: 0
+    magicDamage: 0
+    fireDamage: 0
+    lightningDamage: 0
+    darkDamage: 0
+  - weaponID: Round Shield
+    physicalDamage: 50
+    strikeDamage: 0
+    slashDamage: 0
+    thrustDamage: 0
+    magicDamage: 0
+    fireDamage: 0
+    lightningDamage: 0
+    darkDamage: 0
+  - weaponID: Pyromancy Flame
+    physicalDamage: 50
+    strikeDamage: 0
+    slashDamage: 0
+    thrustDamage: 0
+    magicDamage: 0
+    fireDamage: 0
+    lightningDamage: 0
+    darkDamage: 0
+  - weaponID: Unarmed
+    physicalDamage: 5
+    strikeDamage: 0
+    slashDamage: 0
+    thrustDamage: 0
+    magicDamage: 0
+    fireDamage: 0
+    lightningDamage: 0
+    darkDamage: 0

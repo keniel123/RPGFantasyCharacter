@@ -30750,7 +30750,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.8666667
+  - time: 1.5
     functionName: OpenCanMove
     data: 
     objectReferenceParameter: {fileID: 0}

@@ -38,6 +38,8 @@ public class StateManager : MonoBehaviour
     public bool inAction;
     public bool canMove;
     public bool canAttack;
+    public bool damageIsOn;
+    public bool canRotate;
     public bool isSpellCasting;
     public bool isTwoHanded;
     public bool isUsingItem;
@@ -47,6 +49,7 @@ public class StateManager : MonoBehaviour
     public bool isLeftHand;
     public bool enableIK;
     public bool onEmpty;
+    public bool closeWeapons;
 
     [Header("Other")]
     public EnemyTarget lockOnTarget;
@@ -78,10 +81,19 @@ public class StateManager : MonoBehaviour
     [HideInInspector]
     public float airTimer;
 
+    [HideInInspector]
+    public string currentItemEffect;
+
     public ActionInput storeActionInput;
     public ActionInput storePreviousActionInput;
 
     float _actionDelay;
+    float _kickTimer;
+    public bool canKick;
+    public bool holdKick;
+
+    public float kickMaxTime = 0.1f;
+    public float moveAmountThresh = 0.05f;
 
     [HideInInspector]
     public float delta;
@@ -114,9 +126,13 @@ public class StateManager : MonoBehaviour
 
         animator.SetBool(StaticStrings.animParam_OnGround, true);
 
+        UIManager UIManager = UIManager.Instance;
         characterStats.InitCurrent();
-        UIManager.Instance.EffectAll(characterStats.hp, characterStats.fp, characterStats.stamina);
+        UIManager.EffectAll(characterStats.hp, characterStats.fp, characterStats.stamina);
+        UIManager.InitSouls(characterStats.currentSouls);
+
     }
+
 
     void SetupAnimator()
     {
@@ -225,7 +241,6 @@ public class StateManager : MonoBehaviour
 
     public void DetectItemAction()
     {
-
         //You cannot use an item while already using another or blocking
         if (!onEmpty || isUsingItem || isBlocking)
         {
@@ -237,8 +252,19 @@ public class StateManager : MonoBehaviour
             return;
         }
 
-        ItemAction itemAction = actionManager.consumableItem;
-        string targetAnim = itemAction.targetAnim;
+        if (inventoryManager.currentConsumable == null)
+        {
+            return;
+        }
+
+        //If the item is not unlimited and the player has no instance of item, skip
+        if (inventoryManager.currentConsumable.itemCount < 1 && !inventoryManager.currentConsumable.unlimitedCount)
+        {
+            return;
+        }
+
+        RuntimeConsumableItem slot = inventoryManager.currentConsumable;
+        string targetAnim = slot.Instance.targetAnim;
         if (string.IsNullOrEmpty(targetAnim))
         {
             Debug.LogError("No animation found for item action!");
@@ -300,6 +326,51 @@ public class StateManager : MonoBehaviour
         }
     }
 
+
+    void MonitorKick()
+    {
+        if (!holdKick)
+        {
+            if (moveAmount > moveAmountThresh)
+            {
+                _kickTimer += delta;
+                if (_kickTimer < kickMaxTime)
+                {
+                    canKick = true;
+                }
+                else
+                {
+                    _kickTimer = kickMaxTime;
+                    holdKick = true;
+                    canKick = false;
+                }
+            }
+            else
+            {
+                _kickTimer -= delta *0.5f;
+                if (_kickTimer < 0)
+                {
+                    _kickTimer = 0;
+                    canKick = false;
+                }
+            }
+        }
+        else
+        {
+            if (moveAmount < moveAmountThresh)
+            {
+                _kickTimer -= delta;
+                if (_kickTimer < 0)
+                {
+                    _kickTimer = 0;
+                    holdKick = false;
+                    canKick = false;
+                }
+            }
+        }
+        
+    }
+
     void AttackAction(Action slot)
     {
 
@@ -318,11 +389,30 @@ public class StateManager : MonoBehaviour
             return;
         }
 
+        if (slot.firstStep.input == ActionInput.rb)
+        {
+            if (canKick)
+            {
+                string kickAnim = "kick 1";
+                if (slot.overrideKick)
+                {
+                    kickAnim = slot.kickAnim;
+                }
+
+                PlayAnimation(kickAnim, false);
+                _kickTimer = 0;
+
+                return;
+            }
+        }
+
         //If there is input, play an attack animation
         string targetAnim = null;
         targetAnim = slot.GetActionSteps(ref actionManager.actionStepIndex)
-            .GetBranch(storeActionInput).targetAnim;
-        
+            .targetAnim;
+
+        Debug.Log("targetAnim: " + targetAnim);
+
         if (string.IsNullOrEmpty(targetAnim))
         {
             Debug.LogWarning("Animation name is null!");
@@ -330,10 +420,6 @@ public class StateManager : MonoBehaviour
         }
 
         currentAction = slot;
-        onEmpty = false;
-        canAttack = false;
-        canMove = false;
-        inAction = true;
 
         float targetSpeed = 1;
         if (slot.chageSpeed)
@@ -347,24 +433,24 @@ public class StateManager : MonoBehaviour
 
         canBeParried = slot.canBeParried;
         animator.SetFloat(StaticStrings.animParam_AnimSpeed, targetSpeed);
-        animator.SetBool(StaticStrings.animParam_Mirror, slot.mirror);
-        //animator.CrossFade(targetAnim, 0.2f);
-        animator.Play(targetAnim);
+        PlayAnimation(targetAnim, slot.mirror);
         characterStats.currentStamina -= slot.staminaCost;
     }
 
     void SpellAction(Action slot)
     {
+        if (characterStats.currentStamina < slot.staminaCost)
+        {
+            return;
+        }
+
         if (slot.spellClass != inventoryManager.currentSpell.Instance.spellClass
-            || characterStats.stamina < slot.staminaCost || characterStats.currentMana < slot.manaCost)
+            || characterStats.currentMana < slot.manaCost)
         {
             //Failed to cast spell
             Debug.Log("Cant cast spell!");
-            animator.SetBool(StaticStrings.animParam_Mirror, slot.mirror);
-            animator.CrossFade(StaticStrings.animState_CantCastSpell, 0.2f);
-            canMove = false;
-            canAttack = false;
-            inAction = true;
+            PlayAnimation(StaticStrings.animState_CantCastSpell, slot.mirror);
+            
             return;
         }
 
@@ -413,9 +499,8 @@ public class StateManager : MonoBehaviour
         animator.SetBool(StaticStrings.animParam_Mirror, slot.mirror);
         animator.CrossFade(targetAnim, 0.2f);
 
-        characterStats.currentStamina -= slot.staminaCost;
-        characterStats.currentMana -= slot.manaCost;
-
+        currentManaCost = spellSlot.manaCost;
+        currentStaminaCost = spellSlot.staminaCost;
         animHook.InitIKForBreathSpell(spellIsMirorred);
 
         if (spellCastStart != null)
@@ -424,6 +509,20 @@ public class StateManager : MonoBehaviour
         }
     }
 
+    public void PlayAnimation(string targetAnim, bool isMirrored) {
+
+        canAttack = false;
+        onEmpty = false;
+        canMove = false;
+        inAction = true;
+        canKick = false;
+
+        animator.SetBool(StaticStrings.animParam_Mirror, isMirrored);
+        animator.CrossFade(targetAnim, 0.2f);
+    }
+
+    float currentManaCost;
+    float currentStaminaCost;
     float spellCastTime;
     float max_SpellCastTime;
     string spellTargetAnim;
@@ -440,6 +539,13 @@ public class StateManager : MonoBehaviour
 
     public delegate void SpellCastLoop();
     public SpellCastStart spellCastLoop;
+
+    void EmptySpellCastDelegates()
+    {
+        spellCastStart = null;
+        spellCastStop = null;
+        spellCastLoop = null;
+    }
 
     void HandleSpellCasting()
     {
@@ -462,6 +568,7 @@ public class StateManager : MonoBehaviour
                     spellCastStop();
                 }
 
+                EmptySpellCastDelegates();
                 return;
             }
 
@@ -496,6 +603,25 @@ public class StateManager : MonoBehaviour
         }
     }
 
+    bool blockAnim;
+    string block_Idle_Anim;
+    void HandleBlocking()
+    {
+
+        if (!isBlocking)
+        {
+            if (blockAnim)
+            {
+                animator.CrossFade(block_Idle_Anim, 0.1f);
+                blockAnim = false;
+            }
+        }
+        else
+        {
+
+        }
+    }
+
     public void ThrowProjectile()
     {
         if (projectileCandidate == null)
@@ -518,6 +644,9 @@ public class StateManager : MonoBehaviour
 
         Projectile projectileBehaviour = go.GetComponent<Projectile>();
         projectileBehaviour.Init();
+
+        characterStats.currentStamina -= currentStaminaCost;
+        characterStats.currentMana -= currentManaCost;
     }
 
     bool CheckForParry(Action slot)
@@ -652,15 +781,30 @@ public class StateManager : MonoBehaviour
 
         //If it's mirrored, than that means you're blocking with the left hand and vice versa
         isLeftHand = slot.mirror;
+
         animHook.currentHand = (isLeftHand) ? AvatarIKGoal.LeftHand : AvatarIKGoal.RightHand;
         animHook.InitIKForShield(isLeftHand);
+
+        if (!blockAnim)
+        {
+            block_Idle_Anim = (!isTwoHanded)
+                ? inventoryManager.GetCurrentWeapon(isLeftHand).oh_idle
+                : inventoryManager.GetCurrentWeapon(isLeftHand).th_idle;
+
+            block_Idle_Anim += (isLeftHand) ? StaticStrings._leftPrefix : StaticStrings._rightPrefix;
+
+            string targetAnim = slot.firstStep.targetAnim;
+            targetAnim += (isLeftHand) ? StaticStrings._leftPrefix : StaticStrings._rightPrefix;
+            animator.CrossFade(targetAnim, 0.1f);
+            blockAnim = true;
+        }
     }
 
     void ParryAction(Action slot)
     {
         //If there is input, play an attack animation
         string targetAnim = null;
-        targetAnim = slot.GetActionSteps(ref actionManager.actionStepIndex).GetBranch(storeActionInput).targetAnim;
+        targetAnim = slot.GetActionSteps(ref actionManager.actionStepIndex).targetAnim;
 
         if (string.IsNullOrEmpty(targetAnim))
         {
@@ -696,11 +840,38 @@ public class StateManager : MonoBehaviour
         isBlocking = false;
         isUsingItem = animator.GetBool(StaticStrings.animParam_Interacting);
         animator.SetBool(StaticStrings.animParam_SpellCasting, isSpellCasting);
+        
+        if (!closeWeapons)
+        {
+            if (inventoryManager.rightHandWeapon != null)
+            {
+                inventoryManager.rightHandWeapon.weaponModel.SetActive(!isUsingItem);
+            }
 
-        inventoryManager.rightHandWeapon.weaponModel.SetActive(!isUsingItem);
+            if (inventoryManager.leftHandWeapon != null)
+            {
+                inventoryManager.leftHandWeapon.weaponModel.SetActive(true);
+            }
 
-        animator.SetBool(StaticStrings.animParam_Block, isBlocking);
-        animator.SetBool(StaticStrings.animParam_IsLeft, isLeftHand);
+            if (inventoryManager.currentConsumable != null)
+            {
+                if (inventoryManager.currentConsumable.consumableModel != null)
+                    inventoryManager.currentConsumable.consumableModel.SetActive(isUsingItem);
+            }
+
+        }
+        //If the weapons are set to close, disable their 3D models in the scene
+        else
+        {
+            if (inventoryManager.rightHandWeapon != null)
+            {
+                inventoryManager.rightHandWeapon.weaponModel.SetActive(false);
+            }
+            if (inventoryManager.leftHandWeapon != null)
+            {
+                inventoryManager.leftHandWeapon.weaponModel.SetActive(false);
+            }
+        }
 
         //If player is not blocking and casting spells, disable IK
         if (!isBlocking && !isSpellCasting)
@@ -708,7 +879,6 @@ public class StateManager : MonoBehaviour
             enableIK = false;
         }
 
-        animHook.useIK = enableIK;
 
         if (inAction)
         {
@@ -727,8 +897,6 @@ public class StateManager : MonoBehaviour
         }
 
         onEmpty = animator.GetBool(StaticStrings.animParam_OnEmpty);
-        //Get the can move state from animator
-        //canMove = animator.GetBool(StaticStrings.animParam_CanMove);
 
         if (onEmpty)
         {
@@ -736,34 +904,38 @@ public class StateManager : MonoBehaviour
             canMove = true;
         }
 
+        //Animation is playing, but you cannot damage (damage colliders are off)
+        if (canRotate)
+        {
+            HandleRotation();
+        }
+
+        //Animation is playing, skip following actions
         if (!onEmpty && !canMove && !canAttack)
         {
             return;
         }
 
+        closeWeapons = false;
+
         if (canMove && !onEmpty)
         {
             if (moveAmount > 0.3f)
             {
-                animator.CrossFade("Empty Override", 0.075f);
+                //animator.Play("Empty Override");
+                animator.CrossFade("Empty Override", 0.05f);
                 onEmpty = true;
             }
         }
 
-        if (canAttack)
-        {
-            if (IsInput())
-            {
-                animator.CrossFade("Empty Override", 0.075f);
-            }
-        }
+        MonitorKick();
 
         if (canAttack)
         {
             DetectAction();
         }
 
-        if (!canMove)
+        if (canMove)
         {
             DetectItemAction();
         }
@@ -811,12 +983,18 @@ public class StateManager : MonoBehaviour
             HandleLockOnAnimations(moveDirection);
         }
 
+        animHook.useIK = enableIK;
+
+        //animator.SetBool(StaticStrings.animParam_Block, isBlocking);
+        animator.SetBool(StaticStrings.animParam_IsLeft, isLeftHand);
+
+        HandleBlocking();
+
         if (isSpellCasting)
         {
             HandleSpellCasting();
             return;
         }
-
 
         animHook.CloseRoll();
         HandleRolls();
@@ -891,9 +1069,12 @@ public class StateManager : MonoBehaviour
 
     public void HandleTwoHanded()
     {
-        //animator.SetBool(StaticStrings.animParam_IsTwoHanded, isTwoHanded);
-
         bool isRight = true;
+        if (inventoryManager.rightHandWeapon == null)
+        {
+            return;
+        }
+
         //Get the default (right hand) weapon currently equiiped
         Weapon weapon = inventoryManager.rightHandWeapon.Instance;
 
@@ -931,7 +1112,7 @@ public class StateManager : MonoBehaviour
             string targetAnim = weapon.oh_idle;
             targetAnim += (isRight) ? StaticStrings._rightPrefix : StaticStrings._leftPrefix;
 
-            //animator.CrossFade(targetAnim, 0.2f);
+            animator.CrossFade(targetAnim, 0.2f);
             animator.Play(StaticStrings.animState_EquipWeapon_OH);
             actionManager.UpdateActionsOneHanded();
 
@@ -983,5 +1164,25 @@ public class StateManager : MonoBehaviour
 
         characterStats.currentHealth = Mathf.Clamp(characterStats.currentHealth, 0, characterStats.hp);
         characterStats.currentMana = Mathf.Clamp(characterStats.currentMana, 0, characterStats.fp);
+    }
+
+    public void SubstractStaminaOverTime()
+    {
+        characterStats.currentStamina -= currentStaminaCost;
+    }
+
+    public void SubstractManaOverTime()
+    {
+        characterStats.currentMana -= currentManaCost;
+    }
+
+    public void AffectBlocking()
+    {
+        isBlocking = true;
+    }
+
+    public void StopAffectingBlocking()
+    {
+        isBlocking = false;
     }
 }
