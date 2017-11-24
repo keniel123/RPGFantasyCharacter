@@ -12,9 +12,9 @@ namespace RPGController
 
         public bool leftHand;
         public bool saveItem;
-        public ItemType saveType;
+        public PlaceItemType saveType;
 
-        public enum ItemType
+        public enum PlaceItemType
         {
             Weapon, Consumable
         }
@@ -31,10 +31,10 @@ namespace RPGController
 
             switch (saveType)
             {
-                case ItemType.Weapon:
+                case PlaceItemType.Weapon:
                     SaveWeapon();
                     break;
-                case ItemType.Consumable:
+                case PlaceItemType.Consumable:
                     SaveConsumable();
                     break;
                 default:
@@ -64,7 +64,7 @@ namespace RPGController
             for (int i = 0; i < weaponObj.weaponsAll.Count; i++)
             {
                 //Check weapon id
-                if (weaponObj.weaponsAll[i].itemName == itemID)
+                if (weaponObj.weaponsAll[i].item_id == itemID)
                 {
                     Weapon w = weaponObj.weaponsAll[i];
 
@@ -108,14 +108,14 @@ namespace RPGController
             for (int i = 0; i < consumableObj.consumables.Count; i++)
             {
                 //Check weapon id
-                if (consumableObj.consumables[i].itemName == itemID)
+                if (consumableObj.consumables[i].item_id == itemID)
                 {
                     Consumable w = consumableObj.consumables[i];
 
                     w.model_eulerRot = targetModel.transform.localEulerAngles;
                     w.model_pos = targetModel.transform.localPosition;
                     w.model_scale = targetModel.transform.localScale;
-                    Debug.Log(w.itemName + " saved!");
+                    Debug.Log(w.item_id + " saved!");
                     return;
                 }
             }

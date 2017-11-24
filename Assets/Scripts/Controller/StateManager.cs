@@ -411,8 +411,6 @@ public class StateManager : MonoBehaviour
         targetAnim = slot.GetActionSteps(ref actionManager.actionStepIndex)
             .targetAnim;
 
-        Debug.Log("targetAnim: " + targetAnim);
-
         if (string.IsNullOrEmpty(targetAnim))
         {
             Debug.LogWarning("Animation name is null!");
@@ -922,8 +920,7 @@ public class StateManager : MonoBehaviour
         {
             if (moveAmount > 0.3f)
             {
-                //animator.Play("Empty Override");
-                animator.CrossFade("Empty Override", 0.05f);
+                animator.CrossFade("Empty Override", 0.1f);
                 onEmpty = true;
             }
         }

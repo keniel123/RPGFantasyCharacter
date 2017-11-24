@@ -78,7 +78,36 @@ namespace RPGController
             hp -= 5;
         }
     }
+    
+    public enum AttributeType
+    {
+        Level,
+        Vigor,
+        Attunement,
+        Vitality,
+        Endurance,
+        Strength,
+        Dexterity,
+        Intelligence,
+        Faith,
+        Luck,
+        Health,
+        Mana,
+        Stamina,
+        Equip_Load,
+        Poise,
+        Item_Discovery,
+        Attunument_Slots
+    }
 
+    public enum AttackDefenseType {
+        Physical, Magic, Fire, Lightning, Dark, Critical, Stability, Bleed, Curse, Frost, MagicBuff,
+        Strike, Slash, Thrust, Poison
+    }
+
+    public enum WeaponDamage {
+        Sum, VS_Strike, VS_Slash, VS_Thrust
+    }
 
     //Attributes specific to player's character, enemies don't have these attributes
     [Serializable]
@@ -102,15 +131,36 @@ namespace RPGController
     public class WeaponStats {
 
         public string weaponID; //Refers to the weapon's Item id
-        public int physicalDamage;
-        public int strikeDamage;
-        public int slashDamage;
-        public int thrustDamage;
-        public int magicDamage = 0;
-        public int fireDamage = 0;
-        public int lightningDamage = 0;
-        public int darkDamage = 0;
+        public int attackPhysical;
+        public int attackStrike;
+        public int attackSlash;
+        public int attackThrust;
+        public int attackMagic = 0;
+        public int attackFire = 0;
+        public int attackLigthning = 0;
+        public int attackDark = 0;
+        public int attackFrost;
+        public int attackCurse;
+        public int attackPoison;
+        public int attackCritical;
+
+        public float defensePhysical;
+        public float defenseStrike;
+        public float defenseThrust;
+        public float defenseMagic;
+        public float defenseFire;
+        public float defenseLigthning;
+        public float defenseDark;
+        public float defenseFrost;
+        public float defenseCurse;
+        public float defensePoison;
+        public float defenseStability;
 
 
+        public string weaponType;
+        public string damageType;
+        public string skillName;
+        public float weightCost = 5;
+        public float maxDurability = 100; 
     }
 }

@@ -8,7 +8,7 @@ namespace RPGController
     {
 
         public static void DeepCopyWeapon(Weapon from, Weapon to) {
-            to.itemIcon = from.itemIcon;
+            to.item_id = from.item_id;
             to.oh_idle = from.oh_idle;
             to.th_idle = from.th_idle;
             to.oneHandedActions = new List<Action>();
@@ -48,9 +48,9 @@ namespace RPGController
 
         public static void DeepCopySpell(Spell from, Spell to) {
 
-            to.itemName = from.itemName;
-            to.itemIcon = from.itemIcon;
-            to.itemDescription = from.itemDescription;
+            to.item_id = from.item_id;
+            //to.itemIcon = from.itemIcon;
+            //to.itemDescription = from.itemDescription;
 
             to.spellType = from.spellType;
             to.spellClass = from.spellClass;
@@ -163,15 +163,15 @@ namespace RPGController
             }
 
             weaponStats_To.weaponID = weaponStats_From.weaponID;
-            weaponStats_To.physicalDamage = weaponStats_From.physicalDamage;
-            weaponStats_To.strikeDamage = weaponStats_From.strikeDamage;
-            weaponStats_To.thrustDamage = weaponStats_From.thrustDamage;
-            weaponStats_To.slashDamage = weaponStats_From.slashDamage;
+            weaponStats_To.attackPhysical = weaponStats_From.attackPhysical;
+            weaponStats_To.attackStrike = weaponStats_From.attackStrike;
+            weaponStats_To.attackThrust = weaponStats_From.attackThrust;
+            weaponStats_To.attackSlash = weaponStats_From.attackSlash;
 
-            weaponStats_To.magicDamage = weaponStats_From.magicDamage;
-            weaponStats_To.lightningDamage = weaponStats_From.lightningDamage;
-            weaponStats_To.fireDamage = weaponStats_From.fireDamage;
-            weaponStats_To.darkDamage = weaponStats_From.darkDamage;
+            weaponStats_To.attackMagic = weaponStats_From.attackMagic;
+            weaponStats_To.attackLigthning = weaponStats_From.attackLigthning;
+            weaponStats_To.attackFire = weaponStats_From.attackFire;
+            weaponStats_To.attackDark = weaponStats_From.attackDark;
 
         }
 
@@ -190,9 +190,9 @@ namespace RPGController
 
         public static void DeepCopyConsumable(Consumable to, Consumable from) {
 
-            to.itemName = from.itemName;
-            to.itemDescription = from.itemDescription;
-            to.itemIcon = from.itemIcon;
+            to.item_id = from.item_id;
+            //to.itemDescription = from.itemDescription;
+            //to.itemIcon = from.itemIcon;
 
             to.consumableEffect = from.consumableEffect;
             to.consumablePrefab = from.consumablePrefab;

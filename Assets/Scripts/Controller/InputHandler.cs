@@ -7,11 +7,10 @@ namespace RPGController
 {
     public class InputHandler : MonoBehaviour
     {
-
         public float vertical;
         public float horizontal;
-
-        public bool b_input;
+        
+        bool b_input;
         bool a_input;
         bool x_input;
         bool y_input;
@@ -49,9 +48,10 @@ namespace RPGController
         StateManager states;
         CameraManager cameraManager;
         UIManager UIManager;
-        
-        bool isGestureOpen;
+        InventoryUI inventoryUI;
 
+        bool isGestureOpen;
+        public bool isInvMenu;
         float delta;
 
         // Use this for initialization
@@ -66,6 +66,8 @@ namespace RPGController
             cameraManager.Init(states);
 
             UIManager = UIManager.Instance;
+            inventoryUI = InventoryUI.inventoryUI;
+            inventoryUI.Init(states.inventoryManager);
 
         }
 
@@ -89,6 +91,15 @@ namespace RPGController
         {
             delta = Time.deltaTime;
             states.Tick(delta);
+
+            //Debug.Log("isInvMenu: " + isInvMenu);
+            //Input delay must be FIXED!
+            if (isInvMenu)
+            {
+                //Update inventory UI
+                inventoryUI.Tick();
+            }
+
             ResetInputAndStates();
 
             //Update character stats (health, mana, stamina etc.)
@@ -96,11 +107,11 @@ namespace RPGController
 
             //Update the UI manager
             UIManager.Tick(states.characterStats, delta);
+
         }
 
         void GetInput()
         {
-
             //Get input from buttons and axises
             vertical = Input.GetAxis(StaticStrings.Input_Vertical);
             horizontal = Input.GetAxis(StaticStrings.Input_Horizontal);
@@ -146,10 +157,26 @@ namespace RPGController
             d_right = Input.GetKeyUp(KeyCode.Alpha4) || d_x > 0;
 
             bool gesturesMenu = Input.GetButtonUp(StaticStrings.GestureSelect);
+            bool menu = Input.GetButtonUp(StaticStrings.Start);
+            //Debug.Log("Menu: " + menu);
 
             if (gesturesMenu)
             {
                 isGestureOpen = !isGestureOpen;
+            }
+
+            if (menu)
+            {
+                isInvMenu = !isInvMenu;
+
+                if (isInvMenu)
+                {
+                    inventoryUI.OpenUI();
+                }
+                else
+                {
+                    inventoryUI.CloseUI();
+                }
             }
 
         }
@@ -167,6 +194,11 @@ namespace RPGController
                 currentUIState = UIState.game;
             }
 
+            if (isInvMenu)
+            {
+                currentUIState = UIState.inventory;
+            }
+
             switch (currentUIState)
             {
                 case UIState.game:
@@ -176,6 +208,7 @@ namespace RPGController
                     HandleGesturesUI();
                     break;
                 case UIState.inventory:
+                    HandleInventoryUI();
                     break;
                 default:
                     break;
@@ -186,6 +219,10 @@ namespace RPGController
         UIState currentUIState;
         enum UIState {
             game, gestures, inventory
+        }
+
+        void HandleInventoryUI() {
+
         }
 
         void HandleGesturesUI()
@@ -389,7 +426,6 @@ namespace RPGController
 
         void ResetInputAndStates()
         {
-
             //Reset the inputs for next frame
             if (b_input == false)
             {

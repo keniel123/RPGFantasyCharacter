@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace RPGController
+namespace RPGController.UI
 {
-    public class IconBase : MonoBehaviour
+    public class InventoryUISlot : MonoBehaviour
     {
-        public Image background;
         public Image icon;
-        public string id;
+        public Text text1;
+        public Text text2;
     }
 }

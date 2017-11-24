@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Name: RPGController.SpellItemScriptableObject
   m_EditorClassIdentifier: 
   spellItems:
-  - itemName: Fireball
-    itemIcon: {fileID: 21300000, guid: 2d7a3d4697dcf8a498469374b11ea15a, type: 3}
-    itemDescription: 
+  - item_id: Fireball
     spellType: 0
     spellClass: 0
     actions:
@@ -29,9 +27,7 @@ MonoBehaviour:
     particle_prefab: {fileID: 1819081214966656, guid: 2eac80d7336d2bc48b9480c6b5b011c3,
       type: 2}
     spellEffect: Fireball
-  - itemName: Firebreath
-    itemIcon: {fileID: 21300000, guid: a890b7ec0067bc940b56852ab5883792, type: 3}
-    itemDescription: 
+  - item_id: Firebreath
     spellType: 2
     spellClass: 0
     actions:
@@ -45,9 +41,7 @@ MonoBehaviour:
     particle_prefab: {fileID: 1237154358593698, guid: 106fc47a2abb67d43b0e9b50d5fe87e4,
       type: 2}
     spellEffect: Firebreath
-  - itemName: DarkShield
-    itemIcon: {fileID: 21300000, guid: 5dc9dd39d5a53894b917017206c22063, type: 3}
-    itemDescription: 
+  - item_id: DarkShield
     spellType: 2
     spellClass: 0
     actions:

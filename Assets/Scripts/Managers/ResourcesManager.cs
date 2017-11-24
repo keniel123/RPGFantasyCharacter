@@ -4,16 +4,30 @@ using UnityEngine;
 
 namespace RPGController
 {
+    public enum Itemtype
+    {
+        Weapon,
+        Spell,
+        Consumable,
+        Equipment
+    }
+
     public class ResourcesManager : MonoBehaviour
     {
         public static ResourcesManager Instance;
+
+        Dictionary<string, int> item_Spells = new Dictionary<string, int>();
+        Dictionary<string, int> item_Weapons = new Dictionary<string, int>();
+        Dictionary<string, int> item_Consumables = new Dictionary<string, int>();
+        
         Dictionary<string, int> weapon_IDs = new Dictionary<string, int>();
         Dictionary<string, int> spell_IDs = new Dictionary<string, int>();
         Dictionary<string, int> weaponStat_IDs = new Dictionary<string, int>();
         Dictionary<string, int> consumable_IDs = new Dictionary<string, int>();
-
+        
         void Awake() {
             Instance = this;
+            LoadItems();
             LoadWeaponIDs();
             LoadSpellIDs();
             LoadConsumables();
@@ -31,13 +45,13 @@ namespace RPGController
 
             for (int i = 0; i < obj.spellItems.Count; i++)
             {
-                if (spell_IDs.ContainsKey(obj.spellItems[i].itemName))
+                if (spell_IDs.ContainsKey(obj.spellItems[i].item_id))
                 {
                     Debug.Log("Spell Item already exists in the resource manager dictionary!");
                 }
                 else
                 {
-                    spell_IDs.Add(obj.spellItems[i].itemName, i);
+                    spell_IDs.Add(obj.spellItems[i].item_id, i);
                 }
             }
         }
@@ -53,13 +67,13 @@ namespace RPGController
 
             for (int i = 0; i < weaponObj.weaponsAll.Count; i++)
             {
-                if (weapon_IDs.ContainsKey(weaponObj.weaponsAll[i].itemName))
+                if (weapon_IDs.ContainsKey(weaponObj.weaponsAll[i].item_id))
                 {
                     Debug.Log("Weapon Item already exists in the resource manager dictionary!");
                 }
                 else
                 {
-                    weapon_IDs.Add(weaponObj.weaponsAll[i].itemName, i);
+                    weapon_IDs.Add(weaponObj.weaponsAll[i].item_id, i);
                 }
             }
 
@@ -72,6 +86,7 @@ namespace RPGController
                 }
                 else
                 {
+                    //Debug.Log("Adding: " + weaponObj.weaponStats[i].weaponID + " @ index: " + i);
                     weaponStat_IDs.Add(weaponObj.weaponStats[i].weaponID, i);
                 }
             }
@@ -89,29 +104,120 @@ namespace RPGController
 
             for (int i = 0; i < obj.consumables.Count; i++)
             {
-                if (consumable_IDs.ContainsKey(obj.consumables[i].itemName))
+                if (consumable_IDs.ContainsKey(obj.consumables[i].item_id))
+                {
+                    Debug.Log("Consumable Item already exists in the resource manager dictionary!");
+                }
+                else
+                {
+                    consumable_IDs.Add(obj.consumables[i].item_id, i);
+                }
+            }
+        }
+
+        void LoadItems() {
+            ItemsScriptableObject obj = Resources.Load(StaticStrings.ItemsScriptableObject_FileName) as ItemsScriptableObject;
+
+            if (obj == null)
+            {
+                Debug.Log("Couldn't load spell item from: " + StaticStrings.ItemsScriptableObject_FileName);
+
+            }
+
+            //Weapon Items
+            for (int i = 0; i < obj.weapon_Items.Count; i++)
+            {
+                if (item_Weapons.ContainsKey(obj.weapon_Items[i].item_id))
+                {
+                    Debug.Log("Weapon Item already exists in the resource manager dictionary!");
+                }
+                else
+                {
+                    item_Weapons.Add(obj.weapon_Items[i].item_id, i);
+                }
+            }
+
+            //Spell Items
+            for (int i = 0; i < obj.spell_Items.Count; i++)
+            {
+                if (item_Spells.ContainsKey(obj.spell_Items[i].item_id))
                 {
                     Debug.Log("Spell Item already exists in the resource manager dictionary!");
                 }
                 else
                 {
-                    consumable_IDs.Add(obj.consumables[i].itemName, i);
+                    item_Spells.Add(obj.spell_Items[i].item_id, i);
+                }
+            }
+
+            //Consumable Items
+            for (int i = 0; i < obj.consumable_Items.Count; i++)
+            {
+                if (item_Consumables.ContainsKey(obj.consumable_Items[i].item_id))
+                {
+                    Debug.Log("Consumable Item already exists in the resource manager dictionary!");
+                }
+                else
+                {
+                    item_Consumables.Add(obj.consumable_Items[i].item_id, i);
                 }
             }
         }
         #endregion
 
-        #region Weapons
-        int GetWeaponIDFromString(string id) {
-
+        #region Get Accessors
+        int GetIndexFromString(Dictionary<string,int> dictionary, string id) {
             int index = -1;
+            dictionary.TryGetValue(id, out index);
+            return index;
+        }
 
-            if (weapon_IDs.TryGetValue(id, out index))
+        public Item GetItem(string id, Itemtype itemType) {
+            ItemsScriptableObject obj = Resources.Load(StaticStrings.ItemsScriptableObject_FileName) as ItemsScriptableObject;
+
+            if (obj == null)
             {
-                return index;
+                Debug.Log("Couldn't find the file: " + StaticStrings.ItemsScriptableObject_FileName + " under Resources!");
             }
 
-            return -1;
+            Dictionary<string, int> dict = null;
+            List<Item> listItem = null;
+
+            switch (itemType)
+            {
+                case Itemtype.Weapon:
+                    dict = item_Weapons;
+                    listItem = obj.weapon_Items;
+                    break;
+                case Itemtype.Spell:
+                    dict = item_Spells;
+                    listItem = obj.spell_Items;
+                    break;
+                case Itemtype.Consumable:
+                    dict = item_Consumables;
+                    listItem = obj.consumable_Items;
+                    break;
+                case Itemtype.Equipment:
+                default:
+                    return null;
+            }
+
+            if (dict==null)
+            {
+                return null;
+            }
+            if (listItem == null)
+            {
+                return null;
+            }
+            
+            int index = GetIndexFromString(dict, id);
+            if (index == -1)
+            {
+                return null;
+            }
+
+            return listItem[index];
         }
 
         public Weapon GetWeapon(string weaponID) {
@@ -123,33 +229,29 @@ namespace RPGController
                 return null;
             }
 
-            int index = GetWeaponIDFromString(weaponID);
+            int index = GetIndexFromString(weapon_IDs, weaponID);
 
             if (index == -1)
             {
                 return null;
             }
-            
+
             return weaponObj.weaponsAll[index];
-          
         }
 
-#endregion
-
-        #region WeaponStats
-        int GetWeaponStatIDFromString(string id)
-        {
-            int index = -1;
-
-            if (weaponStat_IDs.TryGetValue(id, out index))
+        public List<Item> GetAllItemsFromList(List<string> listOfItems, Itemtype itemType) {
+            List<Item> tmp = new List<Item>();
+            for (int i = 0; i < listOfItems.Count; i++)
             {
-                return index;
+                Item item = GetItem(listOfItems[i], itemType);
+                tmp.Add(item);
             }
 
-            Debug.Log("Couldn't find: " + id + " in weapon stats");
-            return -1;
+            return tmp;
         }
+        #endregion
 
+        #region WeaponStats
 
         public WeaponStats GetWeaponStats(string weaponID)
         {
@@ -160,7 +262,7 @@ namespace RPGController
                 return null;
             }
 
-            int index = GetWeaponStatIDFromString(weaponID);
+            int index = GetIndexFromString(weaponStat_IDs, weaponID);
 
             if (index == -1)
             {
@@ -173,16 +275,6 @@ namespace RPGController
 #endregion
 
         #region Spells
-        public int GetSpellIDFromString(string spellID) {
-            int index = -1;
-            if (spell_IDs.TryGetValue(spellID, out index))
-            {
-                return index;
-            }
-
-            return index;
-        }
-
         public Spell GetSpell(string spellID) {
             SpellItemScriptableObject obj = Resources.Load(StaticStrings.SpellScriptableObject_FileName) as SpellItemScriptableObject;
             if (obj ==null)
@@ -191,7 +283,7 @@ namespace RPGController
                 return null;
             }
 
-            int index = GetSpellIDFromString(spellID);
+            int index = GetIndexFromString(spell_IDs, spellID);
 
             if (index == -1)
             {
@@ -205,16 +297,6 @@ namespace RPGController
         #endregion
 
         #region Consumables
-        public int GetConsumableDFromString(string consumableID)
-        {
-            int index = -1;
-            if (consumable_IDs.TryGetValue(consumableID, out index))
-            {
-                return index;
-            }
-
-            return index;
-        }
 
         public Consumable GetConsumable(string consumableID)
         {
@@ -225,7 +307,7 @@ namespace RPGController
                 return null;
             }
 
-            int index = GetConsumableDFromString(consumableID);
+            int index = GetIndexFromString(consumable_IDs, consumableID);
 
             if (index == -1)
             {
@@ -237,4 +319,5 @@ namespace RPGController
         }
         #endregion
     }
+
 }

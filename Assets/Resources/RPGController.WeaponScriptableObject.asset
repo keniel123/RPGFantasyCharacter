@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Name: RPGController.WeaponScriptableObject
   m_EditorClassIdentifier: 
   weaponsAll:
-  - itemName: Unarmed
-    itemIcon: {fileID: 21300000, guid: 21e1e014732acff47a7c3f4f3bedc884, type: 3}
-    itemDescription: 
+  - item_id: Unarmed
     oh_idle: Empty
     th_idle: Empty Both Hands
     oneHandedActions:
@@ -32,6 +30,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -50,6 +50,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 1
@@ -66,9 +68,7 @@ MonoBehaviour:
     left_model_pos: {x: 0, y: 0, z: 0}
     left_model_eulerRot: {x: 0, y: 0, z: 256.192}
     left_model_scale: {x: 1, y: 1, z: 1}
-  - itemName: Sword
-    itemIcon: {fileID: 21300000, guid: 7e09433babd37c84fa565f5706cd8b79, type: 3}
-    itemDescription: 
+  - item_id: Sword
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
@@ -76,8 +76,10 @@ MonoBehaviour:
       spellClass: 0
       firstStep:
         input: 0
-        targetAnim: 
-      comboSteps: []
+        targetAnim: oh_attack_1
+      comboSteps:
+      - input: 0
+        targetAnim: oh_attack_3
       mirror: 0
       canBeParried: 1
       chageSpeed: 1
@@ -86,6 +88,8 @@ MonoBehaviour:
       canBackStab: 1
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -95,7 +99,7 @@ MonoBehaviour:
       spellClass: 0
       firstStep:
         input: 0
-        targetAnim: 
+        targetAnim: th_attack_1
       comboSteps: []
       mirror: 0
       canBeParried: 0
@@ -103,8 +107,10 @@ MonoBehaviour:
       animSpeed: 0
       canParry: 0
       canBackStab: 0
-      staminaCost: 5
+      staminaCost: 0
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -120,9 +126,7 @@ MonoBehaviour:
     left_model_pos: {x: -0.0824, y: -0.01, z: 0.0097}
     left_model_eulerRot: {x: 6.999997, y: 163.40001, z: 0}
     left_model_scale: {x: 1, y: 1, z: 1}
-  - itemName: Rapier
-    itemIcon: {fileID: 21300000, guid: 6da800e7dc1874448beeeeec5bd4ad1c, type: 3}
-    itemDescription: 
+  - item_id: Rapier
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
@@ -140,6 +144,8 @@ MonoBehaviour:
       canBackStab: 1
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -159,6 +165,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -174,9 +182,7 @@ MonoBehaviour:
     left_model_pos: {x: -0.099, y: -0.019, z: 0.062}
     left_model_eulerRot: {x: -0, y: 0, z: 0}
     left_model_scale: {x: 45, y: 45, z: 45}
-  - itemName: Greatsword
-    itemIcon: {fileID: 21300000, guid: efb85038ffc90c9449b63f7b8880e16e, type: 3}
-    itemDescription: 
+  - item_id: Greatsword
     oh_idle: gs_oh_idle
     th_idle: gs_th_idle
     oneHandedActions:
@@ -194,6 +200,8 @@ MonoBehaviour:
       canBackStab: 1
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -212,6 +220,8 @@ MonoBehaviour:
       canBackStab: 1
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -231,6 +241,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 0
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -251,6 +263,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 0
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -266,9 +280,7 @@ MonoBehaviour:
     left_model_pos: {x: -0.0919, y: -0.009, z: 0.3264}
     left_model_eulerRot: {x: 270, y: 0, z: 0}
     left_model_scale: {x: 6, y: 6, z: 6}
-  - itemName: Round Shield
-    itemIcon: {fileID: 21300000, guid: 5dc9dd39d5a53894b917017206c22063, type: 3}
-    itemDescription: 
+  - item_id: Round Shield
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
@@ -286,6 +298,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -304,6 +318,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 5
       manaCost: 0
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -320,9 +336,7 @@ MonoBehaviour:
     left_model_pos: {x: -0.0932, y: 0.0137, z: 0.0097}
     left_model_eulerRot: {x: 291.69598, y: 330, z: 37.779015}
     left_model_scale: {x: 0.5, y: 0.5, z: 0.5}
-  - itemName: Pyromancy Flame
-    itemIcon: {fileID: 21300000, guid: a25b2cda34f7d6c409ab3e8114465ea4, type: 3}
-    itemDescription: 
+  - item_id: Pyromancy Flame
     oh_idle: idle
     th_idle: th_idle
     oneHandedActions:
@@ -340,6 +354,8 @@ MonoBehaviour:
       canBackStab: 0
       staminaCost: 5
       manaCost: 10
+      overrideKick: 0
+      kickAnim: 
       parryMultiplier: 0
       backstabMultiplier: 0
       overrideDamageAnimation: 0
@@ -358,56 +374,176 @@ MonoBehaviour:
     left_model_scale: {x: 0.1, y: 0.10000001, z: 0.1}
   weaponStats:
   - weaponID: Sword
-    physicalDamage: 0
-    strikeDamage: 0
-    slashDamage: 0
-    thrustDamage: 0
-    magicDamage: 0
-    fireDamage: 0
-    lightningDamage: 0
-    darkDamage: 0
+    attackPhysical: 50
+    attackStrike: 0
+    attackSlash: 0
+    attackThrust: 0
+    attackMagic: 0
+    attackFire: 0
+    attackLigthning: 15
+    attackDark: 0
+    attackFrost: 0
+    attackCurse: 0
+    attackPoison: 0
+    attackCritical: 100
+    defensePhysical: 35
+    defenseStrike: 55
+    defenseThrust: 0
+    defenseMagic: 0
+    defenseFire: 0
+    defenseLigthning: 0
+    defenseDark: 15
+    defenseFrost: 0
+    defenseCurse: 0
+    defensePoison: 0
+    defenseStability: 35
+    weaponType: Sword
+    damageType: Slash / Thrust
+    skillName: Heavy Attack
+    weightCost: 5
+    maxDurability: 100
   - weaponID: Greatsword
-    physicalDamage: 50
-    strikeDamage: 0
-    slashDamage: 0
-    thrustDamage: 0
-    magicDamage: 0
-    fireDamage: 0
-    lightningDamage: 0
-    darkDamage: 0
+    attackPhysical: 100
+    attackStrike: 5
+    attackSlash: 23
+    attackThrust: 1
+    attackMagic: 5
+    attackFire: 20
+    attackLigthning: 35
+    attackDark: 4
+    attackFrost: 5
+    attackCurse: 21
+    attackPoison: 2
+    attackCritical: 100
+    defensePhysical: 38
+    defenseStrike: 20
+    defenseThrust: 15
+    defenseMagic: 65
+    defenseFire: 45
+    defenseLigthning: 5
+    defenseDark: 0
+    defenseFrost: 0
+    defenseCurse: 0
+    defensePoison: 0
+    defenseStability: 35
+    weaponType: Greatsword
+    damageType: Slash
+    skillName: Pose
+    weightCost: 5
+    maxDurability: 100
   - weaponID: Rapier
-    physicalDamage: 50
-    strikeDamage: 0
-    slashDamage: 0
-    thrustDamage: 0
-    magicDamage: 0
-    fireDamage: 0
-    lightningDamage: 0
-    darkDamage: 0
+    attackPhysical: 0
+    attackStrike: 0
+    attackSlash: 0
+    attackThrust: 0
+    attackMagic: 0
+    attackFire: 0
+    attackLigthning: 0
+    attackDark: 0
+    attackFrost: 0
+    attackCurse: 0
+    attackPoison: 0
+    attackCritical: 0
+    defensePhysical: 0
+    defenseStrike: 0
+    defenseThrust: 0
+    defenseMagic: 0
+    defenseFire: 0
+    defenseLigthning: 0
+    defenseDark: 0
+    defenseFrost: 0
+    defenseCurse: 0
+    defensePoison: 0
+    defenseStability: 0
+    weaponType: 
+    damageType: 
+    skillName: 
+    weightCost: 5
+    maxDurability: 100
   - weaponID: Round Shield
-    physicalDamage: 50
-    strikeDamage: 0
-    slashDamage: 0
-    thrustDamage: 0
-    magicDamage: 0
-    fireDamage: 0
-    lightningDamage: 0
-    darkDamage: 0
+    attackPhysical: 0
+    attackStrike: 0
+    attackSlash: 0
+    attackThrust: 0
+    attackMagic: 0
+    attackFire: 0
+    attackLigthning: 0
+    attackDark: 0
+    attackFrost: 0
+    attackCurse: 0
+    attackPoison: 0
+    attackCritical: 0
+    defensePhysical: 0
+    defenseStrike: 0
+    defenseThrust: 0
+    defenseMagic: 0
+    defenseFire: 0
+    defenseLigthning: 0
+    defenseDark: 0
+    defenseFrost: 0
+    defenseCurse: 0
+    defensePoison: 0
+    defenseStability: 0
+    weaponType: 
+    damageType: 
+    skillName: 
+    weightCost: 5
+    maxDurability: 100
   - weaponID: Pyromancy Flame
-    physicalDamage: 50
-    strikeDamage: 0
-    slashDamage: 0
-    thrustDamage: 0
-    magicDamage: 0
-    fireDamage: 0
-    lightningDamage: 0
-    darkDamage: 0
+    attackPhysical: 0
+    attackStrike: 0
+    attackSlash: 0
+    attackThrust: 0
+    attackMagic: 0
+    attackFire: 0
+    attackLigthning: 0
+    attackDark: 0
+    attackFrost: 0
+    attackCurse: 0
+    attackPoison: 0
+    attackCritical: 0
+    defensePhysical: 0
+    defenseStrike: 0
+    defenseThrust: 0
+    defenseMagic: 0
+    defenseFire: 0
+    defenseLigthning: 0
+    defenseDark: 0
+    defenseFrost: 0
+    defenseCurse: 0
+    defensePoison: 0
+    defenseStability: 0
+    weaponType: 
+    damageType: 
+    skillName: 
+    weightCost: 5
+    maxDurability: 100
   - weaponID: Unarmed
-    physicalDamage: 5
-    strikeDamage: 0
-    slashDamage: 0
-    thrustDamage: 0
-    magicDamage: 0
-    fireDamage: 0
-    lightningDamage: 0
-    darkDamage: 0
+    attackPhysical: 0
+    attackStrike: 0
+    attackSlash: 0
+    attackThrust: 0
+    attackMagic: 0
+    attackFire: 0
+    attackLigthning: 0
+    attackDark: 0
+    attackFrost: 0
+    attackCurse: 0
+    attackPoison: 0
+    attackCritical: 0
+    defensePhysical: 0
+    defenseStrike: 0
+    defenseThrust: 0
+    defenseMagic: 0
+    defenseFire: 0
+    defenseLigthning: 0
+    defenseDark: 0
+    defenseFrost: 0
+    defenseCurse: 0
+    defensePoison: 0
+    defenseStability: 0
+    weaponType: '-'
+    damageType: '-'
+    skillName: '-'
+    weightCost: 0
+    maxDurability: 0

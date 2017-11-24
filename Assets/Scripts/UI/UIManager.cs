@@ -71,13 +71,18 @@ namespace RPGController
         }
 
         public void Tick(CharacterStats charStats, float delta) {
+            GameUI(charStats, delta);
+        }
+
+        void GameUI(CharacterStats charStats, float delta) {
+
             healthSlider.value = Mathf.Lerp(healthSlider.value, charStats.currentHealth, delta * lerpSpeed * 2);
             manaSlider.value = Mathf.Lerp(manaSlider.value, charStats.currentMana, delta * lerpSpeed * 2);
             staminaSlider.value = charStats.currentStamina;
             soulsTxt.text = charStats.currentSouls.ToString();
 
 
-            currentSouls = Mathf.RoundToInt( Mathf.Lerp(currentSouls, charStats.currentSouls, delta * lerpSpeed));
+            currentSouls = Mathf.RoundToInt(Mathf.Lerp(currentSouls, charStats.currentSouls, delta * lerpSpeed));
             soulsTxt.text = currentSouls.ToString();
 
             healthSlider_Visualizer.value = Mathf.Lerp(healthSlider_Visualizer.value, charStats.currentHealth, delta * lerpSpeed);

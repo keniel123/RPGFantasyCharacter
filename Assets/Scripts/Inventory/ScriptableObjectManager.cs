@@ -30,6 +30,12 @@ namespace RPGController
             }
         }
 
+        //Editor extension to create consumable item list
+        [MenuItem("Assets/Inventory/Create Items Item List")]
+        public static void CreateItems()
+        {
+            CreateAsset<ItemsScriptableObject>();
+        }
 
         //Editor extension to create consumable item list
         [MenuItem("Assets/Inventory/Create Consumable Item List")]

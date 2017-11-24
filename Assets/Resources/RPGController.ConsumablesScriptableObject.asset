@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Name: RPGController.ConsumablesScriptableObject
   m_EditorClassIdentifier: 
   consumables:
-  - itemName: Bestus
-    itemIcon: {fileID: 21300000, guid: 69bae47ef7450b646bc4811aa465867e, type: 3}
-    itemDescription: Adds health
+  - item_id: Bestus
     consumableEffect: Bestus
     targetAnim: bestus
     consumablePrefab: {fileID: 1008782012658860, guid: 6464e6275d0cea24d86a75cfb0462937,
@@ -22,19 +20,15 @@ MonoBehaviour:
     model_pos: {x: 0, y: 0, z: 0}
     model_eulerRot: {x: -0, y: 0, z: 0}
     model_scale: {x: 1, y: 1, z: 1}
-  - itemName: Bestus_Mana
-    itemIcon: {fileID: 21300000, guid: 2831b5c17151d2a4ebb51162f160d37d, type: 3}
-    itemDescription: Adds mana
-    consumableEffect: Bestus_Mana
+  - item_id: Bestus Mana
+    consumableEffect: Bestus Mana
     targetAnim: bestus
     consumablePrefab: {fileID: 1008782012658860, guid: 3dc43625cb6efa54ba51d1522dcd3850,
       type: 2}
     model_pos: {x: 0, y: 0, z: 0}
     model_eulerRot: {x: 0, y: 0, z: 0}
     model_scale: {x: 1, y: 1, z: 1}
-  - itemName: Souls
-    itemIcon: {fileID: 21300000, guid: 5cff1f33ad72c7343bd34b737acaaf52, type: 3}
-    itemDescription: Adds souls
+  - item_id: Souls
     consumableEffect: Souls
     targetAnim: use_item
     consumablePrefab: {fileID: 0}

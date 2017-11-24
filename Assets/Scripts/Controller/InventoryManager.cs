@@ -52,16 +52,64 @@ namespace RPGController
             CloseBlockCollider();
         }
 
+        void ClearReferences() {
+
+            if (runtime_Right_Weapons != null)
+            {
+                //Clear right hand weapons
+                for (int i = 0; i < runtime_Right_Weapons.Count; i++)
+                {
+                    Destroy(runtime_Right_Weapons[i].weaponModel);
+                }
+
+                runtime_Right_Weapons.Clear();
+            }
+
+            if (runtime_Left_Weapons != null)
+            {
+                //Clear left hand weapons
+                for (int i = 0; i < runtime_Left_Weapons.Count; i++)
+                {
+                    Destroy(runtime_Left_Weapons[i].weaponModel);
+                }
+
+                runtime_Left_Weapons.Clear();
+            }
+
+            if (runtime_Spells != null)
+            {
+                //Clear spells
+                for (int i = 0; i < runtime_Spells.Count; i++)
+                {
+                    Destroy(runtime_Spells[i].currentParticle);
+                }
+
+                runtime_Spells.Clear();
+            }
+
+            if (runtime_Spells != null)
+            {
+                //Clear consumables
+                for (int i = 0; i < runtime_Consumables.Count; i++)
+                {
+                    Destroy(runtime_Consumables[i].consumableModel);
+                }
+
+                runtime_Consumables.Clear();
+            }
+
+        }
+
         public void LoadInventory()
         {
             unarmedRunTimeWeapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(unarmedId), false);
 
+            ClearReferences();
+
             for (int i = 0; i < rightHandWeapons.Count; i++)
             {
                 RuntimeWeapon weapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(rightHandWeapons[i]));
-
                 runtime_Right_Weapons.Add(weapon);
-
             }
 
             for (int i = 0; i < leftHandWeapons.Count; i++)
@@ -121,7 +169,6 @@ namespace RPGController
                 runtime_Consumables.Add(runtimeConsumable);
             }
 
-
             if (runtime_Consumables.Count > 0)
             {
                 if (consumable_Index > runtime_Consumables.Count -1)
@@ -139,7 +186,6 @@ namespace RPGController
 
         public void EquipWeapon(RuntimeWeapon weapon, bool isLeft = false)
         {
-
             if (isLeft)
             {
                 if (leftHandWeapon != null)
@@ -167,20 +213,23 @@ namespace RPGController
             states.animator.Play(targetIdle);
 
             QuickSlot quickSlot = QuickSlot.Instance;
+            Item i = ResourcesManager.Instance.GetItem(weapon.Instance.item_id, Itemtype.Weapon);
+            
             quickSlot.UpdateSlot(
                 (isLeft) ?
-                QSlotType.leftHand : QSlotType.rightHand, weapon.Instance.itemIcon);
+                QSlotType.leftHand : QSlotType.rightHand, i.itemIcon);
 
             weapon.weaponModel.SetActive(true);
         }
 
         public void EquipSpell(RuntimeSpellItems spell)
         {
-
             currentSpell = spell;
 
             QuickSlot quickSlot = QuickSlot.Instance;
-            quickSlot.UpdateSlot(QSlotType.spell, spell.Instance.itemIcon);
+            Item i = ResourcesManager.Instance.GetItem(spell.Instance.item_id, Itemtype.Spell);
+
+            quickSlot.UpdateSlot(QSlotType.spell, i.itemIcon);
         }
 
         public void EquipConsumable(RuntimeConsumableItem consumable)
@@ -188,7 +237,8 @@ namespace RPGController
             currentConsumable = consumable;
 
             QuickSlot quickSlot = QuickSlot.Instance;
-            quickSlot.UpdateSlot(QSlotType.item, consumable.Instance.itemIcon);
+            Item i = ResourcesManager.Instance.GetItem(consumable.Instance.item_id, Itemtype.Consumable);
+            quickSlot.UpdateSlot(QSlotType.item, i.itemIcon);
         }
 
         //Gets the current weapon equipped by the player
@@ -254,7 +304,7 @@ namespace RPGController
 
             instSpell.Instance = new Spell();
             StaticFunctions.DeepCopySpell(spell, instSpell.Instance);
-            go.name = spell.itemName;
+            go.name = spell.item_id;
 
 
             runtime_Spells.Add(instSpell);
@@ -291,16 +341,16 @@ namespace RPGController
 
         public RuntimeWeapon WeaponToRuntimeWeapon(Weapon weapon, bool isLeftHand = false)
         {
-
+            //Debug.Log("Converting to runtime weapon: " + weapon.item_id);
             GameObject go = new GameObject();
             RuntimeWeapon inst = go.AddComponent<RuntimeWeapon>();
-            go.name = weapon.itemName;
+            go.name = weapon.item_id;
 
             inst.Instance = new Weapon();
             StaticFunctions.DeepCopyWeapon(weapon, inst.Instance);
 
             inst.weaponStats = new WeaponStats();
-            WeaponStats weaponStats = ResourcesManager.Instance.GetWeaponStats(weapon.itemName);
+            WeaponStats weaponStats = ResourcesManager.Instance.GetWeaponStats(weapon.item_id);
             if (weaponStats == null)
             {
                 Debug.Log("Couldn't find weaponStats");
@@ -329,7 +379,7 @@ namespace RPGController
             inst.weaponHook = inst.weaponModel.GetComponentInChildren<WeaponHook>();
             if (inst.weaponHook == null)
             {
-                Debug.Log("Missing component 'WeaponHook' on weapon: " + weapon.itemName);
+                Debug.Log("Missing component 'WeaponHook' on weapon: " + weapon.item_id);
             }
 
             inst.weaponHook.InitDamageColliders(states);
@@ -341,7 +391,7 @@ namespace RPGController
 
         public RuntimeConsumableItem ConsumableToRunTime(Consumable consumable) {
             GameObject go = new GameObject();
-            go.name = consumable.itemName;
+            go.name = consumable.item_id;
             RuntimeConsumableItem runTimeConsumable = go.AddComponent<RuntimeConsumableItem>();
 
             runTimeConsumable.Instance = new Consumable();
@@ -472,15 +522,17 @@ namespace RPGController
     [System.Serializable]
     public class Item
     {
-        public string itemName;
-        public Sprite itemIcon;
+        public string item_id;
+        public string name_item;
         public string itemDescription;
-
+        public string skillDescription;
+        public Sprite itemIcon;
     }
 
     [System.Serializable]
-    public class Weapon : Item
+    public class Weapon
     {
+        public string item_id;
         public string oh_idle;  //One handed idle animation name
         public string th_idle;  //Two handed idle animation name
 
@@ -522,8 +574,9 @@ namespace RPGController
     }
 
     [System.Serializable]
-    public class Spell : Item
+    public class Spell 
     {
+        public string item_id;
         public SpellType spellType;
         public SpellClass spellClass;
         public List<SpellAction> actions = new List<SpellAction>();
@@ -552,8 +605,9 @@ namespace RPGController
     }
 
     [System.Serializable]
-    public class Consumable : Item
+    public class Consumable
     {
+        public string item_id;
         public string consumableEffect;
         public string targetAnim;
         public GameObject consumablePrefab;
@@ -562,4 +616,5 @@ namespace RPGController
         public Vector3 model_eulerRot;
         public Vector3 model_scale;
     }
+    
 }
