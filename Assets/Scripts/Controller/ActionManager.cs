@@ -24,26 +24,25 @@ namespace RPGController
         {
             EmptyAllSlots();
 
-            if (states.inventoryManager.rightHandWeapon !=null)
+            if (states.inventoryManager.rightHandWeapon != null)
             {
-
-            StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.rb, ActionInput.rb, actionSlots);
-            StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.rt, ActionInput.rt, actionSlots);
+                StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.rb, ActionInput.rb, actionSlots);
+                StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.rt, ActionInput.rt, actionSlots);
             }
 
-            if (states.inventoryManager.leftHandWeapon == null)
-            {
-                return;
-            }
-            if (states.inventoryManager.hasLeftHandWeapon)
+            if (states.inventoryManager.leftHandWeapon.isUnarmed == false)
             {
                 StaticFunctions.DeepCopyAction(states.inventoryManager.leftHandWeapon.Instance, ActionInput.rb, ActionInput.lb, actionSlots, true);
                 StaticFunctions.DeepCopyAction(states.inventoryManager.leftHandWeapon.Instance, ActionInput.rt, ActionInput.lt, actionSlots, true);
             }
             else
             {
-                StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lb, ActionInput.lb, actionSlots);
-                StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lt, ActionInput.lt, actionSlots);
+                if (states.inventoryManager.rightHandWeapon != null)
+                {
+                    StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lb, ActionInput.lb, actionSlots);
+                    StaticFunctions.DeepCopyAction(states.inventoryManager.rightHandWeapon.Instance, ActionInput.lt, ActionInput.lt, actionSlots);
+
+                }
             }
 
         }
@@ -52,22 +51,36 @@ namespace RPGController
         {
             EmptyAllSlots();
 
-            if (states.inventoryManager.rightHandWeapon == null)
+            if (states.inventoryManager.rightHandWeapon != null)
             {
+                Weapon weapon = states.inventoryManager.rightHandWeapon.Instance;
+
+                //For each action of the weapon, assign the target animation
+                for (int i = 0; i < weapon.twoHandedActions.Count; i++)
+                {
+                    Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].GetFirstInput(), actionSlots);
+                    action.firstStep.targetAnim = weapon.twoHandedActions[i].firstStep.targetAnim;
+                    StaticFunctions.DeepCopyStepsList(weapon.twoHandedActions[i], action);
+                    action.actionType = weapon.twoHandedActions[i].actionType;
+                }
                 return;
             }
 
-            Weapon weapon = states.inventoryManager.rightHandWeapon.Instance;
-
-            //For each action of the weapon, assign the target animation
-            for (int i = 0; i < weapon.twoHandedActions.Count; i++)
+            if (states.inventoryManager.leftHandWeapon != null)
             {
-                Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].GetFirstInput(), actionSlots);
-                action.firstStep.targetAnim = weapon.twoHandedActions[i].firstStep.targetAnim;
-                StaticFunctions.DeepCopyStepsList(weapon.twoHandedActions[i], action);
-                action.actionType = weapon.twoHandedActions[i].actionType;
 
+                Weapon weapon = states.inventoryManager.leftHandWeapon.Instance;
+
+                //For each action of the weapon, assign the target animation
+                for (int i = 0; i < weapon.twoHandedActions.Count; i++)
+                {
+                    Action action = StaticFunctions.GetAction(weapon.twoHandedActions[i].GetFirstInput(), actionSlots);
+                    action.firstStep.targetAnim = weapon.twoHandedActions[i].firstStep.targetAnim;
+                    StaticFunctions.DeepCopyStepsList(weapon.twoHandedActions[i], action);
+                    action.actionType = weapon.twoHandedActions[i].actionType;
+                }
             }
+
         }
 
         void EmptyAllSlots()
@@ -195,16 +208,29 @@ namespace RPGController
                 return firstStep;
             }
 
-            ActionAnimation retVal = comboSteps[index-1];
-            index++;
-            if (index > comboSteps.Count - 1)
+            if (comboSteps != null)
             {
-                index = 0;
+                if (index - 1 < comboSteps.Count - 1)
+                {
+                    Debug.Log("Action step index: " + index);
+                    ActionAnimation retVal = comboSteps[index - 1];
+                    index++;
+                    if (index > comboSteps.Count - 1)
+                        index = 0;
+
+                    return retVal;
+                }
+                else
+                {
+                    return firstStep;
+                }
             }
-
-            return retVal;
+            else
+            {
+                return firstStep;
+            }
         }
-
+        
         [HideInInspector]
         public float parryMultiplier;
         [HideInInspector]

@@ -118,7 +118,6 @@ namespace RPGController
 
                 IconBase iconBase = go.GetComponent<IconBase>();
                 iconBase.icon.sprite = gestures[i].iconSprite;
-                iconBase.id = gestures[i].targetAnim;
                 gestures[i].iconBase = iconBase;
             }
 

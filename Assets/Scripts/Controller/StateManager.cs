@@ -73,6 +73,10 @@ public class StateManager : MonoBehaviour
     public InventoryManager inventoryManager;
 
     [HideInInspector]
+    public PickableItemsManager pickableItemManager;
+
+
+    [HideInInspector]
     public LayerMask ignoreLayers;
 
     [HideInInspector]
@@ -91,6 +95,7 @@ public class StateManager : MonoBehaviour
     float _kickTimer;
     public bool canKick;
     public bool holdKick;
+    public bool enableItem;
 
     public float kickMaxTime = 0.1f;
     public float moveAmountThresh = 0.05f;
@@ -126,13 +131,16 @@ public class StateManager : MonoBehaviour
 
         animator.SetBool(StaticStrings.animParam_OnGround, true);
 
+        pickableItemManager = GetComponent<PickableItemsManager>();
+
         UIManager UIManager = UIManager.Instance;
         characterStats.InitCurrent();
         UIManager.EffectAll(characterStats.hp, characterStats.fp, characterStats.stamina);
         UIManager.InitSouls(characterStats.currentSouls);
 
-    }
+        prevGround = true;
 
+    }
 
     void SetupAnimator()
     {
@@ -170,6 +178,7 @@ public class StateManager : MonoBehaviour
             airTimer = 0;
         }
 
+        pickableItemManager.Tick();
     }
 
     void HandleRolls()
@@ -326,7 +335,6 @@ public class StateManager : MonoBehaviour
         }
     }
 
-
     void MonitorKick()
     {
         if (!holdKick)
@@ -347,7 +355,7 @@ public class StateManager : MonoBehaviour
             }
             else
             {
-                _kickTimer -= delta *0.5f;
+                _kickTimer -= delta * 0.5f;
                 if (_kickTimer < 0)
                 {
                     _kickTimer = 0;
@@ -368,7 +376,7 @@ public class StateManager : MonoBehaviour
                 }
             }
         }
-        
+
     }
 
     void AttackAction(Action slot)
@@ -448,7 +456,7 @@ public class StateManager : MonoBehaviour
             //Failed to cast spell
             Debug.Log("Cant cast spell!");
             PlayAnimation(StaticStrings.animState_CantCastSpell, slot.mirror);
-            
+
             return;
         }
 
@@ -507,8 +515,8 @@ public class StateManager : MonoBehaviour
         }
     }
 
-    public void PlayAnimation(string targetAnim, bool isMirrored) {
-
+    public void PlayAnimation(string targetAnim, bool isMirrored)
+    {
         canAttack = false;
         onEmpty = false;
         canMove = false;
@@ -517,6 +525,53 @@ public class StateManager : MonoBehaviour
 
         animator.SetBool(StaticStrings.animParam_Mirror, isMirrored);
         animator.CrossFade(targetAnim, 0.2f);
+    }
+
+    public void PlayAnimation(string targetAnim)
+    {
+        onEmpty = false;
+        canMove = false;
+        canAttack = false;
+        inAction = true;
+        isBlocking = false;
+        animator.CrossFade(targetAnim, 0.2f);
+    }
+
+    public void InteractLogic() {
+
+        Interaction interaction = ResourcesManager.Instance.GetInteraction(pickableItemManager.worldInterCandidate.interactionId);
+
+        if (interaction.oneShot)
+        {
+            if(pickableItemManager.worldInteractions.Contains(pickableItemManager.worldInterCandidate)){
+                pickableItemManager.worldInteractions.Remove(pickableItemManager.worldInterCandidate);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(interaction.specialEvent))
+        {
+            SessionManager.Instance.PlayEvent(interaction.specialEvent);
+        }
+
+        Vector3 targetDir = pickableItemManager.worldInterCandidate.transform.position - transform.position;
+        SnapToRotation(targetDir);
+
+        pickableItemManager.worldInterCandidate.InteractActual();
+
+        PlayAnimation(interaction.targetAnim);
+        pickableItemManager.worldInterCandidate = null;
+    }
+
+    public void SnapToRotation(Vector3 direction) {
+        direction.Normalize();
+        direction.y = 0;
+        if (direction == Vector3.zero)
+        {
+            direction = transform.forward;
+        }
+
+        Quaternion targetRot = Quaternion.LookRotation(direction);
+        transform.rotation = targetRot;
     }
 
     float currentManaCost;
@@ -837,24 +892,41 @@ public class StateManager : MonoBehaviour
 
         isBlocking = false;
         isUsingItem = animator.GetBool(StaticStrings.animParam_Interacting);
+        enableItem = animator.GetBool(StaticStrings.animParam_EnableItem);
         animator.SetBool(StaticStrings.animParam_SpellCasting, isSpellCasting);
-        
+
         if (!closeWeapons)
         {
+            GameObject mainModel = null;
+
             if (inventoryManager.rightHandWeapon != null)
             {
-                inventoryManager.rightHandWeapon.weaponModel.SetActive(!isUsingItem);
+                mainModel = inventoryManager.rightHandWeapon.weaponModel;
             }
 
-            if (inventoryManager.leftHandWeapon != null)
+            if (mainModel == null)
             {
-                inventoryManager.leftHandWeapon.weaponModel.SetActive(true);
+                if (inventoryManager.leftHandWeapon != null)
+                {
+                    mainModel = inventoryManager.leftHandWeapon.weaponModel;
+                }
+            }
+
+            if (mainModel != null)
+            {
+                mainModel.SetActive(!isUsingItem);
+            }
+
+            if (!isTwoHanded)
+            {
+                if (inventoryManager.leftHandWeapon != null && inventoryManager.rightHandWeapon != null)
+                    inventoryManager.leftHandWeapon.weaponModel.SetActive(true);
             }
 
             if (inventoryManager.currentConsumable != null)
             {
                 if (inventoryManager.currentConsumable.consumableModel != null)
-                    inventoryManager.currentConsumable.consumableModel.SetActive(isUsingItem);
+                    inventoryManager.currentConsumable.consumableModel.SetActive(enableItem);
             }
 
         }
@@ -1043,8 +1115,44 @@ public class StateManager : MonoBehaviour
         animator.SetFloat("Horizontal", h, 0.2f, delta);
     }
 
+    public void Jump()
+    {
+
+        animHook.jumping = true;
+
+        onEmpty = false;
+        canMove = false;
+        canAttack = false;
+        inAction = true;
+        animator.Play(StaticStrings.animState_JumpStart);
+
+        //You cant block while jumping
+        isBlocking = false;
+
+        skipGroundCheck = true;
+        Vector3 targetVelocity = transform.forward * 7;
+        targetVelocity.y += 5;
+        rigid.velocity = targetVelocity;
+    }
+
+    bool skipGroundCheck;
+    float skipTimer;
+    bool prevGround;
     public bool OnGround()
     {
+        if (skipGroundCheck)
+        {
+            skipTimer += delta;
+            if (skipTimer > 0.1f)
+            {
+                skipGroundCheck = false;
+            }
+
+            prevGround = false;
+            return false;
+        }
+
+        skipTimer = 0;
 
         bool r = false;
 
@@ -1061,7 +1169,53 @@ public class StateManager : MonoBehaviour
             transform.position = targetPos;
         }
 
+        if (r && !prevGround)
+        {
+            Land();
+        }
+
+        prevGround = r;
+
         return r;
+    }
+
+    void Land()
+    {
+        animHook.jumping = false;
+
+        if (airTimer < 0.8f)
+        {
+            return;
+        }
+
+        onEmpty = false;
+        canMove = false;
+        canAttack = false;
+        inAction = true;
+        isBlocking = false;
+
+        if (moveAmount == 0)
+        {
+            animator.Play(StaticStrings.animState_JumpLand);
+        }
+        else
+        {
+            //Roll
+            if (moveDirection == Vector3.zero)
+            {
+                moveDirection = transform.forward;
+            }
+
+            Quaternion targetRot = Quaternion.LookRotation(moveDirection);
+            transform.rotation = targetRot;
+            animHook.InitForRoll();
+            animHook.rootMotionMultiplier = rollSpeed;
+
+            animator.SetFloat(StaticStrings.Input_Vertical, 1);
+            animator.SetFloat(StaticStrings.Input_Horizontal, 0);
+
+            animator.CrossFade(StaticStrings.animState_Rolls, 0.2f);
+        }
     }
 
     public void HandleTwoHanded()
@@ -1141,7 +1295,6 @@ public class StateManager : MonoBehaviour
     {
         if (isRunning && moveAmount > 0)
         {
-            Debug.Log("Running");
             characterStats.currentStamina -= delta * 5;
         }
         else

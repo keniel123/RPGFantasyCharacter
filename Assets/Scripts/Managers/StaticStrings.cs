@@ -15,6 +15,7 @@ namespace RPGController
         public static string A = "A";
         public static string Y = "Y";
         public static string X = "X";
+        public static string Interact = "Interact";
         public static string RT = "RT";
         public static string LT = "LT";
         public static string RB = "RB";
@@ -22,10 +23,34 @@ namespace RPGController
         public static string Pad_Y = "Pad_Y";
 
         public static string LB = "LB";
-        public static string Lock = "Lock";
+        public static string R = "R";
+        public static string L = "L";
         public static string GestureSelect= "Select";
         public static string Start = "Start";
 
+        //UI Interaction Key Bindings
+        //Interact
+        public static string ui_ac_interact
+        {
+            get { return "Interact : " + KeyCode.F; }
+        }
+
+        //Pick Up Item
+        public static string ui_ac_pick {
+            get { return "Pick Up Item : " + Interact; }
+        }
+
+        //Talk
+        public static string ui_ac_talk
+        {
+            get { return "Talk : " + Interact; }
+        }
+
+        //Open
+        public static string ui_ac_open
+        {
+            get { return "Open : " + Interact; }
+        }
 
         //Animator Parameters
         public static string animParam_Vertical = "Vertical";
@@ -43,9 +68,11 @@ namespace RPGController
         public static string animParam_AnimSpeed = "AnimSpeed";
         public static string animParam_ParryAttack = "parry_attack";
         public static string animParam_SpellCasting = "SpellCasting";
-
+        public static string animParam_EnableItem = "EnableItem";
 
         //Animator States
+        public static string animState_JumpStart = "jump_launch";
+        public static string animState_JumpLand = "jump_land";
         public static string animState_Rolls = "Rolls";
         public static string animState_AttackInterrupt = "attack_interrupt";
         public static string animState_ParryReceived = "parry_received";
@@ -66,6 +93,7 @@ namespace RPGController
         public static string animState_Rap_OH_Attack_1 = "rap_oh_attack_1";
         public static string animState_Rap_OH_Attack_2 = "rap_oh_attack_2";
         public static string animState_Rap_OH_Attack_3 = "rap_oh_attack_3";
+        public static string animState_PickUp = "pick_up";
 
         public static string damage1 = "damage_1";
         public static string damage2 = "damage_2";
@@ -79,10 +107,10 @@ namespace RPGController
         public static string WeaponScriptableObject_FileName = "RPGController.WeaponScriptableObject";
         public static string SpellScriptableObject_FileName = "RPGController.SpellItemScriptableObject";
         public static string ConsumableScriptableObject_FileName = "RPGController.ConsumablesScriptableObject";
+        public static string InteractionsScriptableObject_FileName = "RPGController.InteractionsScriptableObject";
         public static string ItemsScriptableObject_FileName = "RPGController.ItemsScriptableObject";
 
         //XML Datapath
-
         public static string itemFolder = "/Items/";
 
         public static string SaveLocation()

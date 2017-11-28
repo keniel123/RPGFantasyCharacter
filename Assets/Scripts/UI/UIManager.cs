@@ -20,17 +20,32 @@ namespace RPGController
         public Slider staminaSlider;
         public Slider staminaSlider_Visualizer;
 
+        public GameObject interactCard;
+        public Text ac_actionTypeTxt;
+
+        int announceCard_Index;
+        public List<AnnounceCard> announceCardList = new List<AnnounceCard>(5);
+
         public Text soulsTxt;
         int currentSouls;
 
         public float sizeMultiplier = 3;
 
+        void Awake()
+        {
+            Instance = this;
+        }
+
         private void Start()
         {
             gesturesManager = GesturesManager.Instance;
+            interactCard.SetActive(false);
+            CloseCards();
+            CloseAnnounceType();
         }
 
-        public void InitSouls(int value) {
+        public void InitSouls(int value)
+        {
 
             currentSouls = value;
         }
@@ -44,7 +59,7 @@ namespace RPGController
             {
                 case StatSliderType.Health:
                     slider = healthSlider;
-                    visualizer = healthSlider_Visualizer; 
+                    visualizer = healthSlider_Visualizer;
                     break;
                 case StatSliderType.Mana:
                     slider = manaSlider;
@@ -70,11 +85,13 @@ namespace RPGController
             targetVisualizer.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, valueActual);
         }
 
-        public void Tick(CharacterStats charStats, float delta) {
+        public void Tick(CharacterStats charStats, float delta)
+        {
             GameUI(charStats, delta);
         }
 
-        void GameUI(CharacterStats charStats, float delta) {
+        void GameUI(CharacterStats charStats, float delta)
+        {
 
             healthSlider.value = Mathf.Lerp(healthSlider.value, charStats.currentHealth, delta * lerpSpeed * 2);
             manaSlider.value = Mathf.Lerp(manaSlider.value, charStats.currentMana, delta * lerpSpeed * 2);
@@ -90,19 +107,69 @@ namespace RPGController
             staminaSlider_Visualizer.value = Mathf.Lerp(staminaSlider_Visualizer.value, charStats.currentStamina, delta * lerpSpeed);
         }
 
-        public void EffectAll(int health, int mana, int stamina) {
+        public void EffectAll(int health, int mana, int stamina)
+        {
             InitSlider(StatSliderType.Health, health);
             InitSlider(StatSliderType.Mana, mana);
             InitSlider(StatSliderType.Stamina, stamina);
         }
-        
-        public enum StatSliderType {
+
+        public void OpenAnnounceType(UIActionType uiActionType)
+        {
+            switch (uiActionType)
+            {
+                case UIActionType.pickup:
+                    ac_actionTypeTxt.text = StaticStrings.ui_ac_pick;
+                    break;
+                case UIActionType.interact:
+                    ac_actionTypeTxt.text = StaticStrings.ui_ac_interact;
+                    break;
+                case UIActionType.open:
+                    ac_actionTypeTxt.text = StaticStrings.ui_ac_open;
+                    break;
+                case UIActionType.talk:
+                    ac_actionTypeTxt.text = StaticStrings.ui_ac_talk;
+                    break;
+                default:
+                    break;
+            }
+
+            interactCard.SetActive(true);
+        }
+
+        public void AddAnnounceCard(Item item) {
+            announceCardList[announceCard_Index].itemName.text = item.name_item;
+            announceCardList[announceCard_Index].itemIcon.sprite = item.itemIcon;
+            announceCardList[announceCard_Index].gameObject.SetActive(true);
+            announceCard_Index++;
+
+            if (announceCard_Index>5)
+            {
+                announceCard_Index = 0;
+            }
+        }
+
+        public void CloseCards() {
+            for (int i = 0; i < announceCardList.Count; i++)
+            {
+                announceCardList[i].gameObject.SetActive(false);
+            }
+        }
+
+        public void CloseAnnounceType()
+        {
+            interactCard.SetActive(false);
+        }
+
+        public enum StatSliderType
+        {
 
             Health, Mana, Stamina
         }
 
-        void Awake() {
-            Instance = this;
+        public enum UIActionType
+        {
+            pickup, interact, open, talk
         }
     }
 }

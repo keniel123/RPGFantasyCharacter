@@ -6,6 +6,7 @@ namespace RPGController
 {
     public class RuntimeWeapon : MonoBehaviour
     {
+        public bool isUnarmed;
         public Weapon Instance;
         public GameObject weaponModel;
         public WeaponHook weaponHook;

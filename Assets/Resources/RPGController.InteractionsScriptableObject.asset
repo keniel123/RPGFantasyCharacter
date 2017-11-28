@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea1774d4b57b72f4e844f33aad213765, type: 3}
+  m_Name: RPGController.InteractionsScriptableObject
+  m_EditorClassIdentifier: 
+  interactions:
+  - interactionID: PickUp
+    targetAnim: pick_up
+    oneShot: 0
+    specialEvent: 
+  - interactionID: Open
+    targetAnim: cant_spell
+    oneShot: 1
+    specialEvent: 
+  - interactionID: Talk
+    targetAnim: hello
+    oneShot: 1
+    specialEvent: 

@@ -13,6 +13,7 @@ namespace RPGController
 
         public float rootMotionMultiplier;
         bool rolling;
+        public bool jumping;
         float roll_t;
         float delta;
         AnimationCurve rollCurve;
@@ -81,7 +82,6 @@ namespace RPGController
 
         void OnAnimatorMove()
         {
-
             if (IK_Handler != null)
             {
                 IK_Handler.OnAnimatorMoveTick(currentHand == AvatarIKGoal.LeftHand);
@@ -96,7 +96,12 @@ namespace RPGController
             {
                 return;
             }
-            
+
+            if (jumping)
+            {
+                return;
+            }
+
             if (states!=null)
             {
                 if (states.onEmpty)
@@ -139,10 +144,9 @@ namespace RPGController
                 //Whereas delta stands for time
                 Vector3 v = (deltaPos * rootMotionMultiplier) / delta;
 
-                //More time in the air, will result higher gravity and faster falling
                 if (!states.onGround)
                 {
-                    v += Physics.gravity;
+                    v.y = rigid.velocity.y;
                 }
 
                 rigid.velocity = v;
@@ -171,7 +175,7 @@ namespace RPGController
                 Vector3 v2 = (relative * rootMotionMultiplier);
                 if (!states.onGround)
                 {
-                    v2 += Physics.gravity;
+                    v1.y = rigid.velocity.y;
                 }
 
                 rigid.velocity = v2;

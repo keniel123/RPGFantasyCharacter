@@ -135,7 +135,9 @@ MonoBehaviour:
       firstStep:
         input: 0
         targetAnim: rap_oh_attack_1
-      comboSteps: []
+      comboSteps:
+      - input: 0
+        targetAnim: rap_oh_attack_2
       mirror: 0
       canBeParried: 1
       chageSpeed: 0

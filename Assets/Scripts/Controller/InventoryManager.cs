@@ -11,10 +11,10 @@ namespace RPGController
         public RuntimeWeapon unarmedRunTimeWeapon;
 
         //Use these name lists to create RuntimeWeapon items
-        public List<string> rightHandWeapons;
-        public List<string> leftHandWeapons;
+        public List<int> rightHandWeapons;
+        public List<int> leftHandWeapons;
         public List<string> spellItems;
-        public List<string> consumableItems;
+        public List<int> consumableItems;
 
         public int right_Index;
         public int left_Index;
@@ -25,24 +25,32 @@ namespace RPGController
         List<RuntimeSpellItems> runtime_Spells = new List<RuntimeSpellItems>();
         List<RuntimeConsumableItem> runtime_Consumables = new List<RuntimeConsumableItem>();
 
+        List<RuntimeConsumableItem> consumable_Indexes = new List<RuntimeConsumableItem>();
+        List<RuntimeWeapon> leftHand_Indexes = new List<RuntimeWeapon>();
+        List<RuntimeWeapon> rightHand_Indexes = new List<RuntimeWeapon>();
+        
         public RuntimeSpellItems currentSpell;
         public RuntimeConsumableItem currentConsumable;
-
+        RuntimeConsumableItem emptyItem;
         Action currentSlot;
 
         public RuntimeWeapon rightHandWeapon;
-        public bool hasLeftHandWeapon = true;
         public RuntimeWeapon leftHandWeapon;
         public GameObject parryCollider;
         public GameObject breathCollider;
         public GameObject blockCollider;
 
         StateManager states;
+        QuickSlot quickSlotManager;
+        GameObject referencesParent;
 
         public void Init(StateManager st)
         {
             states = st;
+            quickSlotManager = QuickSlot.Instance;
 
+            LoadLists();
+            ClearReferences();
             LoadInventory();
 
             ParryCollider parryCol = parryCollider.GetComponent<ParryCollider>();
@@ -52,7 +60,49 @@ namespace RPGController
             CloseBlockCollider();
         }
 
-        void ClearReferences() {
+        void LoadLists(){
+
+            rightHandWeapons.Clear();
+            leftHandWeapons.Clear();
+            consumableItems.Clear();
+            spellItems.Clear();
+            
+            for (int i = 0; i < 3; i++)
+            {
+                //-1 --> Unarmed Weapon
+                rightHandWeapons.Add(-1);
+                leftHandWeapons.Add(-1);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                //-1 --> Empty item
+                consumableItems.Add(-1);
+            }
+
+            SessionManager sessionManager = SessionManager.Instance;
+
+            for (int i = 0; i < sessionManager._equipped_RightHand.Count; i++)
+            {
+                rightHandWeapons[i] = sessionManager._equipped_RightHand[i];//sessionManager.rightHand_Weapons_Equipped[i];
+            }
+
+            for (int i = 0; i < sessionManager._equipped_LeftHand.Count; i++)
+            {
+                leftHandWeapons[i] = sessionManager._equipped_LeftHand[i];
+            }
+
+            for (int i = 0; i < sessionManager._equipped_Consumables.Count; i++)
+            {
+                Debug.Log("Consumable: " + i +": " + sessionManager._equipped_Consumables[i]);
+                consumableItems[i] = sessionManager._equipped_Consumables[i];
+            }
+
+            spellItems.AddRange(sessionManager.spells_Equipped);
+
+        }
+        
+        public void ClearReferences() {
 
             if (runtime_Right_Weapons != null)
             {
@@ -76,82 +126,158 @@ namespace RPGController
                 runtime_Left_Weapons.Clear();
             }
 
-            if (runtime_Spells != null)
-            {
-                //Clear spells
-                for (int i = 0; i < runtime_Spells.Count; i++)
-                {
-                    Destroy(runtime_Spells[i].currentParticle);
-                }
-
-                runtime_Spells.Clear();
-            }
-
-            if (runtime_Spells != null)
+            leftHandWeapon = null;
+            rightHandWeapon = null;
+            
+            if (runtime_Consumables != null)
             {
                 //Clear consumables
                 for (int i = 0; i < runtime_Consumables.Count; i++)
                 {
-                    Destroy(runtime_Consumables[i].consumableModel);
+                    if(runtime_Consumables[i] !=null)
+                        if(runtime_Consumables[i].consumableModel)
+                            Destroy(runtime_Consumables[i].consumableModel);
                 }
 
                 runtime_Consumables.Clear();
             }
 
+            if (runtime_Spells != null)
+            {
+                for (int i = 0; i < runtime_Spells.Count; i++)
+                {
+                    if (runtime_Spells[i].currentParticle)
+                    {
+                        Destroy(runtime_Spells[i].currentParticle);
+                    }
+                }
+
+                runtime_Spells.Clear();
+            }
+
+            if (referencesParent)
+            {
+                Destroy(referencesParent);
+            }
+            referencesParent = new GameObject("Run Time References");
         }
 
-        public void LoadInventory()
+        public void LoadInventory(bool updateActions = false)
         {
-            unarmedRunTimeWeapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(unarmedId), false);
+            SessionManager sessionManger = SessionManager.Instance;
 
-            ClearReferences();
+            unarmedRunTimeWeapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(unarmedId), false);
+            unarmedRunTimeWeapon.isUnarmed = true;
+
+            //3 --> number of equipment slots in inventory
+            for (int i = 0; i < 3; i++)
+            {
+                runtime_Right_Weapons.Add(unarmedRunTimeWeapon);
+                runtime_Left_Weapons.Add(unarmedRunTimeWeapon);
+            }
+
+            //There are 10 slots for consumables in inventory
+            for (int i = 0; i < 10; i++)
+            {
+                runtime_Consumables.Add(emptyItem);
+            }
 
             for (int i = 0; i < rightHandWeapons.Count; i++)
             {
-                RuntimeWeapon weapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(rightHandWeapons[i]));
-                runtime_Right_Weapons.Add(weapon);
+                if (rightHandWeapons[i] == -1)
+                {
+                    runtime_Right_Weapons[i] = unarmedRunTimeWeapon;
+                }
+                else
+                {
+                    ItemInventoryInstance invInstance = sessionManger.GetWeaponItem(rightHandWeapons[i]);
+                    RuntimeWeapon weapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(invInstance.itemId));
+                    runtime_Right_Weapons[i] = weapon;
+                }
             }
 
             for (int i = 0; i < leftHandWeapons.Count; i++)
             {
-                RuntimeWeapon weapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(leftHandWeapons[i]), true);
-                runtime_Left_Weapons.Add(weapon);
-            }
-
-            if (runtime_Right_Weapons.Count > 0)
-            {
-                if (right_Index > runtime_Right_Weapons.Count - 1)
+                if (leftHandWeapons[i] == -1)
                 {
-                    right_Index = 0;
+                    runtime_Left_Weapons[i] = unarmedRunTimeWeapon;
                 }
-                rightHandWeapon = runtime_Right_Weapons[right_Index];
-            }
-
-
-            if (runtime_Left_Weapons.Count > 0)
-            {
-                if (left_Index > runtime_Left_Weapons.Count - 1)
+                else
                 {
-                    left_Index = 0;
+                    ItemInventoryInstance invInstance = sessionManger.GetWeaponItem(leftHandWeapons[i]);
+                    RuntimeWeapon weapon = WeaponToRuntimeWeapon(ResourcesManager.Instance.GetWeapon(invInstance.itemId), true);
+                    runtime_Left_Weapons[i] = weapon;
                 }
-                leftHandWeapon = runtime_Left_Weapons[left_Index];
-            }
 
-            if (rightHandWeapon != null)
-            {
-                EquipWeapon(rightHandWeapon, false);
-            }
-            if (leftHandWeapon != null)
-            {
-                EquipWeapon(leftHandWeapon, true);
-                hasLeftHandWeapon = true;
             }
 
             for (int i = 0; i < spellItems.Count; i++)
             {
                 SpellToRuntimeSpell(ResourcesManager.Instance.GetSpell(spellItems[i]));
             }
+            
+            emptyItem = ConsumableToRunTime(ResourcesManager.Instance.GetConsumable("empty"));
+            emptyItem.isEmpty = true;
+            //Consumables
+            for (int i = 0; i < consumableItems.Count; i++)
+            {
+                if (consumableItems[i] == -1)
+                {
+                    runtime_Consumables[i] = emptyItem;
+                }
+                else
+                {
+                    ItemInventoryInstance invInstance = sessionManger.GetConsumableItem(consumableItems[i]);
+                    RuntimeConsumableItem runtimeConsumable = ConsumableToRunTime(ResourcesManager.Instance.GetConsumable(invInstance.itemId));
+                    runtime_Consumables[i] = runtimeConsumable;
+                }
+            }
 
+            InitAllDamageColliders(states);
+            CloseAllDamageColliders();
+
+            MakeIndexesList();
+            EquipInventory();
+
+            if (updateActions)
+            {
+                states.actionManager.UpdateActionsOneHanded();
+            }
+        }
+
+        public void EquipInventory() {
+
+            //Runtime Weapons
+
+                if (right_Index > rightHand_Indexes.Count - 1)
+                {
+                    right_Index = 0;
+                }
+                rightHandWeapon = rightHand_Indexes[right_Index];
+            
+                if (left_Index > leftHand_Indexes.Count - 1)
+                {
+                    left_Index = 0;
+                }
+                leftHandWeapon = leftHand_Indexes[left_Index];
+
+            //RightHand Weapons
+            EquipWeapon(rightHandWeapon, false);
+            
+            //LeftHand weapons
+            EquipWeapon(leftHandWeapon, true);
+            //hasLeftHandWeapon = true;
+
+            //Consumables
+                if (consumable_Index > consumable_Indexes.Count - 1)
+                {
+                    consumable_Index = 0;
+                }
+
+                EquipConsumable(consumable_Indexes[consumable_Index]);
+            
+
+            //Spells
             if (runtime_Spells.Count > 0)
             {
                 if (spell_Index > runtime_Spells.Count)
@@ -161,26 +287,10 @@ namespace RPGController
 
                 EquipSpell(runtime_Spells[spell_Index]);
             }
-
-            //Consumables
-            for (int i = 0; i < consumableItems.Count; i++)
+            else
             {
-                RuntimeConsumableItem runtimeConsumable = ConsumableToRunTime(ResourcesManager.Instance.GetConsumable(consumableItems[i]));
-                runtime_Consumables.Add(runtimeConsumable);
+                quickSlotManager.ClearSlot(QSlotType.spell);
             }
-
-            if (runtime_Consumables.Count > 0)
-            {
-                if (consumable_Index > runtime_Consumables.Count -1)
-                {
-                    consumable_Index = 0;
-                }
-
-                EquipConsumable(runtime_Consumables[consumable_Index]);
-            }
-
-            InitAllDamageColliders(states);
-            CloseAllDamageColliders();
 
         }
 
@@ -212,10 +322,9 @@ namespace RPGController
             //Debug.Log("TargetIdle: " + targetIdle);
             states.animator.Play(targetIdle);
 
-            QuickSlot quickSlot = QuickSlot.Instance;
             Item i = ResourcesManager.Instance.GetItem(weapon.Instance.item_id, Itemtype.Weapon);
             
-            quickSlot.UpdateSlot(
+            quickSlotManager.UpdateSlot(
                 (isLeft) ?
                 QSlotType.leftHand : QSlotType.rightHand, i.itemIcon);
 
@@ -226,19 +335,17 @@ namespace RPGController
         {
             currentSpell = spell;
 
-            QuickSlot quickSlot = QuickSlot.Instance;
             Item i = ResourcesManager.Instance.GetItem(spell.Instance.item_id, Itemtype.Spell);
 
-            quickSlot.UpdateSlot(QSlotType.spell, i.itemIcon);
+            quickSlotManager.UpdateSlot(QSlotType.spell, i.itemIcon);
         }
 
         public void EquipConsumable(RuntimeConsumableItem consumable)
         {
             currentConsumable = consumable;
 
-            QuickSlot quickSlot = QuickSlot.Instance;
             Item i = ResourcesManager.Instance.GetItem(consumable.Instance.item_id, Itemtype.Consumable);
-            quickSlot.UpdateSlot(QSlotType.item, i.itemIcon);
+            quickSlotManager.UpdateSlot(QSlotType.item, i.itemIcon);
         }
 
         //Gets the current weapon equipped by the player
@@ -298,8 +405,9 @@ namespace RPGController
 
         public RuntimeSpellItems SpellToRuntimeSpell(Spell spell, bool isLeftHand = false)
         {
-
             GameObject go = new GameObject();
+            go.transform.parent = referencesParent.transform;
+
             RuntimeSpellItems instSpell = go.AddComponent<RuntimeSpellItems>();
 
             instSpell.Instance = new Spell();
@@ -343,6 +451,7 @@ namespace RPGController
         {
             //Debug.Log("Converting to runtime weapon: " + weapon.item_id);
             GameObject go = new GameObject();
+            go.transform.parent = referencesParent.transform;
             RuntimeWeapon inst = go.AddComponent<RuntimeWeapon>();
             go.name = weapon.item_id;
 
@@ -391,6 +500,7 @@ namespace RPGController
 
         public RuntimeConsumableItem ConsumableToRunTime(Consumable consumable) {
             GameObject go = new GameObject();
+            go.transform.parent = referencesParent.transform;
             go.name = consumable.item_id;
             RuntimeConsumableItem runTimeConsumable = go.AddComponent<RuntimeConsumableItem>();
 
@@ -430,32 +540,32 @@ namespace RPGController
             if (isLeft)
             {
                 //There are no weapons in left hand to change
-                if (runtime_Left_Weapons.Count == 0)
+                if (leftHand_Indexes.Count == 0)
                 {
                     return;
                 }
 
-                if (left_Index < runtime_Left_Weapons.Count - 1)
+                if (left_Index < leftHand_Indexes.Count - 1)
                     left_Index++;
                 else
                     left_Index = 0;
 
-                EquipWeapon(runtime_Left_Weapons[left_Index], true);
+                EquipWeapon(leftHand_Indexes[left_Index], true);
             }
             else
             {
                 //There are no weapons in right hand to change
-                if (runtime_Right_Weapons.Count == 0)
+                if (rightHand_Indexes.Count == 0)
                 {
                     return;
                 }
 
-                if (right_Index < runtime_Right_Weapons.Count - 1)
+                if (right_Index < rightHand_Indexes.Count - 1)
                     right_Index++;
                 else
                     right_Index = 0;
 
-                EquipWeapon(runtime_Right_Weapons[right_Index]);
+                EquipWeapon(rightHand_Indexes[right_Index]);
             }
 
             states.actionManager.UpdateActionsOneHanded();
@@ -477,7 +587,7 @@ namespace RPGController
 
         public void ChangeToNextConsumable()
         {
-            if (consumable_Index < runtime_Consumables.Count - 1)
+            if (consumable_Index < consumable_Indexes.Count - 1)
             {
                 consumable_Index++;
             }
@@ -486,7 +596,67 @@ namespace RPGController
                 consumable_Index = 0;
             }
 
-            EquipConsumable(runtime_Consumables[consumable_Index]);
+            EquipConsumable(consumable_Indexes[consumable_Index]);
+        }
+
+        void MakeIndexesList() {
+
+            //Consumables
+            consumable_Indexes.Clear();
+
+            for (int i = 0; i < runtime_Consumables.Count; i++)
+            {
+                if (runtime_Consumables[i].isEmpty)
+                {
+                    continue;
+                }
+
+                //If item is not empty, add index
+                consumable_Indexes.Add(runtime_Consumables[i]);
+            }
+
+            //1 item + 1 empty
+            if (consumable_Indexes.Count < 2 )
+            {
+                consumable_Indexes.Add(emptyItem);
+            }
+
+            //Right Weapons
+            for (int i = 0; i < runtime_Right_Weapons.Count; i++)
+            {
+                if (runtime_Right_Weapons[i].isUnarmed)
+                {
+                    continue;
+                }
+
+                //If item is not empty, add index
+                rightHand_Indexes.Add(runtime_Right_Weapons[i]);
+            }
+
+            //1 item + 1 empty
+            if (rightHand_Indexes.Count < 2)
+            {
+                rightHand_Indexes.Add(unarmedRunTimeWeapon);
+            }
+
+            //Left Weapons
+            for (int i = 0; i < runtime_Left_Weapons.Count; i++)
+            {
+                if (runtime_Left_Weapons[i].isUnarmed)
+                {
+                    continue;
+                }
+
+                //If item is not empty, add index
+                leftHand_Indexes.Add(runtime_Left_Weapons[i]);
+            }
+
+            //1 item + 1 empty
+            if (leftHand_Indexes.Count < 2)
+            {
+                leftHand_Indexes.Add(unarmedRunTimeWeapon);
+            }
+
         }
 
         #region DelegateCalls

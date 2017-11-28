@@ -13,7 +13,7 @@ namespace RPGController
 
         //Buttons
         public bool b_input;
-        public bool lt_input;
+        public bool a_input;
         public bool x_input;
         public bool y_input;
 
@@ -41,7 +41,7 @@ namespace RPGController
             horizontal = Input.GetAxis(StaticStrings.Input_Horizontal);
 
             b_input = Input.GetButton(StaticStrings.B);
-            lt_input = Input.GetButton(StaticStrings.LT);
+            a_input = Input.GetButton(StaticStrings.A);
             y_input = Input.GetButtonUp(StaticStrings.Y);
             x_input = Input.GetButton(StaticStrings.X);
 

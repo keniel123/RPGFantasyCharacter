@@ -30,32 +30,39 @@ namespace RPGController
             }
         }
 
-        //Editor extension to create consumable item list
+        //Editor extension to create scriptableobject file for all Items
         [MenuItem("Assets/Inventory/Create Items Item List")]
         public static void CreateItems()
         {
             CreateAsset<ItemsScriptableObject>();
         }
 
-        //Editor extension to create consumable item list
+        //Editor extension to create scriptableobject file for Consumables
         [MenuItem("Assets/Inventory/Create Consumable Item List")]
         public static void CreateConsumables()
         {
             CreateAsset<ConsumablesScriptableObject>();
         }
 
-        //Editor extension to create spell items
+        //Editor extension to create scriptableobject file for Spells
         [MenuItem("Assets/Inventory/Create Spell Item List")]
         public static void CreateSpell()
         {
             CreateAsset<SpellItemScriptableObject>();
         }
 
-        //Editor extension to weapon list for inventory
+        //Editor extension to create scriptableobject file for Weapons
         [MenuItem("Assets/Inventory/Create Weapon List")]
         public static void CreateWeaponList()
         {
             CreateAsset<WeaponScriptableObject>();
+        }
+
+        //Editor extension to create scriptableobject file for Interactions
+        [MenuItem("Assets/Inventory/Create Interaction List")]
+        public static void CreateInteractionList()
+        {
+            CreateAsset<InteractionsScriptableObject>();
         }
     }
 }

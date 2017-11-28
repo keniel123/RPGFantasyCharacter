@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace RPGController
 {
     public class InventoryUI : MonoBehaviour
     {
-        public static InventoryUI inventoryUI;
+        public static InventoryUI Instance;
         InputUI inputUI;
 
         public EquipmentLeft equipment_Left;
@@ -48,19 +49,30 @@ namespace RPGController
         public bool load;
         public InventoryManager invManager;
         public bool isSwitching;
+        public bool isMenu;
+        public bool centerOverlayIsOpen;
+
+        SessionManager session;
 
         private void Awake()
         {
-            inventoryUI = this;
+            Instance = this;
         }
 
         #region Initialization
+
+        public void PreInit() {
+
+            session = SessionManager.Instance;
+            CreateUIElements();
+            InitEquipmentSlots();
+        }
+
         public void Init(InventoryManager inventoryManager)
         {
             invManager = inventoryManager;
             inputUI = InputUI.Instance;
-            CreateUIElements();
-            InitEquipmentSlots();
+
         }
 
         void CreateUIElements()
@@ -168,10 +180,10 @@ namespace RPGController
 
             for (int i = 0; i < eq.Length; i++)
             {
+                eq[i].Init(this);
                 int x = Mathf.RoundToInt(eq[i].slotPos.x);
                 int y = Mathf.RoundToInt(eq[i].slotPos.y);
                 equipmentSlots[x, y] = eq[i];
-                eq[i].Init(this);
             }
         }
 
@@ -304,10 +316,11 @@ namespace RPGController
         /// <summary>
         ///Load items to inventory UI in Left Equipment Panel
         /// </summary>
-        /// <param name="item">Item Type</param>
-        public void LoadCurrentItems(Itemtype item)
+        /// <param name="itemType">Item Type</param>
+        public void LoadCurrentItems(Itemtype itemType)
         {
-            List<Item> itemList = SessionManager.Instance.GetItemsAsList(item);
+            //List<Item> itemList = session.GetItemsAsList(item);
+            List<ItemInventoryInstance> itemList = session.GetItemInstanceList(itemType);
 
             if (itemList == null || itemList.Count == 0)
             {
@@ -334,6 +347,8 @@ namespace RPGController
                     continue;
                 }
 
+                Item item = ResourcesManager.Instance.GetItem(itemList[i].itemId, itemType);
+
                 IconBase icon = null;
                 if (iconSlotsCreated.Count - 1 < i)
                 {
@@ -351,8 +366,8 @@ namespace RPGController
                 currentCreatedItems.Add(icon);
                 icon.gameObject.SetActive(true);
                 icon.icon.enabled = true;
-                icon.icon.sprite = itemList[i].itemIcon;
-                icon.id = itemList[i].item_id;
+                icon.icon.sprite = item.itemIcon;
+                icon.id = itemList[i].uniqueId;
             }
         }
 
@@ -377,7 +392,6 @@ namespace RPGController
             }
         }
 
-
         void HandleSlotInput(InputUI inputUI)
         {
             if (currentEqSlot == null)
@@ -385,12 +399,16 @@ namespace RPGController
                 return;
             }
 
-            if (inputUI.lt_input)
+            #region X Input --> Switching
+            if (inputUI.x_input)
             {
                 isSwitching = !isSwitching;
+                Debug.Log("Changed is switching to : " + isSwitching);
+
                 if (isSwitching)
                 {
-                    LoadCurrentItems(ItemTypeFromSlotType(currentEqSlot.eqSlotType));
+                    Itemtype type = ItemTypeFromSlotType(currentEqSlot.eqSlotType);
+                    LoadCurrentItems(type);
                 }
                 else
                 {
@@ -401,35 +419,143 @@ namespace RPGController
 
                         //If slot index is greater than 2, it is left hand weapon,
                         //since first 3 slots belong to right hand weapons
-                        bool isLeft = (currentEqSlot.itemPosition > 2) ? true : false ;
+                        bool isLeft = (currentEqSlot.itemPosition > 2) ? true : false;
                         if (isLeft)
                         {
                             targetIndex -= 3;
                             invManager.leftHandWeapons[targetIndex] = currentInvIcon.id;
+                            ItemInventoryInstance invInstance = session.GetWeaponItem(invManager.leftHandWeapons[targetIndex]);
+                            if (invInstance.slot != null)
+                            {
+                                equipmentSlotsUI.ClearEquipmentSlot(invInstance.slot, Itemtype.Weapon);
+                                ClearOnIndex(invInstance.equip_Index);
+                            }
                         }
                         else
                         {
                             invManager.rightHandWeapons[targetIndex] = currentInvIcon.id;
+                            ItemInventoryInstance invInstance = session.GetWeaponItem(invManager.rightHandWeapons[targetIndex]);
+                            if (invInstance.slot != null)
+                            {
+                                equipmentSlotsUI.ClearEquipmentSlot(invInstance.slot, Itemtype.Weapon);
+                                ClearOnIndex(invInstance.equip_Index);
+                            }
                         }
                     }
                     else
                     {
+                        ItemInventoryInstance invInstance = session.GetConsumableItem(invManager.consumableItems[currentEqSlot.itemPosition]);
+                        if (invInstance.slot != null)
+                        {
+                            equipmentSlotsUI.ClearEquipmentSlot(invInstance.slot, Itemtype.Consumable);
+                            //Set as empty item
+                            invManager.consumableItems[invInstance.equip_Index] = -1;
+                        }
+
                         invManager.consumableItems[currentEqSlot.itemPosition] = currentInvIcon.id;
                     }
 
-                    LoadEquipment(invManager,true);
+                    LoadEquipment(invManager, true);
                 }
 
                 ChangeToSwitching();
             }
 
+            #endregion
+            
+            //b --> back button
             if (inputUI.b_input)
             {
-                isSwitching = false;
-                ChangeToSwitching();
+                if (isSwitching)
+                {
+                    isSwitching = false;
+                    ChangeToSwitching();
+                }
+                else
+                {
+                    isMenu = false;
+                    CloseUI();
+                }
+            }
+
+            #region Y Input
+            if (inputUI.y_input)
+            {
+                if (isSwitching)
+                {
+                    centerOverlayIsOpen = !centerOverlayIsOpen;
+                    centerOverlay.SetActive(centerOverlayIsOpen);
+                }
+                else
+                {
+                    Itemtype type = ItemTypeFromSlotType(currentEqSlot.eqSlotType);
+                    if (type == Itemtype.Weapon)
+                    {
+                        int targetIndex = currentEqSlot.itemPosition;
+                        bool isLeft = (currentEqSlot.itemPosition > 2) ? true : false;
+                        if (isLeft)
+                        {
+                            targetIndex -= 3;
+                            invManager.leftHandWeapons[targetIndex] = -1;
+                            
+                            ItemInventoryInstance invInstance = session.GetWeaponItem(invManager.leftHandWeapons[targetIndex]);
+                            if (invInstance.slot != null)
+                            {
+                                equipmentSlotsUI.ClearEquipmentSlot(invInstance.slot, Itemtype.Weapon);
+                            }
+                        }
+                        else
+                        {
+                            invManager.rightHandWeapons[targetIndex] = -1;
+
+                            ItemInventoryInstance invInstance = session.GetWeaponItem(invManager.rightHandWeapons[targetIndex]);
+                            if (invInstance.slot != null)
+                            {
+                                equipmentSlotsUI.ClearEquipmentSlot(invInstance.slot, Itemtype.Weapon);
+                            }
+                        }
+                    }
+                    else if(type == Itemtype.Consumable)
+                    {
+                        int targetIndex = currentEqSlot.itemPosition;
+                        if (targetIndex < invManager.consumableItems.Count)
+                        {
+                            invManager.consumableItems[currentEqSlot.itemPosition] = -1;
+
+                            ItemInventoryInstance invInstance = session.GetConsumableItem(invManager.consumableItems[targetIndex]);
+                            if (invInstance.slot != null)
+                            {
+                                equipmentSlotsUI.ClearEquipmentSlot(invInstance.slot, Itemtype.Consumable);
+                            }
+                        }
+                    }
+
+                    LoadEquipment(invManager, true);
+                }
+
+            }
+
+#endregion
+
+        }
+
+        //Assign the corresponding index to "Empty"
+        private void ClearOnIndex(int index)
+        {
+            int indexTmp = index;
+            //Left Hand Weapon Slot
+            if (indexTmp > 2)
+            {
+                indexTmp -= 3;
+                invManager.leftHandWeapons[indexTmp] = -1;
+            }
+            //Rigt Hand Weapon Slot
+            else
+            {
+                invManager.rightHandWeapons[indexTmp] = -1;
             }
         }
-        
+
         void HandleSlotMovement(InputUI inputUI)
         {
             int x = Mathf.RoundToInt(currentSlotPos.x);
@@ -437,7 +563,6 @@ namespace RPGController
 
             bool up = (inputUI.vertical > 0);
             bool down = (inputUI.vertical < 0);
-
             bool left = (inputUI.horizontal < 0);
             bool right = (inputUI.horizontal > 0);
 
@@ -525,12 +650,8 @@ namespace RPGController
 
         void HandleInventoryMovement(InputUI inputHandler)
         {
-            int x = Mathf.RoundToInt(currentSlotPos.x);
-            int y = Mathf.RoundToInt(currentSlotPos.y);
-
             bool up = (inputUI.vertical > 0);
             bool down = (inputUI.vertical < 0);
-
             bool left = (inputUI.horizontal < 0);
             bool right = (inputUI.horizontal > 0);
 
@@ -642,7 +763,16 @@ namespace RPGController
             inventory.SetActive(true);
             gameUI.SetActive(false);
             prevEqSlot = null;
-            currentInv_Index = -1;
+
+            if (currentEqSlot != null)
+            {
+                currentEqSlot.iconBase.background.color = slotSelectedColor;
+            }
+            currentSlotPos = Vector2.zero;
+            currentEqSlot = equipmentSlots[0, 0];
+
+            currentInv_Index = 0;
+            previousInv_Index = -1;
         }
 
         public void CloseUI()
@@ -651,8 +781,11 @@ namespace RPGController
             inventory.SetActive(false);
             gameUI.SetActive(true);
             prevEqSlot = null;
-            currentInv_Index = -1;
+            currentInv_Index = 0;
+            previousInv_Index = -1;
 
+            isSwitching = false;
+            ChangeToSwitching();
         }
 
         public void Tick()
@@ -680,6 +813,7 @@ namespace RPGController
                         {
                             currentInvIcon.background.color = slotUnSelectedColor;
                         }
+
                         if (currentInv_Index < currentCreatedItems.Count)
                         {
                             currentInvIcon = currentCreatedItems[currentInv_Index];
@@ -697,6 +831,12 @@ namespace RPGController
 
         public void LoadEquipment(InventoryManager inv, bool loadOnCharacter = false)
         {
+            if (loadOnCharacter)
+            {
+                inv.ClearReferences();
+            }
+
+            #region Load Right Hand Weapons
             //Load Right Hand weapons
             for (int i = 0; i < inv.rightHandWeapons.Count; i++)
             {
@@ -705,11 +845,23 @@ namespace RPGController
                     break;
 
                 EquipmentSlot eqSlot = equipmentSlotsUI.weaponSlots[i];
-                equipmentSlotsUI.UpdateEquipmentSlot(inv.rightHandWeapons[i], eqSlot, Itemtype.Weapon);
-                eqSlot.itemPosition = i;
+                if (inv.rightHandWeapons[i] == -1)
+                {
+                    equipmentSlotsUI.ClearEquipmentSlot(eqSlot, Itemtype.Weapon);
+                }
+                else
+                {
+                    ItemInventoryInstance item = session.GetWeaponItem(inv.rightHandWeapons[i]);
+                    item.slot = eqSlot;
+                    item.equip_Index = i;
+                        
+                    equipmentSlotsUI.UpdateEquipmentSlot(item.uniqueId, eqSlot, Itemtype.Weapon);
+                }
             }
 
+            #endregion
 
+            #region Load Left Hand Weapons
             //Load Left Hand weapons
             for (int i = 0; i < inv.leftHandWeapons.Count; i++)
             {
@@ -719,35 +871,56 @@ namespace RPGController
 
                 //i+3 -- > Left side index starts after 3 slots of right hand weapons
                 EquipmentSlot eqSlot = equipmentSlotsUI.weaponSlots[i + 3];
-                equipmentSlotsUI.UpdateEquipmentSlot(inv.leftHandWeapons[i], eqSlot, Itemtype.Weapon);
-                eqSlot.itemPosition = i + 3;
+                if (inv.leftHandWeapons[i] == -1)
+                {
+                    equipmentSlotsUI.ClearEquipmentSlot(eqSlot, Itemtype.Weapon);
+                }
+                else
+                {
+                    ItemInventoryInstance item = session.GetWeaponItem(inv.leftHandWeapons[i]);
+                    item.slot = eqSlot;
+                    item.equip_Index = i+3;
+
+                    equipmentSlotsUI.UpdateEquipmentSlot(item.uniqueId, eqSlot, Itemtype.Weapon);
+                }
 
             }
+            #endregion
 
-            //Load Consmable items
+            #region Load Consumable Items
+            //Load Consumable items
             for (int i = 0; i < inv.consumableItems.Count; i++)
             {
                 //Clamp = no more than 3 items (thats how much slot we have for RightHand Weapons)
                 if (i > 9)
                     break;
-
+                
                 EquipmentSlot eqSlot = equipmentSlotsUI.consumableSlots[i];
-                equipmentSlotsUI.UpdateEquipmentSlot(inv.consumableItems[i], eqSlot, Itemtype.Consumable);
+                if (inv.consumableItems[i] == -1)
+                {
+                    equipmentSlotsUI.ClearEquipmentSlot(eqSlot, Itemtype.Consumable);
+                }
+                else
+                {
+                    ItemInventoryInstance item = session.GetConsumableItem(inv.consumableItems[i]);
+                    item.slot = eqSlot;
+                    item.equip_Index = i;
+
+                    equipmentSlotsUI.UpdateEquipmentSlot(item.uniqueId, eqSlot, Itemtype.Consumable);
+
+                }
             }
+
+            #endregion
 
             if (loadOnCharacter)
             {
-                invManager.LoadInventory();
+                inv.LoadInventory(true);
             }
         }
 
         void LoadItemFromSlot(IconBase iconBase)
         {
-            if (string.IsNullOrEmpty(iconBase.id))
-            {
-                iconBase.id = "Unarmed";
-            }
-            
             ResourcesManager resourceManager = ResourcesManager.Instance;
 
             switch (currentEqSlot.eqSlotType)
@@ -760,13 +933,14 @@ namespace RPGController
                 case EquipmentSlotType.Bolts:
                     break;
                 case EquipmentSlotType.Equipment:
+                    UpdateItemSlotInfo(resourceManager, iconBase, Itemtype.Equipment);
                     break;
                 case EquipmentSlotType.Rings:
                     break;
                 case EquipmentSlotType.Covenant:
                     break;
                 case EquipmentSlotType.Consumables:
-                    LoadConsumableItem(resourceManager);
+                    UpdateItemSlotInfo(resourceManager, iconBase, Itemtype.Consumable);
                     break;
                 default:
                     break;
@@ -776,9 +950,10 @@ namespace RPGController
 
         void LoadWeaponItem(ResourcesManager resManager, IconBase icon)
         {
-            string weaponID = icon.id;
+            ItemInventoryInstance invInstance = session.GetWeaponItem(icon.id);
+            string weaponID = invInstance.itemId;
             WeaponStats weaponStats = resManager.GetWeaponStats(weaponID);
-            Item item = resManager.GetItem(icon.id, Itemtype.Weapon);
+            Item item = resManager.GetItem(weaponID, Itemtype.Weapon);
             equipment_Left.currentItem.text = item.name_item;
 
             //Update Center Overlay UI Panel
@@ -822,11 +997,46 @@ namespace RPGController
 
         void LoadConsumableItem(ResourcesManager resManager)
         {
+            if (currentInvIcon == null)
+            {
+                return;
+            }
 
-            string consumableID = currentEqSlot.iconBase.id;
-            Item item = resManager.GetItem(currentEqSlot.iconBase.id, Itemtype.Consumable);
+            ItemInventoryInstance invInstance = session.GetConsumableItem(currentInvIcon.id);
+            string itemID = invInstance.itemId;
+            Item item = resManager.GetItem(itemID, Itemtype.Consumable);
+            equipment_Left.currentItem.text = item.name_item;
+        }
+        
+        void UpdateItemSlotInfo(ResourcesManager resManager, IconBase iconBase, Itemtype itemtype) {
+            ItemInventoryInstance invInstance = null;
+            if (!centerOverlayIsOpen)
+            {
+                centerOverlay.SetActive(false);
+            }
 
+            centerOverlay.SetActive(false);
+
+            switch (itemtype)
+            {
+                case Itemtype.Spell:
+                    break;
+                case Itemtype.Consumable:
+                    invInstance = session.GetConsumableItem(iconBase.id);
+                    centerOverlay.SetActive(true);
+                    break;
+                case Itemtype.Equipment:
+                    //invInstance = session.GetArmorItem(iconBase.id);
+                    centerOverlay.SetActive(true);
+                    break;
+                default:
+                    break;
+            }
+            
+            string itemID = invInstance.itemId;
+            Item item = resManager.GetItem(itemID, itemtype);
             UpdateCenterOverlay(item);
+            equipment_Left.currentItem.text = item.name_item;
         }
 
         void UpdateCenterOverlay(Item item)
@@ -882,12 +1092,42 @@ namespace RPGController
         public List<EquipmentSlot> consumableSlots = new List<EquipmentSlot>();
         public EquipmentSlot covenantSlot;
 
-        public void UpdateEquipmentSlot(string itemId, EquipmentSlot eqSlot, Itemtype itemType)
+        public void ClearEquipmentSlot(EquipmentSlot eqSlot, Itemtype itemType)
         {
-            Item item = ResourcesManager.Instance.GetItem(itemId, itemType);
+            eqSlot.iconBase.icon.enabled = false;
+            eqSlot.iconBase.id = -1;
+        }
+
+        public void UpdateEquipmentSlot(int uniqueId, EquipmentSlot eqSlot, Itemtype itemType)
+        {
+            ItemInventoryInstance invInstance = null;
+
+            switch (itemType)
+            {
+                case Itemtype.Weapon:
+                    invInstance = SessionManager.Instance.GetWeaponItem(uniqueId);
+                    break;
+                case Itemtype.Spell:
+                    break;
+                case Itemtype.Consumable:
+                    invInstance = SessionManager.Instance.GetConsumableItem(uniqueId);
+                    break;
+                case Itemtype.Equipment:
+                    break;
+                default:
+                    break;
+            }
+
+            if (invInstance == null)
+            {
+                return;
+            }
+
+            Item item = ResourcesManager.Instance.GetItem(invInstance.itemId, itemType);
             eqSlot.iconBase.icon.sprite = item.itemIcon;
             eqSlot.iconBase.icon.enabled = true;
-            eqSlot.iconBase.id = item.item_id;
+            eqSlot.iconBase.id = invInstance.uniqueId;
+
         }
 
         public void AddSlotOnList(EquipmentSlot eqSlot)
@@ -920,6 +1160,13 @@ namespace RPGController
             }
         }
 
+        public EquipmentSlot GetWeaponSlot(int index) {
+            return weaponSlots[index];
+        }
+
+        public EquipmentSlot GetConsumableSlot(int index) {
+            return consumableSlots[index];
+        }
     }
 
     [System.Serializable]

@@ -16,6 +16,7 @@ namespace RPGController
     {
         public static ResourcesManager Instance;
 
+        //Items
         Dictionary<string, int> item_Spells = new Dictionary<string, int>();
         Dictionary<string, int> item_Weapons = new Dictionary<string, int>();
         Dictionary<string, int> item_Consumables = new Dictionary<string, int>();
@@ -24,13 +25,18 @@ namespace RPGController
         Dictionary<string, int> spell_IDs = new Dictionary<string, int>();
         Dictionary<string, int> weaponStat_IDs = new Dictionary<string, int>();
         Dictionary<string, int> consumable_IDs = new Dictionary<string, int>();
-        
-        void Awake() {
+
+        //Other
+        Dictionary<string, int> interaction_IDs = new Dictionary<string, int>();
+
+
+        public void PreInit() {
             Instance = this;
             LoadItems();
             LoadWeaponIDs();
             LoadSpellIDs();
             LoadConsumables();
+            LoadInteractions();
         }
 
         #region Loading
@@ -115,6 +121,30 @@ namespace RPGController
             }
         }
 
+        void LoadInteractions()
+        {
+
+            InteractionsScriptableObject obj = Resources.Load(StaticStrings.InteractionsScriptableObject_FileName) as InteractionsScriptableObject;
+
+            if (obj == null)
+            {
+                Debug.Log("Couldn't load spell item from: " + StaticStrings.InteractionsScriptableObject_FileName);
+
+            }
+
+            for (int i = 0; i < obj.interactions.Length; i++)
+            {
+                if (interaction_IDs.ContainsKey(obj.interactions[i].interactionID))
+                {
+                    Debug.Log("Interaction " + obj.interactions[i].interactionID + " Item already exists in the resource manager dictionary!");
+                }
+                else
+                {
+                    interaction_IDs.Add(obj.interactions[i].interactionID, i);
+                }
+            }
+        }
+
         void LoadItems() {
             ItemsScriptableObject obj = Resources.Load(StaticStrings.ItemsScriptableObject_FileName) as ItemsScriptableObject;
 
@@ -163,6 +193,7 @@ namespace RPGController
                 }
             }
         }
+
         #endregion
 
         #region Get Accessors
@@ -311,11 +342,33 @@ namespace RPGController
 
             if (index == -1)
             {
-                Debug.Log("Cant find spell");
+                Debug.Log("Cant find consumable: " + consumableID);
                 return null;
             }
 
             return obj.consumables[index];
+        }
+        #endregion
+
+        #region Interactions
+        public Interaction GetInteraction(string interactionID) {
+            InteractionsScriptableObject obj = Resources.Load(StaticStrings.InteractionsScriptableObject_FileName) as InteractionsScriptableObject;
+            if (obj == null)
+            {
+                Debug.Log(StaticStrings.InteractionsScriptableObject_FileName + "cant be laoded");
+                return null;
+            }
+
+            int index = GetIndexFromString(interaction_IDs, interactionID);
+
+            if (index == -1)
+            {
+                Debug.Log("Cant find interaction: " + interactionID);
+                return null;
+            }
+
+            return obj.interactions[index];
+
         }
         #endregion
     }

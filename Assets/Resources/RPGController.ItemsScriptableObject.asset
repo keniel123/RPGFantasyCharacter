@@ -22,6 +22,11 @@ MonoBehaviour:
     itemDescription: Adds mana.
     skillDescription: 
     itemIcon: {fileID: 21300000, guid: 5cff1f33ad72c7343bd34b737acaaf52, type: 3}
+  - item_id: empty
+    name_item: '-'
+    itemDescription: '-'
+    skillDescription: '-'
+    itemIcon: {fileID: 21300000, guid: 21e1e014732acff47a7c3f4f3bedc884, type: 3}
   weapon_Items:
   - item_id: Sword
     name_item: Sword

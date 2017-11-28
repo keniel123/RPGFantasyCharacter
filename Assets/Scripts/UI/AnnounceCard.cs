@@ -5,10 +5,9 @@ using UnityEngine.UI;
 
 namespace RPGController
 {
-    public class IconBase : MonoBehaviour
+    public class AnnounceCard : MonoBehaviour
     {
-        public Image background;
-        public Image icon;
-        public int id;
+        public Image itemIcon;
+        public Text itemName;
     }
 }

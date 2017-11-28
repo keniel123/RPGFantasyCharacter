@@ -35,3 +35,10 @@ MonoBehaviour:
     model_pos: {x: 0, y: 0, z: 0}
     model_eulerRot: {x: 0, y: 0, z: 0}
     model_scale: {x: 0, y: 0, z: 0}
+  - item_id: empty
+    consumableEffect: 
+    targetAnim: 
+    consumablePrefab: {fileID: 0}
+    model_pos: {x: 0, y: 0, z: 0}
+    model_eulerRot: {x: 0, y: 0, z: 0}
+    model_scale: {x: 0, y: 0, z: 0}

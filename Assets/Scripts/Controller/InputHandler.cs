@@ -9,11 +9,12 @@ namespace RPGController
     {
         public float vertical;
         public float horizontal;
-        
+
         bool b_input;
         bool a_input;
         bool x_input;
         bool y_input;
+        bool pickItem_input;
 
         //Bumpers and triggers for XBOX controler
         bool rb_input;  //Right bumper
@@ -51,8 +52,14 @@ namespace RPGController
         InventoryUI inventoryUI;
 
         bool isGestureOpen;
-        public bool isInvMenu;
         float delta;
+
+        public static InputHandler Instance;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         // Use this for initialization
         void Start()
@@ -66,7 +73,7 @@ namespace RPGController
             cameraManager.Init(states);
 
             UIManager = UIManager.Instance;
-            inventoryUI = InventoryUI.inventoryUI;
+            inventoryUI = InventoryUI.Instance;
             inventoryUI.Init(states.inventoryManager);
 
         }
@@ -84,9 +91,10 @@ namespace RPGController
 
             //Update the camera manager
             cameraManager.Tick(delta);
-            
+
         }
 
+        bool preferItem;
         private void Update()
         {
             delta = Time.deltaTime;
@@ -94,19 +102,87 @@ namespace RPGController
 
             //Debug.Log("isInvMenu: " + isInvMenu);
             //Input delay must be FIXED!
-            if (isInvMenu)
+            if (inventoryUI.isMenu)
             {
+                UIManager.CloseAnnounceType();
+
                 //Update inventory UI
                 inventoryUI.Tick();
             }
+            else
+            {
+                if (states.pickableItemManager.itemCandidate != null || states.pickableItemManager.worldInterCandidate != null)
+                {
+                    if (states.pickableItemManager.itemCandidate && states.pickableItemManager.worldInterCandidate)
+                    {
+                        if (preferItem)
+                        {
+                            PickUpItem();
+                        }
+                        else
+                        {
+                            InteractInWorld();
+                        }
+                    }
+                    else
+                    {
+                        if (states.pickableItemManager.itemCandidate && !states.pickableItemManager.worldInterCandidate)
+                        {
+                            PickUpItem();
+                        }
 
-            ResetInputAndStates();
+                        if (states.pickableItemManager.worldInterCandidate && states.pickableItemManager.itemCandidate == null)
+                        {
+                            InteractInWorld();
+                        }
+                    }
+                }
+                else
+                {
+                    UIManager.CloseAnnounceType();
+                    if (pickItem_input)
+                    {
+                        UIManager.CloseCards();
+                        pickItem_input = false;
+                    }
+                }
+            }
 
             //Update character stats (health, mana, stamina etc.)
             states.MonitorStats();
 
+            ResetInputAndStates();
+
             //Update the UI manager
             UIManager.Tick(states.characterStats, delta);
+
+        }
+
+        void PickUpItem() {
+
+            UIManager.OpenAnnounceType(UIManager.UIActionType.pickup);
+
+            if (pickItem_input)
+            {
+                Vector3 targetDir = states.pickableItemManager.itemCandidate.transform.position - transform.position;
+                states.SnapToRotation(targetDir);
+                states.pickableItemManager.PickCandidate();
+
+                states.PlayAnimation(StaticStrings.animState_PickUp);
+                pickItem_input = false;
+            }
+        }
+
+        void InteractInWorld()
+        {
+            UIManager.OpenAnnounceType(states.pickableItemManager.worldInterCandidate.actionType);
+
+            if (pickItem_input)
+            {
+                Debug.Log("World interaction!");
+                states.InteractLogic();
+                pickItem_input = false;
+            }
 
         }
 
@@ -120,6 +196,7 @@ namespace RPGController
             a_input = Input.GetButton(StaticStrings.A);
             y_input = Input.GetButtonUp(StaticStrings.Y);
             x_input = Input.GetButton(StaticStrings.X);
+            pickItem_input = Input.GetButtonUp(StaticStrings.Interact);
 
             rt_input = Input.GetButton(StaticStrings.RT);
             rt_axis = Input.GetAxis(StaticStrings.RT);
@@ -140,7 +217,8 @@ namespace RPGController
             rb_input = Input.GetButton(StaticStrings.RB);
             lb_input = Input.GetButton(StaticStrings.LB);
 
-            rightAxis_down = Input.GetButtonUp(StaticStrings.Lock) || Input.GetKeyUp(KeyCode.T);
+            leftAxis_down = Input.GetButtonUp(StaticStrings.L) || Input.GetKeyUp(KeyCode.Space);
+            rightAxis_down = Input.GetButtonUp(StaticStrings.R) || Input.GetKeyUp(KeyCode.T);
 
             if (b_input)
             {
@@ -157,20 +235,20 @@ namespace RPGController
             d_right = Input.GetKeyUp(KeyCode.Alpha4) || d_x > 0;
 
             bool gesturesMenu = Input.GetButtonUp(StaticStrings.GestureSelect);
-            bool menu = Input.GetButtonUp(StaticStrings.Start);
-            //Debug.Log("Menu: " + menu);
-
             if (gesturesMenu)
             {
                 isGestureOpen = !isGestureOpen;
             }
 
+            bool menu = Input.GetButtonUp(StaticStrings.Start);
+            //Debug.Log("Menu: " + menu);
             if (menu)
             {
-                isInvMenu = !isInvMenu;
+                inventoryUI.isMenu = !inventoryUI.isMenu;
 
-                if (isInvMenu)
+                if (inventoryUI.isMenu)
                 {
+                    isGestureOpen = false;
                     inventoryUI.OpenUI();
                 }
                 else
@@ -181,8 +259,8 @@ namespace RPGController
 
         }
 
-        void HandleUI() {
-
+        void HandleUI()
+        {
             UIManager.gesturesManager.HandleGestures(isGestureOpen);
 
             if (isGestureOpen)
@@ -194,7 +272,7 @@ namespace RPGController
                 currentUIState = UIState.game;
             }
 
-            if (isInvMenu)
+            if (inventoryUI.isMenu)
             {
                 currentUIState = UIState.inventory;
             }
@@ -208,7 +286,6 @@ namespace RPGController
                     HandleGesturesUI();
                     break;
                 case UIState.inventory:
-                    HandleInventoryUI();
                     break;
                 default:
                     break;
@@ -217,16 +294,13 @@ namespace RPGController
         }
 
         UIState currentUIState;
-        enum UIState {
+        enum UIState
+        {
             game, gestures, inventory
         }
 
-        void HandleInventoryUI() {
-
-        }
-
         void HandleGesturesUI()
-        { 
+        {
             //Switch left hand weapon
             if (d_left)
             {
@@ -235,7 +309,7 @@ namespace RPGController
                     UIManager.gesturesManager.SelectGesture(false);
                     previously_d_left = true;
                 }
-}
+            }
 
             //Switch right hand weapon
             if (d_right)
@@ -284,6 +358,21 @@ namespace RPGController
             float m = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             states.moveAmount = Mathf.Clamp01(m);
 
+            //It he inventory UI is opened, dont register player control inputs
+            //(when inventory ui is opened, character can't move)
+            //if (inventoryUI.isMenu)
+            //{
+            //    return;
+            //}
+
+            if (states.isRunning)
+            {
+                if (leftAxis_down)
+                {
+                    //Jump
+                    states.Jump();
+                }
+            }
 
             if (x_input)
             {
@@ -309,8 +398,15 @@ namespace RPGController
 
             if (y_input)
             {
-                states.isTwoHanded = !states.isTwoHanded;
-                states.HandleTwoHanded();
+                if (states.pickableItemManager.itemCandidate && states.pickableItemManager.worldInterCandidate)
+                {
+                    preferItem = !preferItem;
+                }
+                else
+                {
+                    states.isTwoHanded = !states.isTwoHanded;
+                    states.HandleTwoHanded();
+                }
             }
 
             //Check locked on target's status
@@ -336,9 +432,9 @@ namespace RPGController
                 //If there is no target transform to lock on, set status to false
                 if (states.lockOnTarget == null)
                 {
-                        states.lockOn = false;
+                    states.lockOn = false;
                 }
-                
+
                 cameraManager.lockOnTarget = states.lockOnTarget;
                 states.lockOnTransform = states.lockOnTarget.GetTarget();
                 cameraManager.lockOnTransform = states.lockOnTransform;
@@ -346,7 +442,8 @@ namespace RPGController
             }
         }
 
-        void HandleQuickSlotChanges() {
+        void HandleQuickSlotChanges()
+        {
 
             if (states.isSpellCasting || states.isUsingItem)
             {

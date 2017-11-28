@@ -21,6 +21,11 @@ namespace RPGController.UI
             }
         }
 
+        public void ClearSlot(QSlotType slotType) {
+            QSlots slot = GetSlot(slotType);
+            slot.itemIcon.gameObject.SetActive(false);
+        }
+
         public void UpdateSlot(QSlotType slotType, Sprite iconSprite) {
 
             QSlots slot = GetSlot(slotType);
