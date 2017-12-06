@@ -14,7 +14,7 @@ namespace RPGController
         bool a_input;
         bool x_input;
         bool y_input;
-        bool pickItem_input;
+        bool interact_input;
 
         //Bumpers and triggers for XBOX controler
         bool rb_input;  //Right bumper
@@ -50,6 +50,7 @@ namespace RPGController
         CameraManager cameraManager;
         UIManager UIManager;
         InventoryUI inventoryUI;
+        DialogueManager dialogManager;
 
         bool isGestureOpen;
         float delta;
@@ -75,6 +76,8 @@ namespace RPGController
             UIManager = UIManager.Instance;
             inventoryUI = InventoryUI.Instance;
             inventoryUI.Init(states.inventoryManager);
+
+            dialogManager = DialogueManager.Instance;
 
         }
 
@@ -111,43 +114,51 @@ namespace RPGController
             }
             else
             {
-                if (states.pickableItemManager.itemCandidate != null || states.pickableItemManager.worldInterCandidate != null)
+                if (!dialogManager.dialogueActive)
                 {
-                    if (states.pickableItemManager.itemCandidate && states.pickableItemManager.worldInterCandidate)
+                    if (states.pickableItemManager.itemCandidate != null || states.pickableItemManager.worldInterCandidate != null)
                     {
-                        if (preferItem)
+                        if (states.pickableItemManager.itemCandidate && states.pickableItemManager.worldInterCandidate)
                         {
-                            PickUpItem();
+                            if (preferItem)
+                            {
+                                PickUpItem();
+                            }
+                            else
+                            {
+                                InteractInWorld();
+                            }
                         }
                         else
                         {
-                            InteractInWorld();
+                            if (states.pickableItemManager.itemCandidate && !states.pickableItemManager.worldInterCandidate)
+                            {
+                                PickUpItem();
+                            }
+
+                            if (states.pickableItemManager.worldInterCandidate && states.pickableItemManager.itemCandidate == null)
+                            {
+                                InteractInWorld();
+                            }
                         }
                     }
                     else
                     {
-                        if (states.pickableItemManager.itemCandidate && !states.pickableItemManager.worldInterCandidate)
+                        UIManager.CloseAnnounceType();
+                        if (interact_input)
                         {
-                            PickUpItem();
-                        }
-
-                        if (states.pickableItemManager.worldInterCandidate && states.pickableItemManager.itemCandidate == null)
-                        {
-                            InteractInWorld();
+                            UIManager.CloseCards();
+                            interact_input = false;
                         }
                     }
                 }
                 else
                 {
                     UIManager.CloseAnnounceType();
-                    if (pickItem_input)
-                    {
-                        UIManager.CloseCards();
-                        pickItem_input = false;
-                    }
                 }
             }
 
+            dialogManager.Tick(interact_input);
             //Update character stats (health, mana, stamina etc.)
             states.MonitorStats();
 
@@ -158,18 +169,19 @@ namespace RPGController
 
         }
 
-        void PickUpItem() {
+        void PickUpItem()
+        {
 
             UIManager.OpenAnnounceType(UIManager.UIActionType.pickup);
 
-            if (pickItem_input)
+            if (interact_input)
             {
                 Vector3 targetDir = states.pickableItemManager.itemCandidate.transform.position - transform.position;
                 states.SnapToRotation(targetDir);
                 states.pickableItemManager.PickCandidate();
 
                 states.PlayAnimation(StaticStrings.animState_PickUp);
-                pickItem_input = false;
+                interact_input = false;
             }
         }
 
@@ -177,11 +189,11 @@ namespace RPGController
         {
             UIManager.OpenAnnounceType(states.pickableItemManager.worldInterCandidate.actionType);
 
-            if (pickItem_input)
+            if (interact_input)
             {
                 Debug.Log("World interaction!");
                 states.InteractLogic();
-                pickItem_input = false;
+                interact_input = false;
             }
 
         }
@@ -196,7 +208,7 @@ namespace RPGController
             a_input = Input.GetButton(StaticStrings.A);
             y_input = Input.GetButtonUp(StaticStrings.Y);
             x_input = Input.GetButton(StaticStrings.X);
-            pickItem_input = Input.GetButtonUp(StaticStrings.Interact);
+            interact_input = Input.GetButtonUp(StaticStrings.Interact);
 
             rt_input = Input.GetButton(StaticStrings.RT);
             rt_axis = Input.GetAxis(StaticStrings.RT);
@@ -524,6 +536,11 @@ namespace RPGController
         void ResetInputAndStates()
         {
             //Reset the inputs for next frame
+            if (interact_input)
+            {
+                interact_input = false;
+            }
+
             if (b_input == false)
             {
                 b_timer = 0;

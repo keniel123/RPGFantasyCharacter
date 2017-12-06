@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1b6695bda2d8b2438c7da13391a91e0, type: 3}
+  m_Name: RPGController.NPCScriptableObject
+  m_EditorClassIdentifier: 
+  NPCList:
+  - NPC_Id: npc1
+    dialogue:
+    - dialogueText:
+      - Hmmm...
+      specialEvent: 
+      increaseIndex: 1
+      targetAnim: 
+      playAnim: 0
+    - dialogueText:
+      - Hello there stranger!
+      - You startled me!
+      specialEvent: 
+      increaseIndex: 1
+      targetAnim: 
+      playAnim: 0
+    - dialogueText:
+      - Looking for help?
+      - You don't seem pretty good.
+      - You okay?
+      specialEvent: 
+      increaseIndex: 0
+      targetAnim: 
+      playAnim: 0
+    - dialogueText:
+      - This is after interacting with world.
+      specialEvent: 
+      increaseIndex: 0
+      targetAnim: Sitting Talking
+      playAnim: 1

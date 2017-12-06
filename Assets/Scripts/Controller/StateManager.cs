@@ -50,6 +50,7 @@ public class StateManager : MonoBehaviour
     public bool enableIK;
     public bool onEmpty;
     public bool closeWeapons;
+    public bool isInvincible;
 
     [Header("Other")]
     public EnemyTarget lockOnTarget;
@@ -74,10 +75,12 @@ public class StateManager : MonoBehaviour
 
     [HideInInspector]
     public PickableItemsManager pickableItemManager;
-
-
+    
     [HideInInspector]
     public LayerMask ignoreLayers;
+
+    [HideInInspector]
+    public LayerMask ignoreForGroundCheck;
 
     [HideInInspector]
     public Action currentAction;
@@ -128,6 +131,7 @@ public class StateManager : MonoBehaviour
 
         gameObject.layer = 8;
         ignoreLayers = ~(1 << 9);
+        ignoreForGroundCheck = ~(1 << 9 | 1 << 10);
 
         animator.SetBool(StaticStrings.animParam_OnGround, true);
 
@@ -139,6 +143,8 @@ public class StateManager : MonoBehaviour
         UIManager.InitSouls(characterStats.currentSouls);
 
         prevGround = true;
+
+        DialogueManager.Instance.Init(this.transform);
 
     }
 
@@ -163,6 +169,7 @@ public class StateManager : MonoBehaviour
         }
     }
 
+    float i_timer;
     public void Tick(float d)
     {
         delta = d;
@@ -178,6 +185,16 @@ public class StateManager : MonoBehaviour
             airTimer = 0;
         }
 
+
+        if (isInvincible)
+        {
+            i_timer += delta;
+            if (i_timer > 0.5f) 
+            {
+                i_timer = 0;
+                isInvincible = false;
+            }
+        }
         pickableItemManager.Tick();
     }
 
@@ -538,6 +555,12 @@ public class StateManager : MonoBehaviour
     }
 
     public void InteractLogic() {
+
+        if (pickableItemManager.worldInterCandidate.actionType == UIManager.UIActionType.talk)
+        {
+            pickableItemManager.worldInterCandidate.InteractActual();
+            return;
+        }
 
         Interaction interaction = ResourcesManager.Instance.GetInteraction(pickableItemManager.worldInterCandidate.interactionId);
 
@@ -1161,7 +1184,7 @@ public class StateManager : MonoBehaviour
         float distance = toGround + 0.2f;
 
         RaycastHit hit;
-        if (Physics.Raycast(origin, dir, out hit, distance, ignoreLayers))
+        if (Physics.Raycast(origin, dir, out hit, distance, ignoreForGroundCheck))
         {
             Debug.DrawRay(origin, dir * distance, Color.blue);
             r = true;
@@ -1334,5 +1357,41 @@ public class StateManager : MonoBehaviour
     public void StopAffectingBlocking()
     {
         isBlocking = false;
+    }
+
+    public void DoDamage(AIAttacks attack) {
+        
+        if (isInvincible)
+        {
+            return;
+        }
+
+        int damageTaken = 5;
+
+        //characterStats.poise += damageTaken;
+        characterStats.currentHealth -= damageTaken;
+
+        if (canMove)
+        {
+            if (attack != null && attack.hasReactAnim)
+            {
+                animator.Play(attack.reactAnimation);
+            }
+            else
+            {
+                int rand = Random.Range(0, 100);
+                string targetAnim = (rand > 50) ? StaticStrings.damage1 : StaticStrings.damage2;
+                animator.Play(targetAnim);
+            }
+        }
+
+        Debug.Log("Damage is: " + damageTaken + ", Poise is: " + characterStats.poise);
+
+        animator.SetBool(StaticStrings.animParam_OnEmpty, false);
+        canMove = false;
+        onEmpty = false;
+        inAction = true;
+        isInvincible = true;
+        animator.applyRootMotion = true;
     }
 }

@@ -28,6 +28,7 @@ namespace RPGController
 
         //Other
         Dictionary<string, int> interaction_IDs = new Dictionary<string, int>();
+        Dictionary<string, int> NPC_IDs = new Dictionary<string, int>();
 
 
         public void PreInit() {
@@ -37,6 +38,7 @@ namespace RPGController
             LoadSpellIDs();
             LoadConsumables();
             LoadInteractions();
+            LoadNPC();
         }
 
         #region Loading
@@ -194,6 +196,28 @@ namespace RPGController
             }
         }
 
+        void LoadNPC() {
+            
+            NPCScriptableObject obj = Resources.Load(StaticStrings.NPCScriptableObject_FileName) as NPCScriptableObject;
+
+            if (obj == null)
+            {
+                Debug.Log("Couldn't load spell item from: " + StaticStrings.NPCScriptableObject_FileName);
+
+            }
+
+            for (int i = 0; i < obj.NPCList.Length; i++)
+            {
+                if (NPC_IDs.ContainsKey(obj.NPCList[i].NPC_Id))
+                {
+                    Debug.Log("Interaction " + obj.NPCList[i].NPC_Id + " Item already exists in the resource manager dictionary!");
+                }
+                else
+                {
+                    NPC_IDs.Add(obj.NPCList[i].NPC_Id, i);
+                }
+            }
+        }
         #endregion
 
         #region Get Accessors
@@ -371,6 +395,30 @@ namespace RPGController
 
         }
         #endregion
+
+        #region NPC Dialogs
+        public NPCDialogue GetNPCDialogue(string NPCId)
+        {
+            NPCScriptableObject obj = Resources.Load(StaticStrings.NPCScriptableObject_FileName) as NPCScriptableObject;
+            if (obj == null)
+            {
+                Debug.Log(StaticStrings.NPCScriptableObject_FileName + "cant be laoded");
+                return null;
+            }
+
+            int index = GetIndexFromString(NPC_IDs, NPCId);
+
+            if (index == -1)
+            {
+                Debug.Log("Cant find NPC dialogue: " + NPCId);
+                return null;
+            }
+
+            return obj.NPCList[index];
+
+        }
+        #endregion
+
     }
 
 }

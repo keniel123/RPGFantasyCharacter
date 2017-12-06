@@ -109,6 +109,7 @@ namespace RPGController
         public static string ConsumableScriptableObject_FileName = "RPGController.ConsumablesScriptableObject";
         public static string InteractionsScriptableObject_FileName = "RPGController.InteractionsScriptableObject";
         public static string ItemsScriptableObject_FileName = "RPGController.ItemsScriptableObject";
+        public static string NPCScriptableObject_FileName = "RPGController.NPCScriptableObject";
 
         //XML Datapath
         public static string itemFolder = "/Items/";

@@ -144,9 +144,21 @@ namespace RPGController
                 //Whereas delta stands for time
                 Vector3 v = (deltaPos * rootMotionMultiplier) / delta;
 
-                if (!states.onGround)
+                if (states)
                 {
-                    v.y = rigid.velocity.y;
+                    if (!states.onGround)
+                    {
+                        v.y = rigid.velocity.y;
+                    }
+                }
+
+                if (eStates)
+                {
+                    eStates.navMeshAgent.velocity = v;
+                }
+                else
+                {
+                    rigid.velocity = v;
                 }
 
                 rigid.velocity = v;
@@ -235,6 +247,11 @@ namespace RPGController
                 states.inventoryManager.OpenAllDamageColliders();
             }
 
+            if (eStates)
+            {
+                eStates.OpenDamageColliders();
+            }
+
             OpenParryFlag();
         }
 
@@ -243,6 +260,11 @@ namespace RPGController
             {
                 states.damageIsOn = false;
                 states.inventoryManager.CloseAllDamageColliders();
+            }
+
+            if (eStates)
+            {
+                eStates.CloseDamageColliders();
             }
 
             CloseParryFlag();
@@ -325,6 +347,11 @@ namespace RPGController
             {
                 states.canRotate = true;
             }
+
+            if (eStates)
+            {
+                eStates.rotateToTarget = true;
+            }
         }
 
         public void CloseRotationControl()
@@ -332,6 +359,11 @@ namespace RPGController
             if (states)
             {
                 states.canRotate = false;
+            }
+
+            if (eStates)
+            {
+                eStates.rotateToTarget = false;
             }
         }
 

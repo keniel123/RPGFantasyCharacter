@@ -384,7 +384,6 @@ namespace RPGController
 
         public void InitAllDamageColliders(StateManager stateManager)
         {
-
             if (rightHandWeapon != null && rightHandWeapon.weaponHook != null)
                 rightHandWeapon.weaponHook.InitDamageColliders(stateManager);
 

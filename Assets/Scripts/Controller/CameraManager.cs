@@ -26,6 +26,10 @@ public class CameraManager : MonoBehaviour {
     float minAngle = -35f;
     float maxAngle = 35f;
 
+    public float defaultZ;
+    float currentZ;
+    public float zSpeed = 19;
+
     float smoothX;
     float smoothY;
 
@@ -49,6 +53,7 @@ public class CameraManager : MonoBehaviour {
 
         camTransform = Camera.main.transform;
         pivot = camTransform.parent;
+        currentZ = defaultZ;
     }
 
     public void Tick(float d) {
@@ -96,7 +101,6 @@ public class CameraManager : MonoBehaviour {
             {
                 usedRightAxis = false;
             }
-
         }
 
         if (c_h != 0 || c_v != 0)
@@ -108,6 +112,7 @@ public class CameraManager : MonoBehaviour {
 
         FollowTarget(d);
         HandleRotations(d, v, h, targetSpeed);
+        HandlePivotPosition();
     }
 
     void FollowTarget(float d) {
@@ -155,5 +160,80 @@ public class CameraManager : MonoBehaviour {
         lookAngle += smoothX * targetSpeed;
         transform.rotation = Quaternion.Euler(0, lookAngle, 0);
 
+    }
+
+    void HandlePivotPosition() {
+
+        float targetZ = defaultZ;
+        CameraCollision(defaultZ, ref targetZ);
+
+        currentZ = Mathf.Lerp(currentZ, targetZ, states.delta * zSpeed);
+        Vector3 targetPos = Vector3.zero;
+        targetPos.z = currentZ;
+        camTransform.localPosition = targetPos;
+    }
+
+    void CameraCollision(float targetZ, ref float actualZ)
+    {
+        float step = Mathf.Abs(targetZ);
+        int stepCount = 2;
+        float stepIncrement = step / stepCount;
+
+        RaycastHit hit;
+        Vector3 origin = pivot.position;
+        Vector3 direction = -pivot.forward;   //The opposite way of pivot is looking at
+
+        Debug.DrawRay(origin, direction * step, Color.blue);
+        if (Physics.Raycast(origin, direction, out hit, step, states.ignoreLayers))
+        {
+            //Debug.Log(hit.transform.root.name);
+            //When raycast hits a target, it'll put it in half of the distance
+            float distance = Vector3.Distance(hit.point, origin);
+            actualZ = -(distance / 2);
+        }
+        //If the camera is really close to an object
+        else
+        {
+            for (int i = 0; i < stepCount + 1; i++)
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    Vector3 dir = Vector3.zero;
+                    Vector3 secondOrigin = origin + (dir * i) * stepIncrement;
+
+                    switch (k)
+                    {
+                        case 0:
+                            dir = camTransform.right;
+                            break;
+                        case 1:
+                            dir = -camTransform.right;
+                            break;
+                        case 2:
+                            dir = camTransform.up;
+                            break;
+                        case 3:
+                            dir = -camTransform.up;
+                            break;
+                    }
+
+
+                    Debug.DrawRay(secondOrigin, dir * 0.2f, Color.red);
+                    if (Physics.Raycast(secondOrigin, dir, out hit, 0.2f, states.ignoreLayers))
+                    {
+                        //Debug.Log(hit.transform.root.name);
+                        float distance = Vector3.Distance(secondOrigin, origin);
+                        actualZ = -(distance / 2);
+                        //If you are closer than 0.2, reset the Z
+                        if (actualZ < 0.2f)
+                        {
+                            actualZ = 0;
+                        }
+
+                        return;
+                    }
+                }
+            }
+        }
     }
 }

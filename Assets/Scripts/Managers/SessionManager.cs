@@ -11,6 +11,10 @@ namespace RPGController
         public InventoryUI inventoryUI;
         public ResourcesManager resourcesManager;
 
+        [Header("NPC States")]
+        public NPCStates[] npcStates;
+
+
         [Header("Equipped Items")]
         public List<string> rightHand_Weapons_Equipped = new List<string>();
         public List<string> leftHand_Weapons_Equipped = new List<string>();
@@ -40,6 +44,7 @@ namespace RPGController
         ItemInventoryInstance emptyItem;
 
         Dictionary<string, int> events_IDs = new Dictionary<string, int>();
+        Dictionary<string, int> npc_IDs = new Dictionary<string, int>();
 
         public List<ItemInventoryInstance> GetItemInstanceList(Itemtype itemtype) {
             switch (itemtype)
@@ -135,6 +140,12 @@ namespace RPGController
                 it.slot = inventoryUI.equipmentSlotsUI.GetConsumableSlot(i);
                 it.equip_Index = i;
             }
+
+            //NPC States
+            for (int i = 0; i < npcStates.Length; i++)
+            {
+                npc_IDs.Add(npcStates[i].NPCId, i);
+            }
         }
 
         void AddEvents() {
@@ -150,11 +161,8 @@ namespace RPGController
                 case -1:
                     return;
                 case 0:
-                    Debug.Log("Doing some special shit!");
-
-                    Transform t = InputHandler.Instance.transform;
-                    Vector3 s = Vector3.one * 0.3f;
-                    t.transform.localScale = s;
+                    NPCStates npcState = GetNPCState("npc1");
+                    npcState.dialogueIndex = 3;
                     break;
                 default:
                     break;
@@ -179,7 +187,6 @@ namespace RPGController
             return null;
         }
         
-
         public ItemInventoryInstance GetWeaponItem(int uniqueId)
         {
             if (uniqueId == -1)
@@ -260,6 +267,22 @@ namespace RPGController
             UIManager.Instance.AddAnnounceCard(item);
         }
 
+        public NPCStates GetNPCState(string npcID) {
+            int index = -1;
+            npc_IDs.TryGetValue(npcID, out index);
+            if (index == -1)
+            {
+                return null;
+            }
+
+            return npcStates[index];
+        }
+    }
+
+    [System.Serializable]
+    public class NPCStates {
+        public string NPCId;
+        public int dialogueIndex;
     }
 
     [System.Serializable]

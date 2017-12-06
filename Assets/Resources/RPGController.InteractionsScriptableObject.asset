@@ -24,3 +24,7 @@ MonoBehaviour:
     targetAnim: hello
     oneShot: 1
     specialEvent: 
+  - interactionID: npc1
+    targetAnim: hello
+    oneShot: 1
+    specialEvent: npc1_a

@@ -1,14 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace RPGController
 {
     public class EnemyStates : MonoBehaviour
     {
+        [Header ("Stats")]
         public int health;
         public CharacterStats characterStats;
+        public float poiseDegrade = 2;
+        public float airTimer;
 
+        [Header("Values")]
+        public float delta;
+        public float horizontal;
+        public float vertical;
+
+        AIAttacks currentAttack;
+        public void SetCurrentAttack(AIAttacks a) {
+            currentAttack = a;
+        }
+
+        public AIAttacks GetCurrentAttack() {
+            return currentAttack;
+        }
+
+        public GameObject[] defaultDamageColliders;
+
+        [Header("States")]
         public bool canParried = true;
         public bool isParryOn = true;
         //public bool doParry = false;
@@ -16,17 +37,21 @@ namespace RPGController
         public bool dontDoAnything;
         public bool canMove;
         public bool isDead;
+        public bool hasDestination;
+        public Vector3 targetDestination;
+        public Vector3 directionToTarget;
+        public bool rotateToTarget;
+
         public StateManager parriedBy;
 
+        //References
         public Animator animator;
         public Rigidbody rigid;
-
         EnemyTarget enemyTarget;
         AnimatorHook animHook;
+        public NavMeshAgent navMeshAgent;
 
-        public float airTimer;
-        public float delta;
-        public float poiseDegrade = 2;
+        public LayerMask ignoreLayers;
 
         List<Rigidbody> ragdollRigids = new List<Rigidbody>();
         List<Collider> ragdollColliders = new List<Collider>();
@@ -36,15 +61,17 @@ namespace RPGController
 
         float timer;
 
-        void Start()
+        public void Init()
         {
-            health = 10000;
+            health = 10;
 
             animator = GetComponentInChildren<Animator>();
             enemyTarget = GetComponent<EnemyTarget>();
             enemyTarget.Init(this);
 
             rigid = GetComponent<Rigidbody>();
+            navMeshAgent = GetComponent<NavMeshAgent>();
+            rigid.isKinematic = true;
 
             animHook = animator.GetComponent<AnimatorHook>();
 
@@ -57,6 +84,7 @@ namespace RPGController
             InitRagdoll();
             isParryOn = false;
 
+            ignoreLayers = ~(1 << 9);
         }
 
         void InitRagdoll() {
@@ -69,6 +97,7 @@ namespace RPGController
                     continue;
                 }
 
+                rigs[i].gameObject.layer = LayerMask.NameToLayer("Ragdolls");
                 ragdollRigids.Add(rigs[i]);
                 rigs[i].isKinematic = true;
 
@@ -78,7 +107,6 @@ namespace RPGController
             }
 
         }
-
 
         public void EnableRagdoll() {
             
@@ -102,11 +130,11 @@ namespace RPGController
             this.enabled = false;
         }
 
-        void Update()
+        public void Tick(float d)
         {
-            delta = Time.deltaTime;
-
-            canMove = animator.GetBool(StaticStrings.animParam_CanMove);
+            delta = d;
+            
+            canMove = animator.GetBool(StaticStrings.animParam_OnEmpty);
 
             if (spellEffectLoop != null)
             {
@@ -117,6 +145,12 @@ namespace RPGController
             {
                 dontDoAnything = !canMove;
                 return;
+            }
+
+            if (rotateToTarget)
+            {
+                LookTowardsTarget();
+                Debug.Log("Rotate");
             }
 
             if (health <= 0)
@@ -141,12 +175,13 @@ namespace RPGController
                 isParryOn = false;
                 animator.applyRootMotion = false;
 
-                //DEBUG
-                timer += Time.deltaTime;
-                if (timer > 3)
+                MovementAnimation();
+            }
+            else
+            {
+                if (!animator.applyRootMotion)
                 {
-                    DoAction();
-                    timer = 0;
+                    animator.applyRootMotion = true;
                 }
             }
 
@@ -156,6 +191,53 @@ namespace RPGController
                 characterStats.poise = 0;
             }
 
+        }
+
+        public void MovementAnimation()
+        {
+
+            float square = navMeshAgent.desiredVelocity.sqrMagnitude;
+            float vertical = Mathf.Clamp(square, 0, 0.5f);
+            animator.SetFloat(StaticStrings.animParam_Vertical, vertical, 0.2f, delta);
+
+
+            //Vector3 desiredVelocity = navMeshAgent.desiredVelocity;
+            //Vector3 relative = transform.InverseTransformDirection(desiredVelocity);
+
+            //float vertical = relative.z;
+            //float hor = relative.x;
+
+            //vertical = Mathf.Clamp(vertical, -0.5f, 0.5f);
+            //hor = Mathf.Clamp(hor, -0.5f, 0.5f);
+
+            //animator.SetFloat(StaticStrings.animParam_Horizontal, hor, 0.2f, delta);
+            //animator.SetFloat(StaticStrings.animParam_Vertical, vertical, 0.2f, delta);
+
+        }
+
+        void LookTowardsTarget() {
+
+            Vector3 direction = directionToTarget;
+            direction.y = 0;
+            if (direction == Vector3.zero)
+            {
+                direction = transform.forward;
+            }
+
+            Quaternion targetRot = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, delta * 5);
+        }
+
+        public void SetDestination(Vector3 dest) {
+            if (!hasDestination)
+            {
+                hasDestination = true;
+                navMeshAgent.isStopped = false;
+                navMeshAgent.SetDestination(dest);
+                targetDestination = dest;
+            }
+
+            //Check stop destination
         }
 
         void DoAction() {
@@ -168,6 +250,7 @@ namespace RPGController
 
         public void DoDamage(Action act, Weapon currentWeapon)
         {
+            //return;
             if (isInvincible)
             {
                 return;
@@ -181,7 +264,7 @@ namespace RPGController
             
             Debug.Log("Damage is: " + damageTaken + ", Poise is: " + characterStats.poise);
 
-            if (canMove || characterStats.poise > 100)
+            if (canMove /*|| characterStats.poise > 100*/)
             {
                 if (act.overrideDamageAnimation)
                 {
@@ -194,13 +277,14 @@ namespace RPGController
                     animator.Play(targetAnim);
                 }
             }
+
             isInvincible = true;
             animator.applyRootMotion = true;
-            animator.SetBool(StaticStrings.animParam_CanMove,false);
+            //animator.SetBool(StaticStrings.animParam_CanMove,false);
         }
 
         public void DoDamage_() {
-
+            //return;
             if (isInvincible)
             {
                 return;
@@ -283,5 +367,52 @@ namespace RPGController
                 spellEffectLoop = null;
             }
         }
+
+        #region Handle Damage Colliders
+        public void OpenDamageColliders()
+        {
+            if (currentAttack == null)
+            {
+                return;
+            }
+
+            Debug.Log("Opening damage colliders");
+            if (currentAttack.isDefaultDamageCollider || currentAttack.damageColliders.Length == 0)
+            {
+                ObjectListStatus(defaultDamageColliders, true);
+            }
+            else
+            {
+                ObjectListStatus(currentAttack.damageColliders, true);
+            }
+        }
+
+        public void CloseDamageColliders()
+        {
+            if (currentAttack == null)
+            {
+                return;
+            }
+
+            if (currentAttack.isDefaultDamageCollider || currentAttack.damageColliders.Length == 0)
+            {
+                ObjectListStatus(defaultDamageColliders, false);
+            }
+            else
+            {
+                ObjectListStatus(currentAttack.damageColliders, false);
+            }
+        }
+        
+        void ObjectListStatus(GameObject[] list, bool status)
+        {
+            for (int i = 0; i < list.Length; i++)
+            {
+                list[i].SetActive(status);
+                Debug.Log(list[i].name + " is: " + list[i].activeInHierarchy);
+            }
+        }
+
+        #endregion
     }
 }

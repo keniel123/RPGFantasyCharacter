@@ -27,7 +27,7 @@ namespace RPGController {
         {
             for (int i = 0; i < damageCollider.Length; i++)
             {
-                damageCollider[i].GetComponent<DamageCollider>().Init(states);
+                damageCollider[i].GetComponent<DamageCollider>().InitPlayer(states);
             }
         }
     }

@@ -64,5 +64,13 @@ namespace RPGController
         {
             CreateAsset<InteractionsScriptableObject>();
         }
+
+
+        //Editor extension to create scriptableobject file for NPC Dialogs
+        [MenuItem("Assets/Inventory/Create NPC ScriptableObject List")]
+        public static void CreateNPCDialogScriptableObject()
+        {
+            CreateAsset<NPCScriptableObject>();
+        }
     }
 }
