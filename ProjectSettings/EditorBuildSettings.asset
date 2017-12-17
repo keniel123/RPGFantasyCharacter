@@ -4,4 +4,19 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/RPGCharacterController/Scenes/Menu.unity
+    guid: 5f11d24bcac011344a0bb2de06102ace
+  - enabled: 1
+    path: Assets/RPGCharacterController/Scenes/References.unity
+    guid: 9d468330f2b0b6a439679edd31c5ad08
+  - enabled: 1
+    path: Assets/RPGCharacterController/Scenes/DemoLevel.unity
+    guid: be44ba6caa484ac4b889d309ab5b3bb5
+  - enabled: 1
+    path: Assets/RPGCharacterController/Scenes/DemoLevel2.unity
+    guid: fb0a4ba5fa5ddf2428312ad103b2af62
+  - enabled: 1
+    path: Assets/RPGCharacterController/Scenes/LightData.unity
+    guid: ca672d0bde3e6a549ae6bb226a80196d
